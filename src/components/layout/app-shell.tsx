@@ -16,23 +16,22 @@ import {
   SidebarTrigger,
   SidebarGroup,
   SidebarGroupLabel,
-  SidebarInput,
 } from "@/components/ui/sidebar"
 import {
   BrainCircuit,
   CircleDollarSign,
   KanbanSquare,
   LayoutDashboard,
+  PanelLeft,
   PenSquare,
+  Search,
   SendHorizonal,
   Users,
   Youtube,
   Settings,
   LogOut,
   Bell,
-  Search,
 } from "lucide-react"
-import { Icons } from "@/components/icons"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import {
   DropdownMenu,
@@ -74,7 +73,7 @@ function Clock() {
     return () => clearInterval(interval);
   }, []);
 
-  return <div className="text-sm font-medium text-muted-foreground">{time.toLocaleTimeString()}</div>;
+  return <div className="text-sm font-medium text-muted-foreground">{time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>;
 }
 
 
@@ -83,16 +82,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider>
-      <Sidebar>
+      <Sidebar collapsible="icon">
         <SidebarHeader>
-          <div className="flex items-center justify-between">
             <span className="text-lg font-semibold">Nexaris Media</span>
-            <SidebarTrigger />
-          </div>
-           <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <SidebarInput placeholder="Search..." className="pl-8" />
-            </div>
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup className="mt-4">
@@ -163,6 +155,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-md px-4 sm:px-6">
             <SidebarTrigger className="md:hidden"/>
+             <Button variant="ghost" size="icon" className="md:hidden">
+                <PanelLeft />
+                <span className="sr-only">Toggle Sidebar</span>
+            </Button>
+             <div className="relative flex-1 md:grow-0">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input type="search" placeholder="Search..." className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]" />
+            </div>
             <div className="flex-1" />
             <Clock />
             <Popover>

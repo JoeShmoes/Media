@@ -52,14 +52,15 @@ export function AiRoomChat() {
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     setIsLoading(true)
     const userMessage: ChatMessage = { role: "user", content: data.question }
-    setMessages((prev) => [...prev, userMessage])
+    const newMessages = [...messages, userMessage]
+    setMessages(newMessages)
     form.reset()
 
     try {
       const result = await getBusinessAdvice({
         question: data.question,
         businessContext: "The user runs multiple businesses: SEO, website creation, outreach campaigns, and social content. They are a young, hungry entrepreneur.",
-        storedConversations: JSON.stringify(messages.slice(-5)), // Send last 5 messages as context
+        storedConversations: JSON.stringify(newMessages.slice(-5)), // Send last 5 messages as context
       })
       const assistantMessage: ChatMessage = { role: "assistant", content: result.advice }
       setMessages((prev) => [...prev, assistantMessage])

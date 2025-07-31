@@ -31,14 +31,14 @@
     --radius: 0.5rem;
 
     /* macOS-inspired theme */
-    --sidebar-background: 240 4% 10%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 221 44% 41%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4% 18%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 0 0% 98%;
+    --sidebar-primary-foreground: 240 5.9% 10%;
+    --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 4% 20%;
-    --sidebar-ring: 175 43% 50%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 240 4.9% 83.9%;
   }
 
   .dark {
@@ -68,14 +68,14 @@
     --chart-5: 340 75% 55%;
 
     /* macOS-inspired theme */
-    --sidebar-background: 240 4% 10%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 221 44% 41%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4% 18%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 0 0% 98%;
+    --sidebar-primary-foreground: 240 5.9% 10%;
+    --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 4% 20%;
-    --sidebar-ring: 175 43% 50%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 240 4.9% 83.9%;
   }
 }
 

@@ -16,6 +16,7 @@ import {
   SidebarTrigger,
   SidebarGroup,
   SidebarGroupLabel,
+  SidebarInput,
 } from "@/components/ui/sidebar"
 import {
   BrainCircuit,
@@ -84,9 +85,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <SidebarProvider>
       <Sidebar>
         <SidebarHeader>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between">
             <span className="text-lg font-semibold">Nexaris Media</span>
+            <SidebarTrigger />
           </div>
+           <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <SidebarInput placeholder="Search..." className="pl-8" />
+            </div>
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup className="mt-4">
@@ -157,10 +163,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-md px-4 sm:px-6">
             <SidebarTrigger className="md:hidden"/>
-            <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input type="search" placeholder="Search..." className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]" />
-            </div>
+            <div className="flex-1" />
             <Clock />
             <Popover>
               <PopoverTrigger asChild>

@@ -62,6 +62,7 @@ const mainNavItems = [
 
 const pinnedNavItems = [
   { href: "/ai-room", icon: BrainCircuit, label: "AI Room" },
+  { href: "/research", icon: Search, label: "Research" },
 ]
 
 function Clock() {
@@ -96,7 +97,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <SidebarSeparator />
         <SidebarContent>
           <SidebarGroup className="mt-4">
-            <SidebarGroupLabel>Pinned</SidebarGroupLabel>
+            <SidebarGroupLabel>Favourites</SidebarGroupLabel>
             <SidebarMenu>
               {pinnedNavItems.map((item) => (
                 <SidebarMenuItem key={item.href}>

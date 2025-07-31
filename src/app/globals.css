@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 @layer base {
   :root {
     --background: 240 10% 3.9%;
@@ -33,6 +29,8 @@ body {
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
     --radius: 0.5rem;
+
+    /* macOS-inspired theme */
     --sidebar-background: 240 4% 10%;
     --sidebar-foreground: 0 0% 98%;
     --sidebar-primary: 221 44% 41%;
@@ -42,6 +40,7 @@ body {
     --sidebar-border: 240 4% 20%;
     --sidebar-ring: 175 43% 50%;
   }
+
   .dark {
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
@@ -67,6 +66,8 @@ body {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
+    /* macOS-inspired theme */
     --sidebar-background: 240 4% 10%;
     --sidebar-foreground: 0 0% 98%;
     --sidebar-primary: 221 44% 41%;
@@ -84,6 +85,7 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   }
 }
 

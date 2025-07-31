@@ -91,7 +91,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <Sidebar collapsible="icon">
         <SidebarHeader className="flex items-center gap-2">
             <Icons.logo className="w-8 h-8 text-white"/>
-            <span className="text-lg font-semibold">Nexaris Media</span>
+            <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">Nexaris Media</span>
         </SidebarHeader>
         <SidebarSeparator />
         <SidebarContent>
@@ -138,7 +138,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     <AvatarImage src="https://placehold.co/40x40.png" alt="@fozan" data-ai-hint="man portrait" />
                     <AvatarFallback>FS</AvatarFallback>
                   </Avatar>
-                  <div className="flex flex-col items-start">
+                  <div className="flex-col items-start group-data-[collapsible=icon]:hidden">
                       <span className="text-sm font-medium text-foreground">Fozan Shazad</span>
                       <span className="text-xs text-muted-foreground">Entrepreneur</span>
                   </div>

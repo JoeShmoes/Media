@@ -16,13 +16,13 @@ import {
   SidebarTrigger,
   SidebarGroup,
   SidebarGroupLabel,
+  SidebarSeparator,
 } from "@/components/ui/sidebar"
 import {
   BrainCircuit,
   CircleDollarSign,
   KanbanSquare,
   LayoutDashboard,
-  PanelLeft,
   PenSquare,
   Search,
   SendHorizonal,
@@ -64,14 +64,19 @@ const pinnedNavItems = [
 ]
 
 function Clock() {
-  const [time, setTime] = React.useState(new Date());
+  const [time, setTime] = React.useState<Date | null>(null);
 
   React.useEffect(() => {
+    setTime(new Date());
     const interval = setInterval(() => {
       setTime(new Date());
     }, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  if (!time) {
+    return null;
+  }
 
   return <div className="text-sm font-medium text-muted-foreground">{time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>;
 }
@@ -86,6 +91,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <SidebarHeader>
             <span className="text-lg font-semibold">Nexaris Media</span>
         </SidebarHeader>
+        <SidebarSeparator />
         <SidebarContent>
           <SidebarGroup className="mt-4">
             <SidebarGroupLabel>Pinned</SidebarGroupLabel>
@@ -154,11 +160,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </Sidebar>
       <SidebarInset>
         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-md px-4 sm:px-6">
-            <SidebarTrigger className="md:hidden"/>
-             <Button variant="ghost" size="icon" className="md:hidden">
-                <PanelLeft />
-                <span className="sr-only">Toggle Sidebar</span>
-            </Button>
+            <SidebarTrigger />
              <div className="relative flex-1 md:grow-0">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input type="search" placeholder="Search..." className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]" />

@@ -4,7 +4,7 @@ import * as React from "react"
 import { z } from "zod"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Bot, Send, User } from "lucide-react"
+import { Send, User } from "lucide-react"
 
 import type { ChatMessage } from "@/lib/types"
 import { cn } from "@/lib/utils"
@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useToast } from "@/hooks/use-toast"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Icons } from "@/components/icons"
 
 const formSchema = z.object({
   question: z.string().min(1, "Message is required"),
@@ -52,15 +53,14 @@ export function AiRoomChat() {
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     setIsLoading(true)
     const userMessage: ChatMessage = { role: "user", content: data.question }
-    const newMessages = [...messages, userMessage]
-    setMessages(newMessages)
+    setMessages((prev) => [...prev, userMessage])
     form.reset()
 
     try {
       const result = await getBusinessAdvice({
         question: data.question,
         businessContext: "The user runs multiple businesses: SEO, website creation, outreach campaigns, and social content. They are a young, hungry entrepreneur.",
-        storedConversations: JSON.stringify(newMessages.slice(-5)), // Send last 5 messages as context
+        storedConversations: JSON.stringify(messages.slice(-5)), // Send last 5 messages as context
       })
       const assistantMessage: ChatMessage = { role: "assistant", content: result.advice }
       setMessages((prev) => [...prev, assistantMessage])
@@ -71,7 +71,7 @@ export function AiRoomChat() {
         title: "Error Getting Advice",
         description: "There was an issue getting a response. Please try again.",
       })
-      setMessages((prev) => prev.slice(0, -1))
+      setMessages((prev) => prev.slice(0, -1)) // Remove user message on error
     } finally {
       setIsLoading(false)
     }
@@ -91,8 +91,8 @@ export function AiRoomChat() {
                 )}
               >
                 {message.role === "assistant" && (
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback><Bot /></AvatarFallback>
+                  <Avatar className="h-8 w-8 bg-primary text-primary-foreground p-1.5">
+                    <Icons.logo className="w-full h-full" />
                   </Avatar>
                 )}
                 <div
@@ -115,8 +115,8 @@ export function AiRoomChat() {
             ))}
             {isLoading && (
               <div className="flex items-start gap-3">
-                 <Avatar className="h-8 w-8">
-                    <AvatarFallback><Bot /></AvatarFallback>
+                 <Avatar className="h-8 w-8 bg-primary text-primary-foreground p-1.5">
+                    <Icons.logo className="w-full h-full" />
                   </Avatar>
                   <div className="rounded-lg p-3 bg-muted">
                     <Skeleton className="h-4 w-12" />

@@ -35,3 +35,9 @@ export type TaskGroup = {
   name: string;
   tasks: Task[];
 };
+
+export type WikipediaSearchResult = {
+  pageid: number;
+  title: string;
+  description?: string;
+}

@@ -18,3 +18,20 @@ export type ChatMessage = {
   role: "user" | "assistant"
   content: string
 }
+
+export type DayOfWeek = "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday";
+
+export type Task = {
+  id: string;
+  name: string;
+  description?: string;
+  renew?: "Never" | "Everyday" | DayOfWeek[];
+  notifications: boolean;
+  completed: boolean;
+};
+
+export type TaskGroup = {
+  id: string;
+  name: string;
+  tasks: Task[];
+};

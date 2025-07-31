@@ -31,6 +31,7 @@ import {
   Settings,
   LogOut,
   Bell,
+  ListTodo,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import {
@@ -58,6 +59,7 @@ const mainNavItems = [
   { href: "/finance", icon: CircleDollarSign, label: "Finance" },
   { href: "/content", icon: PenSquare, label: "Content" },
   { href: "/youtube-studio", icon: Youtube, label: "YouTube Studio" },
+  { href: "/tasks", icon: ListTodo, label: "Tasks" },
 ]
 
 const pinnedNavItems = [

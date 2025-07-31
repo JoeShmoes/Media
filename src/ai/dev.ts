@@ -6,3 +6,5 @@ import '@/ai/flows/generate-content-captions.ts';
 import '@/ai/flows/generate-youtube-script.ts';
 import '@/ai/flows/get-business-advice.ts';
 import '@/ai/flows/perform-research.ts';
+import '@/ai/flows/generate-youtube-images.ts';
+import '@/ai/flows/generate-youtube-audio.ts';

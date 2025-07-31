@@ -48,6 +48,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { Icons } from "../icons"
 
 const mainNavItems = [
   { href: "/", icon: LayoutDashboard, label: "Dashboard" },
@@ -88,7 +89,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
       <Sidebar collapsible="icon">
-        <SidebarHeader>
+        <SidebarHeader className="flex items-center gap-2">
+            <Icons.logo className="w-8 h-8 text-white"/>
             <span className="text-lg font-semibold">Nexaris Media</span>
         </SidebarHeader>
         <SidebarSeparator />

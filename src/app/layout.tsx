@@ -4,7 +4,7 @@ import { AppShell } from '@/components/layout/app-shell';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'BizMaster AI',
+  title: 'Nexaris Media',
   description: 'Your Central AI Command Hub to Run and Scale Every Business You Own',
 };
 
@@ -23,7 +23,7 @@ export default function RootLayout({
           rel="stylesheet"
         ></link>
       </head>
-      <body className="font-body antialiased">
+      <body className="font-sans antialiased">
         <AppShell>
           {children}
         </AppShell>

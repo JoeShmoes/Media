@@ -1,0 +1,14 @@
+import { PageHeader } from "@/components/page-header"
+import { AiRoomChat } from "./_components/ai-room-chat"
+
+export default function AiRoomPage() {
+  return (
+    <div className="flex flex-col h-full flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <PageHeader title="The AI Room" />
+      <p className="text-muted-foreground -mt-4">
+        Your personal GPT-4-powered assistant. Ask questions, generate ideas, and get real-time business advice.
+      </p>
+      <AiRoomChat />
+    </div>
+  )
+}

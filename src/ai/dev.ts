@@ -1,1 +1,7 @@
-// Flows will be imported for their side effects in this file.
+import { config } from 'dotenv';
+config();
+
+import '@/ai/flows/generate-outreach-copy.ts';
+import '@/ai/flows/generate-content-captions.ts';
+import '@/ai/flows/generate-youtube-script.ts';
+import '@/ai/flows/get-business-advice.ts';

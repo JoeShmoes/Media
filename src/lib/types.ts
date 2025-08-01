@@ -48,3 +48,13 @@ export type Note = {
   content: string;
   createdAt: string;
 };
+
+export type GmMessage = {
+  id: string;
+  text: string;
+  createdAt: any; // Firestore timestamp
+  user: {
+    name: string;
+    avatar: string;
+  };
+};

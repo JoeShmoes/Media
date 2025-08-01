@@ -23,6 +23,7 @@ import {
   CircleDollarSign,
   KanbanSquare,
   LayoutDashboard,
+  MessageSquare,
   PenSquare,
   Search,
   SendHorizonal,
@@ -62,6 +63,7 @@ const mainNavItems = [
   { href: "/youtube-studio", icon: Youtube, label: "YouTube Studio" },
   { href: "/tasks", icon: ListTodo, label: "Tasks" },
   { href: "/notes", icon: Notebook, label: "Notes" },
+  { href: "/gm", icon: MessageSquare, label: "GM" },
 ]
 
 const pinnedNavItems = [

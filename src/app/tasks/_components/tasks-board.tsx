@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -108,12 +109,26 @@ export function TasksBoard() {
     name: "groups",
   });
 
-  const handleAddTask = (task: Omit<Task, 'id' | 'completed'>, groupIdx: number) => {
-    const group = form.getValues(`groups.${groupIdx}`);
+  const handleAddTask = (task: Omit<Task, 'id' | 'completed'>) => {
+    const allGroups = form.getValues('groups');
+    const defaultGroupIndex = allGroups.findIndex(g => g.id === 'default');
+
+    if (defaultGroupIndex === -1) {
+        // This case should ideally not happen if the default group is always present.
+        // As a fallback, add to the first group.
+        const group = form.getValues(`groups.0`);
+        if (!group) return;
+        const newTask: Task = { ...task, id: `task-${Date.now()}`, completed: false };
+        const updatedTasks = [...group.tasks, newTask];
+        updateGroup(0, { ...group, tasks: updatedTasks });
+        return;
+    }
+
+    const group = form.getValues(`groups.${defaultGroupIndex}`);
     if (!group) return;
     const newTask: Task = { ...task, id: `task-${Date.now()}`, completed: false };
     const updatedTasks = [...group.tasks, newTask];
-    updateGroup(groupIdx, { ...group, tasks: updatedTasks });
+    updateGroup(defaultGroupIndex, { ...group, tasks: updatedTasks });
   }
 
   const handleToggleTask = (groupIdx: number, taskIdx: number) => {
@@ -136,7 +151,7 @@ export function TasksBoard() {
   return (
     <div className="space-y-4">
       <div className="flex justify-end gap-2">
-        <AddTaskDialog onAddTask={(task) => handleAddTask(task, 0)} />
+        <AddTaskDialog onAddTask={(task) => handleAddTask(task)} />
         <AddGroupDialog onAddGroup={(name) => appendGroup({ id: `group-${Date.now()}`, name, tasks: [] })} />
       </div>
 
@@ -285,7 +300,7 @@ function GroupActions({ onRename, onDelete }: { onRename: (name: string) => void
 }
 
 
-function AddTaskDialog({ onAddTask }: { onAddTask: (task: Omit<Task, 'id' | 'completed'>, groupIdx: number) => void }) {
+function AddTaskDialog({ onAddTask }: { onAddTask: (task: Omit<Task, 'id' | 'completed'>) => void }) {
   const [open, setOpen] = React.useState(false);
   
   const form = useForm<Omit<Task, 'id' | 'completed'>>({
@@ -300,7 +315,7 @@ function AddTaskDialog({ onAddTask }: { onAddTask: (task: Omit<Task, 'id' | 'com
   const renewValue = form.watch("renew");
   
   const onSubmit = (data: Omit<Task, 'id' | 'completed'>) => {
-    onAddTask(data, 0); // Always add to the "Default" group which is at index 0
+    onAddTask(data);
     form.reset();
     setOpen(false);
   }

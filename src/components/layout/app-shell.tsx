@@ -110,7 +110,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <SidebarMenu>
               {favouritesNavItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <Link href={item.href} legacyBehavior passHref>
+                  <Link href={item.href} passHref>
                     <SidebarMenuButton
                       isActive={pathname === item.href}
                       tooltip={item.label}
@@ -128,7 +128,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <SidebarMenu>
               {essentialsNavItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <Link href={item.href} legacyBehavior passHref>
+                  <Link href={item.href} passHref>
                     <SidebarMenuButton
                       isActive={pathname === item.href}
                       tooltip={item.label}
@@ -146,7 +146,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <SidebarMenu>
               {contentCreationNavItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <Link href={item.href} legacyBehavior passHref>
+                  <Link href={item.href} passHref>
                     <SidebarMenuButton
                       isActive={pathname === item.href}
                       tooltip={item.label}

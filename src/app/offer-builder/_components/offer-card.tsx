@@ -8,13 +8,14 @@ import { type Offer } from "@/lib/types"
 
 interface OfferCardProps {
   offer: Offer
+  onView: () => void
   onEdit: () => void
   onDelete: () => void
 }
 
-export function OfferCard({ offer, onEdit, onDelete }: OfferCardProps) {
+export function OfferCard({ offer, onView, onEdit, onDelete }: OfferCardProps) {
   return (
-    <Card className="glassmorphic flex flex-col">
+    <Card className="glassmorphic flex flex-col group cursor-pointer hover:bg-muted/50 transition-colors" onClick={onView}>
       <CardHeader>
         <CardTitle>{offer.title}</CardTitle>
         <CardDescription>{offer.description}</CardDescription>
@@ -34,10 +35,10 @@ export function OfferCard({ offer, onEdit, onDelete }: OfferCardProps) {
         </div>
       </CardContent>
       <CardFooter className="flex justify-end gap-2">
-        <Button variant="ghost" size="icon" onClick={onEdit}>
+        <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); onEdit(); }}>
           <Edit className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="icon" className="text-destructive" onClick={onDelete}>
+        <Button variant="ghost" size="icon" className="text-destructive" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
           <Trash2 className="h-4 w-4" />
         </Button>
       </CardFooter>

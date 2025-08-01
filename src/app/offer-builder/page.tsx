@@ -16,13 +16,16 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { OfferDetailsDialog } from "./_components/offer-details-dialog";
+
 
 export default function OfferBuilderPage() {
   const [offers, setOffers] = React.useState<Offer[]>([]);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [editingOffer, setEditingOffer] = React.useState<Offer | null>(null);
+  const [viewingOffer, setViewingOffer] = React.useState<Offer | null>(null);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = React.useState(false);
 
   const handleAddOffer = () => {
     setEditingOffer(null);
@@ -32,6 +35,11 @@ export default function OfferBuilderPage() {
   const handleEditOffer = (offer: Offer) => {
     setEditingOffer(offer);
     setIsDialogOpen(true);
+  }
+  
+  const handleViewOffer = (offer: Offer) => {
+    setViewingOffer(offer);
+    setIsDetailsDialogOpen(true);
   }
 
   const handleDeleteOffer = (offerId: string) => {
@@ -64,6 +72,13 @@ export default function OfferBuilderPage() {
         offer={editingOffer}
         onSave={handleSaveOffer}
       />
+      
+      <OfferDetailsDialog
+        open={isDetailsDialogOpen}
+        onOpenChange={setIsDetailsDialogOpen}
+        offer={viewingOffer}
+      />
+
 
       <p className="text-muted-foreground">
         Visually develop and test new products or services.
@@ -82,7 +97,8 @@ export default function OfferBuilderPage() {
           {offers.map(offer => (
             <AlertDialog key={offer.id}>
               <OfferCard 
-                offer={offer} 
+                offer={offer}
+                onView={() => handleViewOffer(offer)}
                 onEdit={() => handleEditOffer(offer)} 
                 onDelete={() => {
                   const trigger = document.getElementById(`delete-trigger-${offer.id}`);

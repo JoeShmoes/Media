@@ -19,6 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
+import { InitialBalanceDialog } from "./_components/initial-balance-dialog"
 
 const chartConfig = {
   profit: {
@@ -38,6 +39,36 @@ const chartConfig = {
 export default function FinancePage() {
     const [transactions, setTransactions] = React.useState<Transaction[]>([]);
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+    const [isInitialBalanceDialogOpen, setIsInitialBalanceDialogOpen] = React.useState(false);
+    const [isMounted, setIsMounted] = React.useState(false);
+
+    React.useEffect(() => {
+        setIsMounted(true);
+        try {
+            const savedTransactions = localStorage.getItem("transactions");
+            if (savedTransactions) {
+                setTransactions(JSON.parse(savedTransactions));
+            }
+
+            const hasSetInitialBalance = localStorage.getItem("hasSetInitialBalance");
+            if (!hasSetInitialBalance) {
+                setIsInitialBalanceDialogOpen(true);
+            }
+
+        } catch (error) {
+            console.error("Failed to load data from local storage", error);
+        }
+    }, []);
+
+    React.useEffect(() => {
+        if (isMounted) {
+            try {
+                localStorage.setItem("transactions", JSON.stringify(transactions));
+            } catch (error) {
+                console.error("Failed to save transactions to local storage", error);
+            }
+        }
+    }, [transactions, isMounted]);
 
     const handleAddTransaction = (data: Omit<Transaction, 'id'>) => {
         const newTransaction: Transaction = {
@@ -45,6 +76,23 @@ export default function FinancePage() {
             id: `txn-${Date.now()}`
         }
         setTransactions(prev => [...prev, newTransaction].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+    }
+    
+    const handleSetInitialBalance = (balance: number) => {
+        const initialTransaction: Omit<Transaction, 'id'> = {
+            type: 'income',
+            amount: balance,
+            date: new Date().toISOString(),
+            category: 'Initial Balance',
+            description: 'Starting bank balance',
+        };
+        handleAddTransaction(initialTransaction);
+        try {
+            localStorage.setItem("hasSetInitialBalance", "true");
+        } catch (error) {
+            console.error("Failed to set initial balance flag in local storage", error);
+        }
+        setIsInitialBalanceDialogOpen(false);
     }
 
     const { totalIncome, totalExpenses, totalProfit, monthlyProfit, chartData } = React.useMemo(() => {
@@ -79,6 +127,10 @@ export default function FinancePage() {
 
         return { totalIncome: income, totalExpenses: expenses, totalProfit: profit, monthlyProfit: currentMonthProfit, chartData };
     }, [transactions]);
+    
+    if (!isMounted) {
+        return null;
+    }
 
 
   return (
@@ -94,6 +146,12 @@ export default function FinancePage() {
         onOpenChange={setIsDialogOpen}
         onSave={handleAddTransaction}
       />
+
+       <InitialBalanceDialog
+        open={isInitialBalanceDialogOpen}
+        onOpenChange={setIsInitialBalanceDialogOpen}
+        onSave={handleSetInitialBalance}
+       />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card className="glassmorphic">

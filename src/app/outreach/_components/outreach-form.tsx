@@ -1,3 +1,4 @@
+
 "use client"
 import * as React from "react"
 import { useForm, type SubmitHandler } from "react-hook-form"
@@ -89,9 +90,9 @@ export function OutreachForm() {
   }
 
   return (
-    <div className="grid md:grid-cols-2 gap-8 items-start">
-      <Card className="glassmorphic">
-        <Form {...form}>
+    <Form {...form}>
+      <div className="grid md:grid-cols-2 gap-8 items-start">
+        <Card className="glassmorphic">
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardHeader>
               <CardTitle>Lead Details</CardTitle>
@@ -198,60 +199,60 @@ export function OutreachForm() {
               </Button>
             </CardFooter>
           </form>
-        </Form>
-      </Card>
-      <Card className="glassmorphic sticky top-24">
-        <CardHeader>
-          <CardTitle>Generated Copy</CardTitle>
-          <CardDescription>
-            The AI-generated copy will appear here. Review and copy when ready.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {isLoading && (
-            <div className="space-y-4">
-              <Skeleton className="h-6 w-1/3" />
-              <Skeleton className="h-4 w-4/5" />
-              <Skeleton className="h-4 w-full" />
-               <Skeleton className="h-6 w-1/3 mt-4" />
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-4 w-full" />
-            </div>
-          )}
-          
-          {!isLoading && !generatedCopy && (
-             <div className="text-center text-muted-foreground py-12">
-              Your generated copy will be displayed here.
-            </div>
-          )}
+        </Card>
+        <Card className="glassmorphic sticky top-24">
+          <CardHeader>
+            <CardTitle>Generated Copy</CardTitle>
+            <CardDescription>
+              The AI-generated copy will appear here. Review and copy when ready.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {isLoading && (
+              <div className="space-y-4">
+                <Skeleton className="h-6 w-1/3" />
+                <Skeleton className="h-4 w-4/5" />
+                <Skeleton className="h-4 w-full" />
+                 <Skeleton className="h-6 w-1/3 mt-4" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-full" />
+              </div>
+            )}
+            
+            {!isLoading && !generatedCopy && (
+               <div className="text-center text-muted-foreground py-12">
+                Your generated copy will be displayed here.
+              </div>
+            )}
 
-          {generatedCopy?.subject && (
-            <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                    <FormLabel>Subject</FormLabel>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleCopy(generatedCopy.subject!)}>
-                        <Copy className="h-4 w-4"/>
-                    </Button>
-                </div>
-                <p className="text-sm font-medium bg-muted/50 p-3 rounded-md">{generatedCopy.subject}</p>
-            </div>
-          )}
-          {generatedCopy?.body && (
-            <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                    <FormLabel>{form.getValues('outreachType')} Body</FormLabel>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleCopy(generatedCopy.body)}>
-                        <Copy className="h-4 w-4"/>
-                    </Button>
-                </div>
-                <p className="text-sm whitespace-pre-wrap font-mono bg-muted/50 p-3 rounded-md leading-relaxed min-h-[150px]">
-                    {generatedCopy.body}
-                </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+            {generatedCopy?.subject && (
+              <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                      <FormLabel>Subject</FormLabel>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleCopy(generatedCopy.subject!)}>
+                          <Copy className="h-4 w-4"/>
+                      </Button>
+                  </div>
+                  <p className="text-sm font-medium bg-muted/50 p-3 rounded-md">{generatedCopy.subject}</p>
+              </div>
+            )}
+            {generatedCopy?.body && (
+              <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                      <FormLabel>{form.getValues('outreachType')} Body</FormLabel>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleCopy(generatedCopy.body)}>
+                          <Copy className="h-4 w-4"/>
+                      </Button>
+                  </div>
+                  <p className="text-sm whitespace-pre-wrap font-mono bg-muted/50 p-3 rounded-md leading-relaxed min-h-[150px]">
+                      {generatedCopy.body}
+                  </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </Form>
   )
 }

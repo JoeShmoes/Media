@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { SplashScreen } from '@/components/layout/splash-screen';
 
 export const metadata: Metadata = {
-  title: 'BizMaster AI',
+  title: 'Nexaris Media',
   description: 'Your Central AI Command Hub to Run and Scale Every Business You Own',
 };
 

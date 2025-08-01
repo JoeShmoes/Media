@@ -100,8 +100,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <SidebarProvider>
       <Sidebar collapsible="icon">
         <SidebarHeader className="flex items-center gap-2">
-            <Icons.logo className="w-8 h-8 text-white group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10 transition-all"/>
-            <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">BizMaster AI</span>
+            <Icons.logo className="w-8 h-8 text-white group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10 transition-all group-data-[state=expanded]:hidden"/>
+            <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">Nexaris Media</span>
         </SidebarHeader>
         <SidebarSeparator />
         <SidebarContent>

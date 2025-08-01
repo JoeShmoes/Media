@@ -1,6 +1,6 @@
 import * as React from "react"
 
-export function PageHeader({
+export const PageHeader = React.memo(function PageHeader({
   title,
   children,
 }: {
@@ -15,4 +15,4 @@ export function PageHeader({
       <div className="flex items-center gap-2">{children}</div>
     </div>
   )
-}
+})

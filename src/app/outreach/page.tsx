@@ -1,5 +1,16 @@
+import dynamic from "next/dynamic"
 import { PageHeader } from "@/components/page-header"
-import { OutreachForm } from "./_components/outreach-form"
+import { Skeleton } from "@/components/ui/skeleton"
+
+const OutreachForm = dynamic(() => import("./_components/outreach-form").then(mod => mod.OutreachForm), {
+  ssr: false,
+  loading: () => (
+     <div className="grid md:grid-cols-2 gap-8">
+        <Skeleton className="h-[400px] w-full" />
+        <Skeleton className="h-[400px] w-full" />
+      </div>
+  )
+})
 
 export default function OutreachPage() {
   return (

@@ -1,5 +1,17 @@
+import dynamic from "next/dynamic"
 import { PageHeader } from "@/components/page-header";
-import { TasksBoard } from "./_components/tasks-board";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const TasksBoard = dynamic(() => import("./_components/tasks-board").then(mod => mod.TasksBoard), {
+  ssr: false,
+  loading: () => (
+     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <Skeleton className="h-64 w-full" />
+        <Skeleton className="h-64 w-full" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+  )
+})
 
 export default function TasksPage() {
   return (

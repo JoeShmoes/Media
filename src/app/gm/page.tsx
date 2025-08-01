@@ -1,5 +1,11 @@
+import dynamic from "next/dynamic"
 import { PageHeader } from "@/components/page-header"
-import { GmChat } from "./_components/gm-chat"
+import { Skeleton } from "@/components/ui/skeleton"
+
+const GmChat = dynamic(() => import("./_components/gm-chat").then(mod => mod.GmChat), {
+  ssr: false,
+  loading: () => <Skeleton className="h-[60vh] w-full" />
+})
 
 export default function GmPage() {
   return (

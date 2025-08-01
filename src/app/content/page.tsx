@@ -1,5 +1,16 @@
+import dynamic from "next/dynamic"
 import { PageHeader } from "@/components/page-header"
-import { ContentForm } from "./_components/content-form"
+import { Skeleton } from "@/components/ui/skeleton"
+
+const ContentForm = dynamic(() => import("./_components/content-form").then(mod => mod.ContentForm), {
+  ssr: false,
+  loading: () => (
+     <div className="grid md:grid-cols-2 gap-8">
+        <Skeleton className="h-[400px] w-full" />
+        <Skeleton className="h-[400px] w-full" />
+      </div>
+  )
+})
 
 export default function ContentPage() {
   return (

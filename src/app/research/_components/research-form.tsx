@@ -19,6 +19,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Textarea } from "@/components/ui/textarea"
 
 const searchSchema = z.object({
   topic: z.string().min(2, "Topic is required"),
@@ -162,8 +163,14 @@ export function ResearchForm() {
                                         <FormLabel>Ask a question about this article</FormLabel>
                                         <FormControl>
                                             <div className="relative">
-                                                <Input placeholder="e.g., What were the main reasons for its fall?" {...field} disabled={isResearching} />
-                                                <Button type="submit" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8" disabled={isResearching}>
+                                                <Textarea 
+                                                    placeholder="e.g., What were the main reasons for its fall?" 
+                                                    {...field} 
+                                                    disabled={isResearching} 
+                                                    className="pr-12"
+                                                    rows={1}
+                                                />
+                                                <Button type="submit" size="icon" className="absolute right-2 bottom-2 h-8 w-8" disabled={isResearching}>
                                                     {isResearching ? <Loader2 className="animate-spin" /> : <Send className="h-4 w-4" />}
                                                 </Button>
                                             </div>

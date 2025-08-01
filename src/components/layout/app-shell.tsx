@@ -38,6 +38,9 @@ import {
   LayoutTemplate,
   Blocks,
   GanttChartSquare,
+  Network,
+  Target,
+  FlaskConical,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import {
@@ -75,6 +78,9 @@ const essentialsNavItems = [
   { href: "/template-builder", icon: LayoutTemplate, label: "Template Builder" },
   { href: "/integration-hub", icon: Blocks, label: "Integration Hub" },
   { href: "/audit-room", icon: GanttChartSquare, label: "Audit Room" },
+  { href: "/mindspace", icon: Network, label: "Mindspace" },
+  { href: "/cortex-room", icon: Target, label: "Cortex Room" },
+  { href: "/writing-lab", icon: FlaskConical, label: "Writing Lab" },
 ]
 
 const contentCreationNavItems = [

@@ -89,7 +89,6 @@ const mainNavItems = [
 const businessBuilderNavItems = [
   { href: "/offer-builder", icon: Package, label: "Offer Builder" },
   { href: "/asset-tracker", icon: Archive, label: "Asset Tracker" },
-  { href: "/deal-room", icon: Handshake, label: "Deal Room" },
   { href: "/brand-room", icon: Palette, label: "Brand Room" },
 ]
 

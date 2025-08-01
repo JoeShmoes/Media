@@ -1,5 +1,6 @@
 
 
+
 export type GeneratePersonaOutput = {
     name: string;
     avatar: string;
@@ -172,3 +173,11 @@ export type Persona = {
   goals: string[];
   painPoints: string[];
 }
+
+export type RoutineBlock = {
+  id: string;
+  name: string;
+  day: DayOfWeek;
+  startTime: string; // "HH:MM"
+  endTime: string;   // "HH:MM"
+};

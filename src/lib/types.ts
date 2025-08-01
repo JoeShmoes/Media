@@ -2,6 +2,7 @@
 
 
 
+
 export type Client = {
   id: string
   name: string
@@ -100,3 +101,10 @@ export type Offer = {
   price: number;
   features: OfferFeature[];
 };
+
+export type GenerateOfferOutput = {
+  title: string;
+  description: string;
+  price: number;
+  features: string[];
+}

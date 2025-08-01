@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Plus, Edit, Trash2, CheckCircle, Circle, Bell, BellOff, Calendar } from "lucide-react";
+import { Plus, Edit, Trash2, CheckCircle, Circle, MoreVertical, ChevronDown } from "lucide-react";
 import { z } from "zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,7 +12,6 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from "@/components/ui/card";
 import {
   Dialog,
@@ -21,7 +20,6 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -43,15 +41,28 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import type { Task, TaskGroup, DayOfWeek } from "@/lib/types";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 
 const daysOfWeek: DayOfWeek[] = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
-const groupSchema = z.object({
-  id: z.string(),
-  name: z.string().min(1, "Group name is required"),
-});
 
 const taskSchema = z.object({
   id: z.string(),
@@ -62,10 +73,15 @@ const taskSchema = z.object({
   completed: z.boolean().default(false),
 });
 
+const groupSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1, "Group name is required"),
+  tasks: z.array(taskSchema),
+});
+
+
 const boardSchema = z.object({
-  groups: z.array(groupSchema.extend({
-    tasks: z.array(taskSchema),
-  })),
+  groups: z.array(groupSchema),
 });
 
 type FormValues = z.infer<typeof boardSchema>;
@@ -81,31 +97,26 @@ export function TasksBoard() {
       ],
     },
   });
+  
+  React.useEffect(() => {
+    setIsMounted(true);
+    // Load from localStorage if available
+  }, []);
 
   const { fields: groups, append: appendGroup, update: updateGroup, remove: removeGroup } = useFieldArray({
     control: form.control,
     name: "groups",
   });
-  
-  React.useEffect(() => setIsMounted(true), []);
-  
-  if (!isMounted) return null;
 
-
-  const handleAddGroup = () => {
-    const newId = `group-${Date.now()}`;
-    appendGroup({ id: newId, name: "New Group", tasks: [] });
-  };
-  
-  const handleAddTask = (groupIdx: number, task: Omit<Task, 'id' | 'completed'>) => {
+  const handleAddTask = (task: Omit<Task, 'id' | 'completed'>, groupIdx: number = 0) => {
      const currentTasks = form.getValues(`groups.${groupIdx}.tasks`);
      const newTask: Task = { ...task, id: `task-${Date.now()}`, completed: false };
      form.setValue(`groups.${groupIdx}.tasks`, [...currentTasks, newTask]);
   }
 
   const handleToggleTask = (groupIdx: number, taskIdx: number) => {
-    const task = form.getValues(`groups.${groupIdx}.tasks.${taskIdx}`);
-    form.setValue(`groups.${groupIdx}.tasks.${taskIdx}.completed`, !task.completed);
+    const fieldName = `groups.${groupIdx}.tasks.${taskIdx}.completed` as const;
+    form.setValue(fieldName, !form.getValues(fieldName));
   }
   
   const handleRemoveTask = (groupIdx: number, taskIdx: number) => {
@@ -114,56 +125,165 @@ export function TasksBoard() {
     form.setValue(`groups.${groupIdx}.tasks`, newTasks);
   }
 
+  const handleRenameGroup = (groupIdx: number, newName: string) => {
+    updateGroup(groupIdx, { ...groups[groupIdx], name: newName });
+  }
+
+  if (!isMounted) return null;
+
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <Button onClick={handleAddGroup}>
-          <Plus className="mr-2" /> Add Group
-        </Button>
+      <div className="flex justify-end gap-2">
+        <AddTaskDialog onAddTask={handleAddTask} />
+        <AddGroupDialog onAddGroup={(name) => appendGroup({ id: `group-${Date.now()}`, name, tasks: [] })} />
       </div>
 
       <div className="space-y-6">
-        {groups.map((group, groupIdx) => (
-          <Card key={group.id} className="glassmorphic">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>{group.name}</CardTitle>
-              {group.id !== "default" && (
-                <Button variant="ghost" size="icon" onClick={() => removeGroup(groupIdx)}>
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              )}
-            </CardHeader>
-            <CardContent className="space-y-3">
-                {group.tasks.map((task, taskIdx) => (
-                    <div key={task.id} className="flex items-center p-2 rounded-lg hover:bg-muted/50 transition-colors">
-                        <Button variant="ghost" size="icon" onClick={() => handleToggleTask(groupIdx, taskIdx)}>
-                            {task.completed ? <CheckCircle className="text-green-500" /> : <Circle className="text-muted-foreground" />}
+        {groups.map((group, groupIdx) => {
+          const sortedTasks = [...group.tasks].sort((a, b) => (a.completed ? 1 : -1) - (b.completed ? 1 : -1) || 0);
+          return (
+            <Collapsible key={group.id} defaultOpen>
+              <Card className="glassmorphic">
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <div className="flex items-center gap-2">
+                     <CollapsibleTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                            <ChevronDown className="h-5 w-5 transition-transform duration-200 [&[data-state=open]]:-rotate-90"/>
                         </Button>
-                        <div className="flex-1 ml-2">
-                            <p className={`font-medium ${task.completed ? 'line-through text-muted-foreground' : ''}`}>{task.name}</p>
-                            {task.description && <p className="text-xs text-muted-foreground">{task.description}</p>}
-                        </div>
-                        <Button variant="ghost" size="icon" onClick={() => handleRemoveTask(groupIdx, taskIdx)}>
-                            <Trash2 className="h-4 w-4" />
-                        </Button>
-                    </div>
-                ))}
-
-                 {group.tasks.length === 0 && (
-                    <p className="text-center text-muted-foreground py-4">No tasks yet.</p>
-                )}
-            </CardContent>
-            <CardFooter>
-                <AddTaskDialog groupIdx={groupIdx} onAddTask={handleAddTask} />
-            </CardFooter>
-          </Card>
-        ))}
+                     </CollapsibleTrigger>
+                     <CardTitle>{group.name}</CardTitle>
+                  </div>
+                  {group.id !== "default" && (
+                     <GroupActions 
+                        onRename={(newName) => handleRenameGroup(groupIdx, newName)} 
+                        onDelete={() => removeGroup(groupIdx)} 
+                    />
+                  )}
+                </CardHeader>
+                <CollapsibleContent>
+                    <CardContent className="space-y-3">
+                        {sortedTasks.map((task, taskIdx) => {
+                            const originalIndex = group.tasks.findIndex(t => t.id === task.id);
+                            return (
+                                <div key={task.id} className="flex items-center p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                                    <Button variant="ghost" size="icon" onClick={() => handleToggleTask(groupIdx, originalIndex)}>
+                                        {task.completed ? <CheckCircle className="text-green-500" /> : <Circle className="text-muted-foreground" />}
+                                    </Button>
+                                    <div className="flex-1 ml-2">
+                                        <p className={`font-medium ${task.completed ? 'line-through text-muted-foreground' : ''}`}>{task.name}</p>
+                                        {task.description && <p className="text-xs text-muted-foreground">{task.description}</p>}
+                                    </div>
+                                    <Button variant="ghost" size="icon" onClick={() => handleRemoveTask(groupIdx, originalIndex)}>
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            )
+                        })}
+                         {group.tasks.length === 0 && (
+                            <p className="text-center text-muted-foreground py-4">No tasks yet.</p>
+                        )}
+                    </CardContent>
+                </CollapsibleContent>
+              </Card>
+            </Collapsible>
+          )
+        })}
       </div>
     </div>
   );
 }
 
-function AddTaskDialog({ groupIdx, onAddTask }: { groupIdx: number, onAddTask: (groupIdx: number, task: Omit<Task, 'id' | 'completed'>) => void }) {
+function AddGroupDialog({ onAddGroup }: { onAddGroup: (name: string) => void }) {
+  const [open, setOpen] = React.useState(false);
+  const [name, setName] = React.useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (name.trim()) {
+      onAddGroup(name.trim());
+      setName("");
+      setOpen(false);
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button><Plus className="mr-2" /> Add Group</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader><DialogTitle>Create a new group</DialogTitle></DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input 
+            placeholder="Group Name (e.g., Marketing)"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            autoFocus
+          />
+          <DialogFooter>
+            <Button type="submit">Create Group</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function GroupActions({ onRename, onDelete }: { onRename: (name: string) => void; onDelete: () => void }) {
+  const [isRenameOpen, setIsRenameOpen] = React.useState(false);
+  const [name, setName] = React.useState("");
+
+  const handleRenameSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (name.trim()) {
+      onRename(name.trim());
+      setName("");
+      setIsRenameOpen(false);
+    }
+  };
+
+  return (
+     <Dialog open={isRenameOpen} onOpenChange={setIsRenameOpen}>
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4" /></Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                <DialogTrigger asChild>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        <Edit className="mr-2 h-4 w-4" /> Rename
+                    </DropdownMenuItem>
+                </DialogTrigger>
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                         <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                            <Trash2 className="mr-2 h-4 w-4" /> Delete
+                        </DropdownMenuItem>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle></AlertDialogHeader>
+                        <AlertDialogDescription>This will delete the group and all its tasks. This action cannot be undone.</AlertDialogDescription>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={onDelete}>Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            </DropdownMenuContent>
+        </DropdownMenu>
+        <DialogContent>
+            <DialogHeader><DialogTitle>Rename Group</DialogTitle></DialogHeader>
+            <form onSubmit={handleRenameSubmit} className="space-y-4">
+                <Input value={name} onChange={(e) => setName(e.target.value)} autoFocus />
+                <DialogFooter><Button type="submit">Save Changes</Button></DialogFooter>
+            </form>
+        </DialogContent>
+    </Dialog>
+  );
+}
+
+
+function AddTaskDialog({ onAddTask }: { onAddTask: (task: Omit<Task, 'id' | 'completed'>, groupIdx?: number) => void }) {
   const [open, setOpen] = React.useState(false);
   
   const form = useForm<Omit<Task, 'id' | 'completed'>>({
@@ -178,7 +298,7 @@ function AddTaskDialog({ groupIdx, onAddTask }: { groupIdx: number, onAddTask: (
   const renewValue = form.watch("renew");
   
   const onSubmit = (data: Omit<Task, 'id' | 'completed'>) => {
-    onAddTask(groupIdx, data);
+    onAddTask(data);
     form.reset();
     setOpen(false);
   }
@@ -186,7 +306,7 @@ function AddTaskDialog({ groupIdx, onAddTask }: { groupIdx: number, onAddTask: (
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="w-full">
+        <Button variant="outline">
           <Plus className="mr-2" /> Add Task
         </Button>
       </DialogTrigger>
@@ -237,7 +357,7 @@ function AddTaskDialog({ groupIdx, onAddTask }: { groupIdx: number, onAddTask: (
                         </FormItem>
                     )}
                 />
-                 {renewValue === "Everyday" || Array.isArray(renewValue) && (
+                 {renewValue !== "Never" && (
                      <FormField
                         control={form.control}
                         name="renew"
@@ -252,14 +372,14 @@ function AddTaskDialog({ groupIdx, onAddTask }: { groupIdx: number, onAddTask: (
                                                     id={day}
                                                     checked={selectedDays.includes(day)}
                                                     onCheckedChange={(checked) => {
-                                                        const currentDays = Array.isArray(field.value) ? field.value : [];
+                                                        const currentDays = Array.isArray(field.value) ? field.value.filter(d => daysOfWeek.includes(d)) : [];
                                                         let newDays;
                                                         if (checked) {
                                                             newDays = [...currentDays, day];
                                                         } else {
                                                             newDays = currentDays.filter(d => d !== day);
                                                         }
-                                                        field.onChange(newDays);
+                                                        field.onChange(newDays.length > 0 ? newDays : "custom");
                                                     }}
                                                 />
                                                 <label htmlFor={day} className="text-sm font-medium leading-none">

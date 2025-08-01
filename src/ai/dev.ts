@@ -10,3 +10,4 @@ import '@/ai/flows/generate-youtube-images.ts';
 import '@/ai/flows/generate-youtube-audio.ts';
 import '@/ai/flows/generate-youtube-video.ts';
 import '@/ai/flows/generate-offer.ts';
+import '@/ai/flows/search-assets.ts';

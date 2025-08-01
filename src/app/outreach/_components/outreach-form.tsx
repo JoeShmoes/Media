@@ -42,7 +42,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 const formSchema = z.object({
   leadName: z.string().min(2, "Lead name is required"),
-  leadData: z.string().min(10, "Lead data must be at least 10 characters"),
+  leadData: z.string(),
   userContext: z.string().optional(),
   outreachType: z.enum(["DM", "Email", "Phone", "Follow Up"]),
   productDescription: z.string().min(10, "Product description must be at least 10 characters"),

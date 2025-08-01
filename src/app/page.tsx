@@ -1,5 +1,3 @@
-"use client"
-
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from "recharts"
 import { Briefcase, Lightbulb, ListTodo, TrendingUp, Users } from "lucide-react"
 

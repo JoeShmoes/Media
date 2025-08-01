@@ -109,26 +109,27 @@ export function TasksBoard() {
     name: "groups",
   });
 
-  const handleAddTask = (task: Omit<Task, 'id' | 'completed'>) => {
+  const handleAddTask = (task: Omit<Task, 'id' | 'completed'>, targetGroupId: string) => {
     const allGroups = form.getValues('groups');
-    const defaultGroupIndex = allGroups.findIndex(g => g.id === 'default');
+    const targetGroupIndex = allGroups.findIndex(g => g.id === targetGroupId);
 
-    if (defaultGroupIndex === -1) {
-        // This case should ideally not happen if the default group is always present.
-        // As a fallback, add to the first group.
-        const group = form.getValues(`groups.0`);
-        if (!group) return;
-        const newTask: Task = { ...task, id: `task-${Date.now()}`, completed: false };
-        const updatedTasks = [...group.tasks, newTask];
-        updateGroup(0, { ...group, tasks: updatedTasks });
+    if (targetGroupIndex === -1) {
         return;
     }
 
-    const group = form.getValues(`groups.${defaultGroupIndex}`);
-    if (!group) return;
+    const group = form.getValues(`groups.${targetGroupIndex}`);
     const newTask: Task = { ...task, id: `task-${Date.now()}`, completed: false };
     const updatedTasks = [...group.tasks, newTask];
-    updateGroup(defaultGroupIndex, { ...group, tasks: updatedTasks });
+    updateGroup(targetGroupIndex, { ...group, tasks: updatedTasks });
+  }
+  
+  const handleUpdateTask = (groupIdx: number, taskIdx: number, data: Omit<Task, 'id' | 'completed'>) => {
+     const group = form.getValues(`groups.${groupIdx}`);
+     const task = group.tasks[taskIdx];
+     const updatedTask = { ...task, ...data };
+     const updatedTasks = [...group.tasks];
+     updatedTasks[taskIdx] = updatedTask;
+     updateGroup(groupIdx, { ...group, tasks: updatedTasks });
   }
 
   const handleToggleTask = (groupIdx: number, taskIdx: number) => {
@@ -151,7 +152,7 @@ export function TasksBoard() {
   return (
     <div className="space-y-4">
       <div className="flex justify-end gap-2">
-        <AddTaskDialog onAddTask={(task) => handleAddTask(task)} />
+        <AddTaskDialog onAddTask={handleAddTask} groups={groups} />
         <AddGroupDialog onAddGroup={(name) => appendGroup({ id: `group-${Date.now()}`, name, tasks: [] })} />
       </div>
 
@@ -182,7 +183,7 @@ export function TasksBoard() {
                         {sortedTasks.map((task, taskIndex) => {
                             const originalIndex = group.tasks.findIndex(t => t.id === task.id);
                             return (
-                                <div key={task.id} className="flex items-center p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                                <div key={task.id} className="flex items-center p-2 rounded-lg hover:bg-muted/50 transition-colors group/task">
                                     <Button variant="ghost" size="icon" onClick={() => handleToggleTask(groupIdx, originalIndex)}>
                                         {task.completed ? <CheckCircle className="text-green-500" /> : <Circle className="text-muted-foreground" />}
                                     </Button>
@@ -190,9 +191,11 @@ export function TasksBoard() {
                                         <p className={`font-medium ${task.completed ? 'line-through text-muted-foreground' : ''}`}>{task.name}</p>
                                         {task.description && <p className="text-xs text-muted-foreground">{task.description}</p>}
                                     </div>
-                                    <Button variant="ghost" size="icon" onClick={() => handleRemoveTask(groupIdx, originalIndex)}>
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
+                                    <TaskActions 
+                                        task={task}
+                                        onUpdate={(data) => handleUpdateTask(groupIdx, originalIndex, data)}
+                                        onDelete={() => handleRemoveTask(groupIdx, originalIndex)} 
+                                    />
                                 </div>
                             )
                         })}
@@ -299,23 +302,74 @@ function GroupActions({ onRename, onDelete }: { onRename: (name: string) => void
   );
 }
 
+function TaskActions({ task, onUpdate, onDelete }: { task: Task, onUpdate: (data: Omit<Task, 'id' | 'completed'>) => void, onDelete: () => void }) {
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover/task:opacity-100">
+                    <MoreVertical className="h-4 w-4" />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+                 <EditTaskDialog
+                    task={task}
+                    onUpdateTask={onUpdate}
+                    trigger={
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                            <Edit className="mr-2 h-4 w-4" /> Edit
+                        </DropdownMenuItem>
+                    }
+                />
+                <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                            <Trash2 className="mr-2 h-4 w-4" /> Delete
+                        </DropdownMenuItem>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                        <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle></AlertDialogHeader>
+                        <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={onDelete}>Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
+}
 
-function AddTaskDialog({ onAddTask }: { onAddTask: (task: Omit<Task, 'id' | 'completed'>) => void }) {
+const taskDialogSchema = z.object({
+    name: z.string().min(1, "Task name is required"),
+    description: z.string().optional(),
+    renew: z.union([z.literal("Never"), z.literal("Everyday"), z.array(z.string())]).default("Never"),
+    notifications: z.boolean().default(false),
+    groupId: z.string().optional(),
+})
+
+type TaskDialogFormValues = z.infer<typeof taskDialogSchema>;
+
+
+function AddTaskDialog({ onAddTask, groups }: { onAddTask: (task: Omit<Task, 'id' | 'completed'>, groupId: string) => void, groups: TaskGroup[] }) {
   const [open, setOpen] = React.useState(false);
   
-  const form = useForm<Omit<Task, 'id' | 'completed'>>({
+  const form = useForm<TaskDialogFormValues>({
+      resolver: zodResolver(taskDialogSchema),
       defaultValues: {
           name: "",
           description: "",
           renew: "Never",
           notifications: false,
+          groupId: "default",
       }
   });
 
   const renewValue = form.watch("renew");
   
-  const onSubmit = (data: Omit<Task, 'id' | 'completed'>) => {
-    onAddTask(data);
+  const onSubmit = (data: TaskDialogFormValues) => {
+    const { groupId, ...taskData } = data;
+    onAddTask(taskData, groupId || "default");
     form.reset();
     setOpen(false);
   }
@@ -351,6 +405,26 @@ function AddTaskDialog({ onAddTask }: { onAddTask: (task: Omit<Task, 'id' | 'com
                         <FormItem>
                             <FormLabel>Description (Optional)</FormLabel>
                             <FormControl><Textarea placeholder="Add more details about the task..." {...field} /></FormControl>
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="groupId"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Group</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                               <FormControl>
+                                 <SelectTrigger><SelectValue /></SelectTrigger>
+                               </FormControl>
+                               <SelectContent>
+                                   {groups.map(group => (
+                                       <SelectItem key={group.id} value={group.id}>{group.name}</SelectItem>
+                                   ))}
+                               </SelectContent>
+                            </Select>
                         </FormItem>
                     )}
                 />
@@ -427,6 +501,143 @@ function AddTaskDialog({ onAddTask }: { onAddTask: (task: Omit<Task, 'id' | 'com
 
                 <DialogFooter>
                     <Button type="submit">Add Task</Button>
+                </DialogFooter>
+            </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+
+function EditTaskDialog({ task, onUpdateTask, trigger }: { task: Task, onUpdateTask: (task: Omit<Task, 'id' | 'completed'>) => void, trigger: React.ReactNode }) {
+  const [open, setOpen] = React.useState(false);
+  
+  const form = useForm<Omit<Task, 'id' | 'completed'>>({
+      defaultValues: {
+          name: task.name,
+          description: task.description,
+          renew: task.renew,
+          notifications: task.notifications,
+      }
+  });
+
+  const renewValue = form.watch("renew");
+  
+  const onSubmit = (data: Omit<Task, 'id' | 'completed'>) => {
+    onUpdateTask(data);
+    form.reset(data);
+    setOpen(false);
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        {trigger}
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit task</DialogTitle>
+        </DialogHeader>
+        <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                 <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Task Name</FormLabel>
+                            <FormControl><Input placeholder="e.g., Follow up with clients" {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Description (Optional)</FormLabel>
+                            <FormControl><Textarea placeholder="Add more details about the task..." {...field} /></FormControl>
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="renew"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Repeat</FormLabel>
+                            <Select 
+                                onValueChange={(value) => field.onChange(value === 'custom' ? [] : value)} 
+                                defaultValue={Array.isArray(field.value) ? "custom" : field.value || "Never"}
+                            >
+                               <FormControl>
+                                 <SelectTrigger><SelectValue/></SelectTrigger>
+                               </FormControl>
+                               <SelectContent>
+                                   <SelectItem value="Never">Never</SelectItem>
+                                   <SelectItem value="Everyday">Everyday</SelectItem>
+                                   <SelectItem value="custom">Custom...</SelectItem>
+                               </SelectContent>
+                            </Select>
+                        </FormItem>
+                    )}
+                />
+                 {Array.isArray(renewValue) && (
+                     <FormField
+                        control={form.control}
+                        name="renew"
+                        render={({ field }) => (
+                            <FormItem>
+                                <div className="grid grid-cols-4 gap-2 py-2">
+                                    {daysOfWeek.map(day => {
+                                        const selectedDays = Array.isArray(field.value) ? field.value : [];
+                                        return (
+                                            <div key={day} className="flex items-center space-x-2">
+                                                <Checkbox
+                                                    id={`edit-${day}`}
+                                                    checked={selectedDays.includes(day)}
+                                                    onCheckedChange={(checked) => {
+                                                        const currentDays = Array.isArray(field.value) ? field.value.filter(d => daysOfWeek.includes(d)) : [];
+                                                        let newDays;
+                                                        if (checked) {
+                                                            newDays = [...currentDays, day];
+                                                        } else {
+                                                            newDays = currentDays.filter(d => d !== day);
+                                                        }
+                                                        field.onChange(newDays);
+                                                    }}
+                                                />
+                                                <label htmlFor={`edit-${day}`} className="text-sm font-medium leading-none">
+                                                    {day.substring(0,3)}
+                                                </label>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                                <FormMessage />
+                           </FormItem>
+                        )}
+                    />
+                )}
+                
+                <FormField
+                    control={form.control}
+                    name="notifications"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                            <div className="space-y-0.5">
+                                <FormLabel>Enable Notifications</FormLabel>
+                            </div>
+                            <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                        </FormItem>
+                    )}
+                />
+
+                <DialogFooter>
+                    <Button type="submit">Save Changes</Button>
                 </DialogFooter>
             </form>
         </Form>

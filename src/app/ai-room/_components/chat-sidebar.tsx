@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -36,7 +37,7 @@ export function ChatSidebar({
   onDeleteChat,
 }: ChatSidebarProps) {
   return (
-    <div className="h-full flex flex-col p-2 bg-muted/50">
+    <div className="h-full flex flex-col p-2 bg-background border-r">
       <div className="flex justify-between items-center p-2">
         <h2 className="text-lg font-semibold">Chats</h2>
         <Button variant="ghost" size="icon" onClick={onNewChat}>

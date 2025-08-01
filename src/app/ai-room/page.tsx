@@ -1,18 +1,23 @@
+
 "use client"
 
 import * as React from "react"
+import { PanelLeft } from "lucide-react"
+
 import { PageHeader } from "@/components/page-header"
 import { AiRoomChat } from "./_components/ai-room-chat"
 import { ChatSidebar } from "./_components/chat-sidebar"
 import type { ChatMessage, ChatSession } from "@/lib/types"
 import { getBusinessAdvice } from "@/ai/flows/get-business-advice"
 import { useToast } from "@/hooks/use-toast"
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 
 export default function AiRoomPage() {
   const [sessions, setSessions] = React.useState<ChatSession[]>([])
   const [activeSessionId, setActiveSessionId] = React.useState<string | null>(null)
   const [isMounted, setIsMounted] = React.useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true)
   const { toast } = useToast()
 
   React.useEffect(() => {
@@ -22,7 +27,6 @@ export default function AiRoomPage() {
       if (savedSessions) {
         setSessions(JSON.parse(savedSessions))
       } else {
-        // Create a default session if none exist
         const newSessionId = `chat-${Date.now()}`
         const newSession: ChatSession = {
           id: newSessionId,
@@ -75,7 +79,6 @@ export default function AiRoomPage() {
     setSessions(prev =>
       prev.map(s => {
         if (s.id === sessionId) {
-          // If this is the first user message, set the title
           const userMessages = messages.filter(m => m.role === 'user');
           const newTitle = userMessages.length === 1 ? messages.find(m => m.role === 'user')?.content.substring(0, 25) + '...' : s.title;
           return { ...s, messages, title: newTitle ?? s.title };
@@ -89,7 +92,6 @@ export default function AiRoomPage() {
     setSessions(prev =>
       prev.map(s => {
         if (s.id === sessionId) {
-          // If a user message is deleted, delete the assistant message after it as well
           const newMessages = [...s.messages];
           if(newMessages[messageIndex].role === 'user' && newMessages[messageIndex + 1]?.role === 'assistant') {
             newMessages.splice(messageIndex, 2);
@@ -107,7 +109,6 @@ export default function AiRoomPage() {
       const session = sessions.find(s => s.id === sessionId);
       if (!session) return;
 
-      // Update the user message and remove subsequent messages
       const updatedMessages = session.messages.slice(0, messageIndex + 1);
       updatedMessages[messageIndex] = { ...updatedMessages[messageIndex], content: newContent };
       
@@ -128,7 +129,6 @@ export default function AiRoomPage() {
             title: "Error Getting Advice",
             description: "There was an issue getting a new response. Please try again.",
         });
-        // Restore previous state on error
         handleUpdateSession(sessionId, session.messages);
       }
   };
@@ -137,31 +137,46 @@ export default function AiRoomPage() {
   const activeSession = sessions.find(s => s.id === activeSessionId)
   
   if (!isMounted) {
-    return null; // Or a loading spinner
+    return null;
   }
 
   return (
-    <ResizablePanelGroup direction="horizontal" className="flex-1 flex h-full">
-      <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
-        <ChatSidebar
-          sessions={sessions}
-          activeSessionId={activeSessionId}
-          onNewChat={handleNewChat}
-          onSelectChat={handleSelectChat}
-          onDeleteChat={handleDeleteChat}
-        />
-      </ResizablePanel>
-      <ResizableHandle withHandle />
-      <ResizablePanel defaultSize={80}>
-        <div className="flex flex-col h-full flex-1">
+    <div className="flex h-full">
+      <div
+        className={cn(
+          "transition-all duration-300 ease-in-out",
+          isSidebarOpen ? "w-72" : "w-0"
+        )}
+      >
+        <div className={cn("h-full", isSidebarOpen ? "w-72" : "w-0 overflow-hidden")}>
+          <ChatSidebar
+            sessions={sessions}
+            activeSessionId={activeSessionId}
+            onNewChat={handleNewChat}
+            onSelectChat={handleSelectChat}
+            onDeleteChat={handleDeleteChat}
+          />
+        </div>
+      </div>
+      <div className="flex-1 flex flex-col">
+          <header className="flex items-center gap-4 p-4 border-b">
+             <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                >
+                <PanelLeft />
+                <span className="sr-only">Toggle sidebar</span>
+             </Button>
+             <h1 className="text-xl font-semibold">AI Room</h1>
+          </header>
           <AiRoomChat
             session={activeSession ?? null}
             onUpdateSession={handleUpdateSession}
             onDeleteMessage={handleDeleteMessage}
             onEditMessage={handleEditMessage}
           />
-        </div>
-      </ResizablePanel>
-    </ResizablePanelGroup>
+      </div>
+    </div>
   )
 }

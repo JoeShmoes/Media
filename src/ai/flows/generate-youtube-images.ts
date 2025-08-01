@@ -31,23 +31,30 @@ const generateYoutubeImagesFlow = ai.defineFlow(
     outputSchema: GenerateYoutubeImagesOutputSchema,
   },
   async ({ paragraph }) => {
-    const imagePromises = Array(3).fill(null).map(() => 
-      ai.generate({
-        model: 'googleai/gemini-2.0-flash-preview-image-generation',
-        prompt: `Generate a realistic and cinematic image for the following scene: ${paragraph}`,
-        config: {
-          responseModalities: ['TEXT', 'IMAGE'],
-        },
-      })
-    );
+    const imagePromises = Array(3).fill(null).map(async () => {
+      try {
+        const { media } = await ai.generate({
+          model: 'googleai/gemini-2.0-flash-preview-image-generation',
+          prompt: `Generate a realistic and cinematic image for the following scene: ${paragraph}`,
+          config: {
+            responseModalities: ['TEXT', 'IMAGE'],
+          },
+        });
+        return media?.url || null;
+      } catch (error) {
+        console.error("Image generation for a paragraph failed:", error);
+        return null; // Return null if an individual image generation fails
+      }
+    });
 
     const results = await Promise.all(imagePromises);
-    const images = results.map(result => {
-        if (!result.media) {
-            throw new Error('Image generation failed for a paragraph.');
-        }
-        return result.media.url;
-    });
+    const images = results.filter((url): url is string => url !== null);
+    
+    if (images.length === 0) {
+        // If all image generations failed, we can either throw an error or return an empty array.
+        // Let's throw an error to make it clear that the step failed completely.
+        throw new Error('All image generation attempts failed for a paragraph.');
+    }
 
     return { images };
   }

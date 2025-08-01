@@ -1,3 +1,4 @@
+
 export type Client = {
   id: string
   name: string
@@ -6,13 +7,21 @@ export type Client = {
   lastContact: string
 }
 
-export type ProjectTask = {
+export type Project = {
   id: string
   title: string
-  service: "SEO" | "Website"
+  service: string
+  status: "discovery" | "planning" | "building" | "launch"
   deadline?: string
   link?: string
 }
+
+export type ProjectBoardColumn = "discovery" | "planning" | "building" | "launch";
+
+export type ProjectBoard = {
+  [key in ProjectBoardColumn]: Project[];
+};
+
 
 export type ChatMessage = {
   role: "user" | "assistant"

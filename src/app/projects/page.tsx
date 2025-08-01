@@ -1,31 +1,35 @@
+
+"use client"
+
 import * as React from "react"
 import { PageHeader } from "@/components/page-header"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Clock, FileText, Framer } from "lucide-react"
+import { Clock, FileText, Framer, MoreHorizontal, PlusCircle } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import type { Project, ProjectBoard, ProjectBoardColumn } from "@/lib/types"
+import { ProjectDialog } from "./_components/project-dialog"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
-const boardData = {
-  discovery: [
-    { id: "task-1", title: "Client Kickoff: Synergy Corp", service: "Website" },
-    { id: "task-2", title: "Keyword Research: Innovate Inc", service: "SEO" },
-  ],
-  planning: [
-    { id: "task-3", title: "Wireframing: Synergy Corp", service: "Website" },
-    { id: "task-4", title: "Content Outline: Innovate Inc", service: "SEO", deadline: "3 days" },
-  ],
-  building: [
-    { id: "task-5", title: "Homepage Development", service: "Website", link: "framer.com" },
-    { id: "task-6", title: "On-Page Optimization", service: "SEO" },
-    { id: "task-7", title: "Backend Setup", service: "Website" },
-  ],
-  launch: [
-    { id: "task-8", title: "Final SEO Audit", service: "SEO", deadline: "Tomorrow" },
-  ],
-}
+const initialBoardData: ProjectBoard = {
+  discovery: [],
+  planning: [],
+  building: [],
+  launch: [],
+};
 
-type BoardColumn = keyof typeof boardData
-
-const columnTitles: Record<BoardColumn, string> = {
+const columnTitles: Record<ProjectBoardColumn, string> = {
   discovery: "Discovery",
   planning: "Planning",
   building: "Building",
@@ -38,37 +42,131 @@ const serviceColors: { [key: string]: string } = {
 }
 
 export default function ProjectsPage() {
+  const [boardData, setBoardData] = React.useState<ProjectBoard>(initialBoardData)
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false)
+  const [editingProject, setEditingProject] = React.useState<Project | null>(null)
+
+  const handleAddProject = () => {
+    setEditingProject(null)
+    setIsDialogOpen(true)
+  }
+
+  const handleEditProject = (project: Project) => {
+    setEditingProject(project)
+    setIsDialogOpen(true)
+  }
+
+  const handleDeleteProject = (projectId: string) => {
+    setBoardData(prevBoard => {
+      const newBoard = { ...prevBoard };
+      for (const column in newBoard) {
+        newBoard[column as ProjectBoardColumn] = newBoard[column as ProjectBoardColumn].filter(p => p.id !== projectId);
+      }
+      return newBoard;
+    });
+  }
+
+  const handleSaveProject = (projectData: Omit<Project, 'id'> & { id?: string }) => {
+    const newBoard = { ...boardData };
+    
+    // First, remove the project from its old status column if it exists
+    if (projectData.id) {
+        for (const column in newBoard) {
+            newBoard[column as ProjectBoardColumn] = newBoard[column as ProjectBoardColumn].filter(p => p.id !== projectData.id);
+        }
+    }
+    
+    // Then, add the new or updated project to the correct status column
+    const project: Project = {
+        ...projectData,
+        id: projectData.id || `project-${Date.now()}`,
+    };
+    newBoard[project.status].unshift(project);
+
+    setBoardData(newBoard);
+  }
+
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader title="Website/SEO Project Board" />
+      <PageHeader title="Website/SEO Project Board">
+        <Button onClick={handleAddProject}>
+          <PlusCircle className="mr-2" /> New Project
+        </Button>
+      </PageHeader>
+      
+      <ProjectDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        project={editingProject}
+        onSave={handleSaveProject}
+      />
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
-        {(Object.keys(boardData) as BoardColumn[]).map((columnKey) => (
+        {(Object.keys(boardData) as ProjectBoardColumn[]).map((columnKey) => (
           <div key={columnKey} className="bg-muted/40 rounded-lg p-2">
             <h2 className="text-lg font-semibold mb-4 px-2">{columnTitles[columnKey]}</h2>
             <div className="space-y-3">
-              {boardData[columnKey].map((task) => (
-                <Card key={task.id} className="glassmorphic">
+              {boardData[columnKey].map((project) => (
+                <Card key={project.id} className="glassmorphic group">
                   <CardContent className="p-3">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className={`w-3 h-3 rounded-full ${serviceColors[task.service]}`} />
-                      <Badge variant="outline">{task.service}</Badge>
+                     <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-2 mb-2">
+                           <span className={`w-3 h-3 rounded-full ${serviceColors[project.service] || 'bg-gray-400'}`} />
+                           <Badge variant="outline">{project.service}</Badge>
+                        </div>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleEditProject(project)}>
+                                    Edit
+                                </DropdownMenuItem>
+                                 <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                                            Delete
+                                        </DropdownMenuItem>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                This will permanently delete the project. This action cannot be undone.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleDeleteProject(project.id)}>Delete</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
-                    <p className="font-medium">{task.title}</p>
+                    <p className="font-medium">{project.title}</p>
                     <div className="mt-3 flex items-center justify-between text-muted-foreground">
                       <div className="flex items-center gap-3">
-                        {task.link && <Framer className="h-4 w-4" />}
+                        {project.link && <Framer className="h-4 w-4" />}
                         <FileText className="h-4 w-4" />
                       </div>
-                      {task.deadline && (
+                      {project.deadline && (
                         <div className="flex items-center gap-1 text-xs text-red-400">
                           <Clock className="h-3 w-3" />
-                          <span>{task.deadline}</span>
+                          <span>{project.deadline}</span>
                         </div>
                       )}
                     </div>
                   </CardContent>
                 </Card>
               ))}
+              {boardData[columnKey].length === 0 && (
+                <div className="text-center text-sm text-muted-foreground py-8">
+                  No projects in this stage.
+                </div>
+              )}
             </div>
           </div>
         ))}

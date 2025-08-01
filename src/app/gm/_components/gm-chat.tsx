@@ -46,13 +46,13 @@ export function GmChat() {
   })
 
   React.useEffect(() => {
-    const q = query(collection(db, "gm-messages"), orderBy("createdAt"));
+    const q = query(collection(db, "gm-messages"), orderBy("createdAt", "asc"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const msgs: GmMessage[] = [];
       querySnapshot.forEach((doc) => {
         msgs.push({ id: doc.id, ...doc.data() } as GmMessage);
       });
-      setMessages(msgs.reverse());
+      setMessages(msgs);
       setIsLoading(false);
     }, (error) => {
         console.error("Error fetching messages: ", error);
@@ -73,7 +73,7 @@ export function GmChat() {
         const viewport = scrollAreaRef.current.querySelector('div[data-radix-scroll-area-viewport]');
         if (viewport) {
             viewport.scrollTo({
-                top: 0,
+                top: viewport.scrollHeight,
                 behavior: 'smooth',
             });
         }
@@ -103,7 +103,7 @@ export function GmChat() {
 
   return (
     <Card className="flex-1 flex flex-col glassmorphic h-full">
-      <CardContent className="flex-1 p-2 md:p-4 overflow-y-auto">
+      <CardContent className="flex-1 p-2 md:p-4 overflow-hidden">
         <ScrollArea className="h-full" ref={scrollAreaRef}>
           <div className="space-y-6 p-2 md:p-4">
             {isLoading && (

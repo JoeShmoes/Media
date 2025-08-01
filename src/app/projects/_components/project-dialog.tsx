@@ -39,7 +39,7 @@ const projectSchema = z.object({
   service: z.string().min(1, "Service is required"),
   status: z.enum(["discovery", "planning", "building", "launch"]),
   deadline: z.string().optional(),
-  link: z.string().optional(),
+  link: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
 })
 
 type FormValues = z.infer<typeof projectSchema>
@@ -172,7 +172,7 @@ export function ProjectDialog({ open, onOpenChange, project, onSave }: ProjectDi
                 <FormItem>
                   <FormLabel>Link (Optional)</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., framer.com" {...field} />
+                    <Input placeholder="e.g., xyz.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

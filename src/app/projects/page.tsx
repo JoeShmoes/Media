@@ -5,10 +5,11 @@ import * as React from "react"
 import { PageHeader } from "@/components/page-header"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Clock, FileText, Framer, MoreHorizontal, PlusCircle } from "lucide-react"
+import { Clock, FileText, Framer, MoreHorizontal, PlusCircle, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { Project, ProjectBoard, ProjectBoardColumn } from "@/lib/types"
 import { ProjectDialog } from "./_components/project-dialog"
+import { ProjectDetailsDialog } from "./_components/project-details-dialog"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import {
   AlertDialog,
@@ -44,7 +45,9 @@ const serviceColors: { [key: string]: string } = {
 export default function ProjectsPage() {
   const [boardData, setBoardData] = React.useState<ProjectBoard>(initialBoardData)
   const [isDialogOpen, setIsDialogOpen] = React.useState(false)
+  const [isDetailsOpen, setIsDetailsOpen] = React.useState(false)
   const [editingProject, setEditingProject] = React.useState<Project | null>(null)
+  const [viewingProject, setViewingProject] = React.useState<Project | null>(null)
 
   const handleAddProject = () => {
     setEditingProject(null)
@@ -54,6 +57,11 @@ export default function ProjectsPage() {
   const handleEditProject = (project: Project) => {
     setEditingProject(project)
     setIsDialogOpen(true)
+  }
+  
+  const handleViewProject = (project: Project) => {
+    setViewingProject(project)
+    setIsDetailsOpen(true)
   }
 
   const handleDeleteProject = (projectId: string) => {
@@ -100,6 +108,14 @@ export default function ProjectsPage() {
         project={editingProject}
         onSave={handleSaveProject}
       />
+      
+      {viewingProject && (
+         <ProjectDetailsDialog
+            open={isDetailsOpen}
+            onOpenChange={setIsDetailsOpen}
+            project={viewingProject}
+         />
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
         {(Object.keys(boardData) as ProjectBoardColumn[]).map((columnKey) => (
@@ -107,7 +123,7 @@ export default function ProjectsPage() {
             <h2 className="text-lg font-semibold mb-4 px-2">{columnTitles[columnKey]}</h2>
             <div className="space-y-3">
               {boardData[columnKey].map((project) => (
-                <Card key={project.id} className="glassmorphic group">
+                <Card key={project.id} className="glassmorphic group cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => handleViewProject(project)}>
                   <CardContent className="p-3">
                      <div className="flex items-start justify-between">
                         <div className="flex items-center gap-2 mb-2">
@@ -116,17 +132,17 @@ export default function ProjectsPage() {
                         </div>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100">
+                                <Button variant="ghost" className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100" onClick={e => e.stopPropagation()}>
                                     <MoreHorizontal className="h-4 w-4" />
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => handleEditProject(project)}>
+                                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEditProject(project); }}>
                                     Edit
                                 </DropdownMenuItem>
                                  <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} onClick={(e) => e.stopPropagation()} className="text-destructive">
                                             Delete
                                         </DropdownMenuItem>
                                     </AlertDialogTrigger>
@@ -138,8 +154,8 @@ export default function ProjectsPage() {
                                             </AlertDialogDescription>
                                         </AlertDialogHeader>
                                         <AlertDialogFooter>
-                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction onClick={() => handleDeleteProject(project.id)}>Delete</AlertDialogAction>
+                                            <AlertDialogCancel onClick={(e) => e.stopPropagation()}>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction onClick={(e) => { e.stopPropagation(); handleDeleteProject(project.id); }}>Delete</AlertDialogAction>
                                         </AlertDialogFooter>
                                     </AlertDialogContent>
                                 </AlertDialog>
@@ -149,7 +165,11 @@ export default function ProjectsPage() {
                     <p className="font-medium">{project.title}</p>
                     <div className="mt-3 flex items-center justify-between text-muted-foreground">
                       <div className="flex items-center gap-3">
-                        {project.link && <Framer className="h-4 w-4" />}
+                        {project.link && (
+                            <a href={project.link} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="hover:text-primary">
+                                <Framer className="h-4 w-4" />
+                            </a>
+                        )}
                         <FileText className="h-4 w-4" />
                       </div>
                       {project.deadline && (

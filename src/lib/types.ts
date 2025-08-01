@@ -1,4 +1,5 @@
 
+
 export type Client = {
   id: string
   name: string
@@ -11,7 +12,7 @@ export type Project = {
   id: string
   title: string
   service: string
-  status: "discovery" | "planning" | "building" | "launch"
+  status: ProjectBoardColumn
   deadline?: string
   link?: string
 }

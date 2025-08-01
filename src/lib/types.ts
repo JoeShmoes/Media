@@ -1,6 +1,7 @@
 
 
 
+
 export type GeneratePersonaOutput = {
     name: string;
     avatar: string;
@@ -180,4 +181,16 @@ export type RoutineBlock = {
   day: DayOfWeek;
   startTime: string; // "HH:MM"
   endTime: string;   // "HH:MM"
+};
+
+
+export type DealStatus = "leads" | "needs-analysis" | "proposal" | "negotiation" | "closed-won" | "closed-lost";
+
+export type Deal = {
+  id: string;
+  title: string;
+  value: number;
+  status: DealStatus;
+  clientName?: string;
+  notes?: string;
 };

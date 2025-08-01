@@ -1,7 +1,10 @@
+
+"use client"
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SwatchBook, MessageSquareQuote, Users, Mic } from "lucide-react";
+import Link from "next/link";
 
 export default function BrandRoomPage() {
   return (
@@ -17,7 +20,9 @@ export default function BrandRoomPage() {
             <CardDescription>Define your logos, colors, typography, and usage rules.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button className="w-full">View Style Guide</Button>
+            <Button className="w-full" asChild>
+                <Link href="/asset-tracker">View Style Guide</Link>
+            </Button>
           </CardContent>
         </Card>
         <Card className="glassmorphic">
@@ -26,7 +31,9 @@ export default function BrandRoomPage() {
             <CardDescription>Establish your taglines, elevator pitch, mission, and tone.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full">Define Messaging</Button>
+            <Button variant="outline" className="w-full" asChild>
+                <Link href="/notes">Define Messaging</Link>
+            </Button>
           </CardContent>
         </Card>
         <Card className="glassmorphic">
@@ -35,7 +42,9 @@ export default function BrandRoomPage() {
             <CardDescription>Create and manage profiles for your target audiences.</CardDescription>
           </CardHeader>
           <CardContent>
-             <Button variant="secondary" className="w-full">View Personas</Button>
+             <Button variant="secondary" className="w-full" asChild>
+                <Link href="/notes">View Personas</Link>
+             </Button>
           </CardContent>
         </Card>
         <Card className="glassmorphic">
@@ -44,7 +53,9 @@ export default function BrandRoomPage() {
             <CardDescription>Train the AI to write in your unique tone for all content generation.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full">Start Voice Training</Button>
+            <Button variant="outline" className="w-full" asChild>
+                <Link href="/ai-room">Start Voice Training</Link>
+            </Button>
           </CardContent>
         </Card>
       </div>

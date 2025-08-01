@@ -1,18 +1,8 @@
 "use client"
-import dynamic from "next/dynamic"
-import { PageHeader } from "@/components/page-header";
-import { Skeleton } from "@/components/ui/skeleton";
 
-const NotesGrid = dynamic(() => import("./_components/notes-grid").then(mod => mod.NotesGrid), {
-  ssr: false,
-  loading: () => (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      <Skeleton className="h-48 w-full" />
-      <Skeleton className="h-48 w-full" />
-      <Skeleton className="h-48 w-full" />
-    </div>
-  )
-})
+import { PageHeader } from "@/components/page-header";
+import { NotesGrid } from "./_components/notes-grid";
+
 
 export default function NotesPage() {
   return (

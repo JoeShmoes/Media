@@ -1,18 +1,7 @@
 "use client"
 
-import dynamic from "next/dynamic"
 import { PageHeader } from "@/components/page-header"
-import { Skeleton } from "@/components/ui/skeleton"
-
-const YoutubeScriptForm = dynamic(() => import("./_components/youtube-script-form").then(mod => mod.YoutubeScriptForm), {
-  ssr: false,
-  loading: () => (
-    <div className="grid lg:grid-cols-2 gap-8 items-start">
-      <Skeleton className="h-[500px] w-full" />
-      <Skeleton className="h-[500px] w-full" />
-    </div>
-  )
-})
+import { YoutubeScriptForm } from "./_components/youtube-script-form"
 
 export default function YouTubeStudioPage() {
   return (

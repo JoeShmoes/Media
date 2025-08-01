@@ -1,18 +1,8 @@
 "use client"
 
-import dynamic from "next/dynamic"
 import { PageHeader } from "@/components/page-header"
-import { Skeleton } from "@/components/ui/skeleton"
+import { ResearchForm } from "./_components/research-form"
 
-const ResearchForm = dynamic(() => import("./_components/research-form").then(mod => mod.ResearchForm), {
-  ssr: false,
-  loading: () => (
-      <div className="grid md:grid-cols-2 gap-8">
-        <Skeleton className="h-[200px] w-full" />
-        <Skeleton className="h-[200px] w-full" />
-      </div>
-  )
-})
 
 export default function ResearchPage() {
   return (

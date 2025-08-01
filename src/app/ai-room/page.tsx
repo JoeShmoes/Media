@@ -1,17 +1,7 @@
 "use client"
 
-import dynamic from "next/dynamic"
 import { PageHeader } from "@/components/page-header"
-import { Skeleton } from "@/components/ui/skeleton"
-
-const AiRoomChat = dynamic(() => import("./_components/ai-room-chat").then(mod => mod.AiRoomChat), {
-  ssr: false,
-  loading: () => (
-    <div className="space-y-4">
-      <Skeleton className="h-[60vh] w-full" />
-    </div>
-  ),
-})
+import { AiRoomChat } from "./_components/ai-room-chat"
 
 export default function AiRoomPage() {
   return (

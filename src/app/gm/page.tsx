@@ -1,13 +1,7 @@
 "use client"
 
-import dynamic from "next/dynamic"
 import { PageHeader } from "@/components/page-header"
-import { Skeleton } from "@/components/ui/skeleton"
-
-const GmChat = dynamic(() => import("./_components/gm-chat").then(mod => mod.GmChat), {
-  ssr: false,
-  loading: () => <Skeleton className="h-[60vh] w-full" />
-})
+import { GmChat } from "./_components/gm-chat"
 
 export default function GmPage() {
   return (

@@ -72,7 +72,7 @@ const generateYoutubeAudioFlow = ai.defineFlow(
       prompt: script,
     });
 
-    if (!media) {
+    if (!media || !media.url) {
       throw new Error('No audio media returned from the model.');
     }
     

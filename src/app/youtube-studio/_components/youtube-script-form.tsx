@@ -218,7 +218,7 @@ export function YoutubeScriptForm() {
                 <CardTitle>AI Media Suite</CardTitle>
                 <CardDescription>Generate visuals, audio and video for your script.</CardDescription>
             </CardHeader>
-            <CardContent className="grid sm:grid-cols-2 gap-4">
+            <CardContent className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <Button onClick={handleGenerateAllImages} disabled={isLoadingImages || isLoadingScript}>
                     {isLoadingImages ? <Loader2 className="animate-spin" /> : <ImageIcon />}
                     {isLoadingImages ? "Generating Images..." : "Generate All Images"}

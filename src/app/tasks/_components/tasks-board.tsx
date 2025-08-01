@@ -57,7 +57,7 @@ const taskSchema = z.object({
   id: z.string(),
   name: z.string().min(1, "Task name is required"),
   description: z.string().optional(),
-  renew: z.enum(["Never", "Everyday"]).or(z.array(z.string())).default("Never"),
+  renew: z.union([z.literal("Never"), z.literal("Everyday"), z.array(z.string())]).default("Never"),
   notifications: z.boolean().default(false),
   completed: z.boolean().default(false),
 });
@@ -85,11 +85,6 @@ export function TasksBoard() {
   const { fields: groups, append: appendGroup, update: updateGroup, remove: removeGroup } = useFieldArray({
     control: form.control,
     name: "groups",
-  });
-
-  const { fields: tasks, append: appendTask, update: updateTask, remove: removeTask } = useFieldArray({
-    control: form.control,
-    name: `groups.0.tasks`, // Initially manages tasks for the first group
   });
   
   React.useEffect(() => setIsMounted(true), []);
@@ -127,7 +122,7 @@ export function TasksBoard() {
         </Button>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="space-y-6">
         {groups.map((group, groupIdx) => (
           <Card key={group.id} className="glassmorphic">
             <CardHeader className="flex flex-row items-center justify-between">
@@ -179,6 +174,8 @@ function AddTaskDialog({ groupIdx, onAddTask }: { groupIdx: number, onAddTask: (
           notifications: false,
       }
   });
+
+  const renewValue = form.watch("renew");
   
   const onSubmit = (data: Omit<Task, 'id' | 'completed'>) => {
     onAddTask(groupIdx, data);
@@ -227,44 +224,55 @@ function AddTaskDialog({ groupIdx, onAddTask }: { groupIdx: number, onAddTask: (
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Repeat</FormLabel>
-                            <Select onValueChange={(value) => field.onChange(value)} defaultValue="Never">
+                            <Select onValueChange={(value) => field.onChange(value === "custom" ? [] : value)} defaultValue="Never">
                                <FormControl>
                                  <SelectTrigger><SelectValue/></SelectTrigger>
                                </FormControl>
                                <SelectContent>
                                    <SelectItem value="Never">Never</SelectItem>
                                    <SelectItem value="Everyday">Everyday</SelectItem>
+                                   <SelectItem value="custom">Custom...</SelectItem>
                                </SelectContent>
                             </Select>
                         </FormItem>
                     )}
                 />
-                 {form.watch("renew") === "Everyday" && (
-                    <div className="flex flex-wrap gap-2">
-                        {daysOfWeek.map(day => (
-                            <FormField
-                                key={day}
-                                control={form.control}
-                                name="renew"
-                                render={({ field }) => {
-                                    const selectedDays = Array.isArray(field.value) ? field.value : [];
-                                    return (
-                                        <div className="flex items-center space-x-2">
-                                            <Checkbox
-                                                id={day}
-                                                checked={selectedDays.includes(day)}
-                                                onCheckedChange={(checked) => {
-                                                    const newDays = checked ? [...selectedDays, day] : selectedDays.filter(d => d !== day);
-                                                    field.onChange(newDays);
-                                                }}
-                                            />
-                                            <label htmlFor={day} className="text-sm font-medium">{day}</label>
-                                        </div>
-                                    )
-                                }}
-                            />
-                        ))}
-                    </div>
+                 {renewValue === "Everyday" || Array.isArray(renewValue) && (
+                     <FormField
+                        control={form.control}
+                        name="renew"
+                        render={({ field }) => (
+                            <FormItem>
+                                <div className="grid grid-cols-4 gap-2 py-2">
+                                    {daysOfWeek.map(day => {
+                                        const selectedDays = Array.isArray(field.value) ? field.value : (renewValue === "Everyday" ? daysOfWeek : []);
+                                        return (
+                                            <div key={day} className="flex items-center space-x-2">
+                                                <Checkbox
+                                                    id={day}
+                                                    checked={selectedDays.includes(day)}
+                                                    onCheckedChange={(checked) => {
+                                                        const currentDays = Array.isArray(field.value) ? field.value : [];
+                                                        let newDays;
+                                                        if (checked) {
+                                                            newDays = [...currentDays, day];
+                                                        } else {
+                                                            newDays = currentDays.filter(d => d !== day);
+                                                        }
+                                                        field.onChange(newDays);
+                                                    }}
+                                                />
+                                                <label htmlFor={day} className="text-sm font-medium leading-none">
+                                                    {day.substring(0,3)}
+                                                </label>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                                <FormMessage />
+                           </FormItem>
+                        )}
+                    />
                 )}
                 
                 <FormField

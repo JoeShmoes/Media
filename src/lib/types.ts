@@ -3,6 +3,7 @@
 
 
 
+
 export type Client = {
   id: string
   name: string
@@ -108,3 +109,24 @@ export type GenerateOfferOutput = {
   price: number;
   features: string[];
 }
+
+export type Domain = {
+  id: string;
+  name: string;
+  provider: string;
+  expires: string;
+};
+
+export type DesignAsset = {
+  id: string;
+  name: string;
+  type: "Logo" | "Font" | "Color" | "Mockup" | "Other";
+  fileUrl: string; // Could be a data URL for simplicity or a link
+};
+
+export type LegalDocument = {
+  id: string;
+  name: string;
+  type: "Contract" | "NDA" | "Template" | "Other";
+  fileUrl: string;
+};

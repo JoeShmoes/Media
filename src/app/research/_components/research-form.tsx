@@ -32,6 +32,7 @@ type QuestionFormValues = z.infer<typeof questionSchema>;
 export function ResearchForm() {
   const [searchResults, setSearchResults] = React.useState<WikipediaSearchResult[] | null>(null)
   const [selectedArticle, setSelectedArticle] = React.useState<WikipediaSearchResult | null>(null)
+  const [hoveredArticle, setHoveredArticle] = React.useState<WikipediaSearchResult | null>(null)
   const [researchResult, setResearchResult] = React.useState<{ summary: string, answer: string } | null>(null)
   const [isSearching, setIsSearching] = React.useState(false)
   const [isResearching, setIsResearching] = React.useState(false)
@@ -53,6 +54,7 @@ export function ResearchForm() {
     setSearchResults(null)
     setSelectedArticle(null)
     setResearchResult(null)
+    setHoveredArticle(null)
 
     try {
       const results = await searchWikipedia(data)
@@ -184,66 +186,87 @@ export function ResearchForm() {
 
   return (
     <div className="grid md:grid-cols-2 gap-8">
-      <Card className="glassmorphic">
-        <Form {...searchForm}>
-          <form onSubmit={searchForm.handleSubmit(onSearchSubmit)}>
-             <CardHeader>
-              <CardTitle>Research Topic</CardTitle>
-              <CardDescription>Enter a topic to find relevant articles on Wikipedia.</CardDescription>
+        <Card className="glassmorphic">
+            <CardHeader>
+            <CardTitle>Research Topic</CardTitle>
+            <CardDescription>Enter a topic to find relevant articles on Wikipedia.</CardDescription>
             </CardHeader>
             <CardContent>
-              <FormField
-                control={searchForm.control}
-                name="topic"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Topic</FormLabel>
-                    <FormControl>
-                        <div className="relative">
-                            <Input placeholder="e.g., The Roman Empire" {...field} disabled={isSearching} />
-                            <Button type="submit" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8" disabled={isSearching}>
-                                {isSearching ? <Loader2 className="animate-spin" /> : <Search className="h-4 w-4" />}
-                             </Button>
-                        </div>
-                    </FormControl>
-                  </FormItem>
+            <Form {...searchForm}>
+                <form onSubmit={searchForm.handleSubmit(onSearchSubmit)}>
+                <FormField
+                    control={searchForm.control}
+                    name="topic"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormControl>
+                            <div className="relative">
+                                <Input placeholder="e.g., The Roman Empire" {...field} disabled={isSearching} />
+                                <Button type="submit" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8" disabled={isSearching}>
+                                    {isSearching ? <Loader2 className="animate-spin" /> : <Search className="h-4 w-4" />}
+                                </Button>
+                            </div>
+                        </FormControl>
+                    </FormItem>
+                    )}
+                />
+                </form>
+            </Form>
+            <div className="mt-6 space-y-3">
+                <h3 className="text-sm font-medium text-muted-foreground">Results</h3>
+                {isSearching && (
+                    <div className="space-y-3">
+                        {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
+                    </div>
                 )}
-              />
+                {searchResults && searchResults.length > 0 && (
+                    <div className="flex flex-col gap-2 max-h-80 overflow-y-auto">
+                        {searchResults.map(article => (
+                            <button 
+                                key={article.pageid} 
+                                onClick={() => handleSelectArticle(article)} 
+                                onMouseEnter={() => setHoveredArticle(article)}
+                                onMouseLeave={() => setHoveredArticle(null)}
+                                className="text-left p-3 rounded-md hover:bg-muted transition-colors border border-transparent focus-visible:border-primary focus-visible:outline-none"
+                            >
+                                <p className="font-medium">{article.title}</p>
+                                <p className="text-sm text-muted-foreground line-clamp-2">{article.description}</p>
+                            </button>
+                        ))}
+                    </div>
+                )}
+                {!isSearching && !searchResults && (
+                    <div className="text-center text-muted-foreground py-12">
+                    Your search results will appear here.
+                    </div>
+                )}
+                {!isSearching && searchResults?.length === 0 && (
+                    <div className="text-center text-muted-foreground py-12">
+                    No articles found for this topic.
+                    </div>
+                )}
+            </div>
             </CardContent>
-          </form>
-        </Form>
       </Card>
       <Card className="glassmorphic">
         <CardHeader>
-          <CardTitle>Search Results</CardTitle>
-          <CardDescription>Select an article to start your research.</CardDescription>
+          <CardTitle>Article Preview</CardTitle>
+          <CardDescription>Hover over an article to see a preview.</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3">
-          {isSearching && (
-            <div className="space-y-3">
-                {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
+        <CardContent>
+          {hoveredArticle ? (
+            <div className="space-y-2">
+                <h3 className="font-semibold">{hoveredArticle.title}</h3>
+                <p className="text-sm text-muted-foreground">{hoveredArticle.description}</p>
+                <Button className="mt-4 w-full" onClick={() => handleSelectArticle(hoveredArticle)}>
+                    Select and Research
+                </Button>
+            </div>
+          ) : (
+             <div className="text-center text-muted-foreground py-24">
+              Hover over an article to see a preview here.
             </div>
           )}
-          {searchResults && searchResults.length > 0 && (
-            <div className="flex flex-col gap-2">
-                {searchResults.map(article => (
-                    <button key={article.pageid} onClick={() => handleSelectArticle(article)} className="text-left p-3 rounded-md hover:bg-muted transition-colors">
-                        <p className="font-medium">{article.title}</p>
-                        <p className="text-sm text-muted-foreground line-clamp-2">{article.description}</p>
-                    </button>
-                ))}
-            </div>
-          )}
-           {!isSearching && !searchResults && (
-            <div className="text-center text-muted-foreground py-12">
-              Your search results will appear here.
-            </div>
-          )}
-           {!isSearching && searchResults?.length === 0 && (
-             <div className="text-center text-muted-foreground py-12">
-              No articles found for this topic.
-            </div>
-           )}
         </CardContent>
       </Card>
     </div>

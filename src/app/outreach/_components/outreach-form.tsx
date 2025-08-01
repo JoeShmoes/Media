@@ -44,7 +44,7 @@ const formSchema = z.object({
   leadName: z.string().min(2, "Lead name is required"),
   leadData: z.string().min(10, "Lead data must be at least 10 characters"),
   userContext: z.string().optional(),
-  outreachType: z.enum(["DM", "Email", "Phone"]),
+  outreachType: z.enum(["DM", "Email", "Phone", "Follow Up"]),
   productDescription: z.string().min(10, "Product description must be at least 10 characters"),
   length: z.enum(["Short", "Long"]),
 })
@@ -169,6 +169,7 @@ export function OutreachForm() {
                             <SelectItem value="Email">Email</SelectItem>
                             <SelectItem value="DM">Direct Message (DM)</SelectItem>
                             <SelectItem value="Phone">Phone Call Script</SelectItem>
+                            <SelectItem value="Follow Up">Follow Up</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />

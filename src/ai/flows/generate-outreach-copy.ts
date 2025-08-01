@@ -13,7 +13,7 @@ import {z} from 'genkit';
 const GenerateOutreachCopyInputSchema = z.object({
   leadName: z.string().describe('The name of the lead.'),
   leadData: z.string().describe('Additional information about the lead, such as their company, role, and interests.'),
-  outreachType: z.enum(['DM', 'Email', 'Phone']).describe('The type of outreach copy to generate.'),
+  outreachType: z.enum(['DM', 'Email', 'Phone', 'Follow Up']).describe('The type of outreach copy to generate.'),
   productDescription: z.string().describe('Description of the product or service being offered.'),
   length: z.enum(["Short", "Long"]).describe("The desired length of the message."),
   userContext: z.string().optional().describe("Background context about the user sending the message."),
@@ -44,7 +44,7 @@ const prompt = ai.definePrompt({
   4.  **Human Tone (The Bar Test)**: Write as if you were speaking to someone in a bar. Use natural, varied sentence structures. Read your message out loud to ensure it doesn't sound robotic. Avoid waffling or using filler words.
   5.  **No "Glazing"**: Do not use excessive praise. Be respectful but direct.
   6.  **No Generic Openings**: For 'Long' emails, do NOT start with "I hope this message finds you well." Get straight to the point.
-  7.  **Simple Subject Line**: For 'Email' outreach, the subject line should be simple and direct (e.g., "Clients", "Question", or about their niche). Avoid salesy language. If not an email, the subject should be empty.
+  7.  **Simple Subject Line**: For 'Email' outreach, the subject line should be simple and direct (e.g., "Clients", "Question", or about their niche). Avoid salesy language. If not an email, or if it's a Follow Up, the subject should be empty.
   8.  **Clear Call to Action**: The goal is to start a conversation, not to close a deal on the first message. End with a low-friction question like "Is this something that interests you?"
   9.  **Professional Sign-off**: End the message with "Sincerely," or "--", followed by the user's name: {{{userName}}}.
 
@@ -59,14 +59,18 @@ const prompt = ai.definePrompt({
 
   **Instructions:**
   
-  *   **If Length is 'Short'**: Use the following strict template. This is for quick, initial DMs or emails.
+  *   **If outreachType is 'Follow Up'**: Use the following strict template. This is for when someone has not responded to a previous message.
+      1.  Quick follow up.
+      2.  Did you get a chance to look at this?
+
+  *   **If Length is 'Short' and outreachType is NOT 'Follow Up'**: Use the following strict template. This is for quick, initial DMs or emails.
       1.  Hi, {{{leadName}}},
       2.  I found your [Lead's Business Type from leadData] while looking for [Lead's Niche from leadData] in [Lead's Location from leadData].
       3.  I help [Their Niche] easily attract more clients, would that be an interest to you?
       4.  --
       5.  {{{userName}}}
 
-  *   **If Length is 'Long'**: Write a more detailed message (2-3 paragraphs) following the **Core Principles** above. Agitate their problem, explain why common solutions fail, and present your service as the unique, specialized answer.
+  *   **If Length is 'Long' and outreachType is NOT 'Follow Up'**: Write a more detailed message (2-3 paragraphs) following the **Core Principles** above. Agitate their problem, explain why common solutions fail, and present your service as the unique, specialized answer.
 
   Generate the outreach copy now.
   `,

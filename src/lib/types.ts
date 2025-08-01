@@ -1,7 +1,7 @@
 export type Client = {
   id: string
   name: string
-  service: "SEO" | "Website" | "Ads" | "Trial"
+  service: string
   status: "Prospect" | "Active" | "Completed"
   lastContact: string
 }

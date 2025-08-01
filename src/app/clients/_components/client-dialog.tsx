@@ -36,7 +36,7 @@ import type { Client } from "@/lib/types"
 const clientSchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, "Client name is required"),
-  service: z.enum(["SEO", "Website", "Ads", "Trial"]),
+  service: z.string().min(1, "Service is required"),
   status: z.enum(["Prospect", "Active", "Completed"]),
 })
 
@@ -67,7 +67,7 @@ export function ClientDialog({ open, onOpenChange, client, onSave }: ClientDialo
       form.reset({
         id: undefined,
         name: "",
-        service: "SEO",
+        service: "",
         status: "Prospect",
       })
     }
@@ -108,19 +108,9 @@ export function ClientDialog({ open, onOpenChange, client, onSave }: ClientDialo
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Service</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="SEO">SEO</SelectItem>
-                      <SelectItem value="Website">Website</SelectItem>
-                      <SelectItem value="Ads">Ads</SelectItem>
-                      <SelectItem value="Trial">7-Day Trial</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <Input placeholder="e.g., SEO, Website, Ads" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

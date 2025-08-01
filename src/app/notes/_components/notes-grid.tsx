@@ -80,7 +80,7 @@ export function NotesGrid() {
       localStorage.setItem("notes", JSON.stringify(notes))
     }
   }, [notes, isMounted])
-  
+
   const addNote = () => {
     const newNote: Note = {
       id: `note-${Date.now()}`,

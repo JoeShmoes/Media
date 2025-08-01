@@ -41,6 +41,13 @@ import {
   Network,
   Target,
   FlaskConical,
+  Clock,
+  View,
+  Shield,
+  Package,
+  Archive,
+  Handshake,
+  Palette,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import {
@@ -81,6 +88,13 @@ const essentialsNavItems = [
   { href: "/mindspace", icon: Network, label: "Mindspace" },
   { href: "/cortex-room", icon: Target, label: "Cortex Room" },
   { href: "/writing-lab", icon: FlaskConical, label: "Writing Lab" },
+  { href: "/routine-clock", icon: Clock, label: "Routine Clock" },
+  { href: "/pipeline-tracker", icon: View, label: "Pipeline Tracker" },
+  { href: "/client-portal", icon: Shield, label: "Client Portal" },
+  { href: "/offer-builder", icon: Package, label: "Offer Builder" },
+  { href: "/asset-tracker", icon: Archive, label: "Asset Tracker" },
+  { href: "/deal-room", icon: Handshake, label: "Deal Room" },
+  { href: "/brand-room", icon: Palette, label: "Brand Room" },
 ]
 
 const contentCreationNavItems = [
@@ -88,7 +102,7 @@ const contentCreationNavItems = [
   { href: "/youtube-studio", icon: Youtube, label: "Studio" },
 ]
 
-function Clock() {
+function LiveClock() {
   const [time, setTime] = React.useState<Date | null>(null);
 
   React.useEffect(() => {
@@ -212,7 +226,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <Input type="search" placeholder="Search..." className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]" />
             </div>
             <div className="flex-1" />
-            <Clock />
+            <LiveClock />
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full">

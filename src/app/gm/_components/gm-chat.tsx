@@ -4,7 +4,7 @@ import * as React from "react"
 import { z } from "zod"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Send, User } from "lucide-react"
+import { Send } from "lucide-react"
 import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "firebase/firestore"
 import { format } from "date-fns"
 
@@ -20,6 +20,7 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Icons } from "@/components/icons"
 
 const formSchema = z.object({
   message: z.string().min(1, "Message is required").max(140, "Message is too long"),
@@ -123,7 +124,7 @@ export function GmChat() {
                 <Avatar className="h-10 w-10">
                     <AvatarImage src={message.user.avatar} alt={message.user.name} data-ai-hint="man portrait"/>
                     <AvatarFallback>
-                        <User />
+                        <Icons.user className="h-5 w-5"/>
                     </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">

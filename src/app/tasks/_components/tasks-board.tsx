@@ -109,9 +109,11 @@ export function TasksBoard() {
   });
 
   const handleAddTask = (task: Omit<Task, 'id' | 'completed'>, groupIdx: number) => {
-     const currentTasks = form.getValues(`groups.${groupIdx}.tasks`);
-     const newTask: Task = { ...task, id: `task-${Date.now()}`, completed: false };
-     form.setValue(`groups.${groupIdx}.tasks`, [...currentTasks, newTask]);
+    const group = form.getValues(`groups.${groupIdx}`);
+    if (!group) return;
+    const newTask: Task = { ...task, id: `task-${Date.now()}`, completed: false };
+    const updatedTasks = [...group.tasks, newTask];
+    updateGroup(groupIdx, { ...group, tasks: updatedTasks });
   }
 
   const handleToggleTask = (groupIdx: number, taskIdx: number) => {
@@ -162,7 +164,7 @@ export function TasksBoard() {
                 </CardHeader>
                 <CollapsibleContent>
                     <CardContent className="space-y-3">
-                        {sortedTasks.map((task) => {
+                        {sortedTasks.map((task, taskIndex) => {
                             const originalIndex = group.tasks.findIndex(t => t.id === task.id);
                             return (
                                 <div key={task.id} className="flex items-center p-2 rounded-lg hover:bg-muted/50 transition-colors">
@@ -283,7 +285,7 @@ function GroupActions({ onRename, onDelete }: { onRename: (name: string) => void
 }
 
 
-function AddTaskDialog({ onAddTask }: { onAddTask: (task: Omit<Task, 'id' | 'completed'>) => void }) {
+function AddTaskDialog({ onAddTask }: { onAddTask: (task: Omit<Task, 'id' | 'completed'>, groupIdx: number) => void }) {
   const [open, setOpen] = React.useState(false);
   
   const form = useForm<Omit<Task, 'id' | 'completed'>>({
@@ -298,7 +300,7 @@ function AddTaskDialog({ onAddTask }: { onAddTask: (task: Omit<Task, 'id' | 'com
   const renewValue = form.watch("renew");
   
   const onSubmit = (data: Omit<Task, 'id' | 'completed'>) => {
-    onAddTask(data);
+    onAddTask(data, 0); // Always add to the "Default" group which is at index 0
     form.reset();
     setOpen(false);
   }

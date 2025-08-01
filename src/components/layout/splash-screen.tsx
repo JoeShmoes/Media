@@ -9,7 +9,7 @@ export function SplashScreen({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false)
-    }, 500) // 0.5 seconds delay
+    }, 0) // 0 seconds delay
     return () => clearTimeout(timer)
   }, [])
 

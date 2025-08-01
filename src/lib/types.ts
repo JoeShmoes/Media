@@ -19,6 +19,13 @@ export type ChatMessage = {
   content: string
 }
 
+export type ChatSession = {
+  id: string;
+  title: string;
+  createdAt: string;
+  messages: ChatMessage[];
+};
+
 export type DayOfWeek = "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday";
 
 export type Task = {

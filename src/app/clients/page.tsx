@@ -31,43 +31,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
-const initialClients: Client[] = [
-  {
-    id: "1",
-    name: "Innovate Inc.",
-    service: "SEO",
-    status: "Active",
-    lastContact: "2024-07-28",
-  },
-  {
-    id: "2",
-    name: "QuantumLeap",
-    service: "Website",
-    status: "Prospect",
-    lastContact: "2024-07-30",
-  },
-  {
-    id: "3",
-    name: "Synergy Corp",
-    service: "Ads",
-    status: "Active",
-    lastContact: "2024-07-29",
-  },
-  {
-    id: "4",
-    name: "Apex Solutions",
-    service: "SEO",
-    status: "Completed",
-    lastContact: "2024-06-15",
-  },
-  {
-    id: "5",
-    name: "NextGen Trials",
-    service: "Trial",
-    status: "Active",
-    lastContact: "2024-07-31",
-  },
-]
+const initialClients: Client[] = []
 
 const statusVariant: { [key: string]: "default" | "secondary" | "outline" | "destructive" | null | undefined } = {
   Active: "default",

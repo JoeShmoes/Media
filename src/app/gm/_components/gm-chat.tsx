@@ -4,7 +4,7 @@ import * as React from "react"
 import { z } from "zod"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Send } from "lucide-react"
+import { Send, User } from "lucide-react"
 import { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "firebase/firestore"
 import { format } from "date-fns"
 
@@ -119,7 +119,9 @@ export function GmChat() {
               <div key={message.id} className="flex items-start gap-4">
                 <Avatar className="h-10 w-10">
                     <AvatarImage src={message.user.avatar} alt={message.user.name} data-ai-hint="man portrait"/>
-                    <AvatarFallback>{message.user.name.charAt(0)}</AvatarFallback>
+                    <AvatarFallback>
+                        <User />
+                    </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
                     <div className="flex items-baseline gap-2">

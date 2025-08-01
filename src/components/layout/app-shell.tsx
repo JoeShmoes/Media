@@ -53,20 +53,20 @@ import {
 } from "@/components/ui/popover"
 import { Icons } from "../icons"
 
-const mainNavItems = [
+const essentialsNavItems = [
   { href: "/", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/clients", icon: Users, label: "Clients" },
-  { href: "/outreach", icon: SendHorizonal, label: "Outreach" },
-  { href: "/projects", icon: KanbanSquare, label: "Projects" },
-  { href: "/finance", icon: CircleDollarSign, label: "Finance" },
-  { href: "/content", icon: PenSquare, label: "Content" },
-  { href: "/youtube-studio", icon: Youtube, label: "YouTube Studio" },
   { href: "/tasks", icon: ListTodo, label: "Tasks" },
   { href: "/notes", icon: Notebook, label: "Notes" },
   { href: "/gm", icon: MessageSquare, label: "GM" },
+  { href: "/clients", icon: Users, label: "Client" },
+  { href: "/projects", icon: KanbanSquare, label: "Projects" },
+  { href: "/finance", icon: CircleDollarSign, label: "Finance" },
 ]
 
-const pinnedNavItems = [
+const contentCreationNavItems = [
+  { href: "/content", icon: PenSquare, label: "Content" },
+  { href: "/youtube-studio", icon: Youtube, label: "Studio" },
+  { href: "/outreach", icon: SendHorizonal, label: "Outreach" },
   { href: "/ai-room", icon: BrainCircuit, label: "AI Room" },
   { href: "/research", icon: Search, label: "Research" },
 ]
@@ -97,15 +97,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <SidebarProvider>
       <Sidebar collapsible="icon">
         <SidebarHeader className="flex items-center gap-2">
-            <Icons.logo className="w-8 h-8 text-white"/>
-            <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">Nexaris Media</span>
+            <Icons.logo className="w-8 h-8 text-white group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10 transition-all"/>
+            <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">BizMaster AI</span>
         </SidebarHeader>
         <SidebarSeparator />
         <SidebarContent>
           <SidebarGroup className="mt-4">
-            <SidebarGroupLabel>Favourites</SidebarGroupLabel>
+            <SidebarGroupLabel>Essentials</SidebarGroupLabel>
             <SidebarMenu>
-              {pinnedNavItems.map((item) => (
+              {essentialsNavItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <Link href={item.href} legacyBehavior passHref>
                     <SidebarMenuButton
@@ -120,21 +120,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               ))}
             </SidebarMenu>
           </SidebarGroup>
-          <SidebarMenu className="mt-4">
-            {mainNavItems.map((item) => (
-              <SidebarMenuItem key={item.href}>
-                <Link href={item.href} legacyBehavior passHref>
-                  <SidebarMenuButton
-                    isActive={pathname === item.href}
-                    tooltip={item.label}
-                  >
-                    <item.icon />
-                    <span>{item.label}</span>
-                  </SidebarMenuButton>
-                </Link>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
+          <SidebarGroup className="mt-4">
+            <SidebarGroupLabel>Content Creation</SidebarGroupLabel>
+            <SidebarMenu>
+              {contentCreationNavItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <Link href={item.href} legacyBehavior passHref>
+                    <SidebarMenuButton
+                      isActive={pathname === item.href}
+                      tooltip={item.label}
+                    >
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
         </SidebarContent>
         <SidebarFooter>
           <DropdownMenu>
@@ -168,7 +171,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background/80 backdrop-blur-md px-4 sm:px-6">
+        <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-sidebar/80 backdrop-blur-md px-4 sm:px-6">
             <SidebarTrigger />
              <div className="relative flex-1 md:grow-0">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />

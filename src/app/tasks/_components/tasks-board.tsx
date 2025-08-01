@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import * as React from "react";
@@ -686,3 +687,5 @@ function EditTaskDialog({ task, groups, currentGroupId, onUpdateTask, trigger }:
     </Dialog>
   );
 }
+
+    

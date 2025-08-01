@@ -123,13 +123,28 @@ export function TasksBoard() {
     updateGroup(targetGroupIndex, { ...group, tasks: updatedTasks });
   }
   
-  const handleUpdateTask = (groupIdx: number, taskIdx: number, data: Omit<Task, 'id' | 'completed'>) => {
-     const group = form.getValues(`groups.${groupIdx}`);
-     const task = group.tasks[taskIdx];
-     const updatedTask = { ...task, ...data };
-     const updatedTasks = [...group.tasks];
-     updatedTasks[taskIdx] = updatedTask;
-     updateGroup(groupIdx, { ...group, tasks: updatedTasks });
+  const handleUpdateTask = (groupIdx: number, taskIdx: number, data: Omit<Task, 'id' | 'completed'>, newGroupId?: string) => {
+     const sourceGroup = form.getValues(`groups.${groupIdx}`);
+     const task = { ...sourceGroup.tasks[taskIdx], ...data };
+
+     if(newGroupId && newGroupId !== sourceGroup.id) {
+         // Move task to a different group
+         const newTasksInSourceGroup = sourceGroup.tasks.filter((_, i) => i !== taskIdx);
+         updateGroup(groupIdx, { ...sourceGroup, tasks: newTasksInSourceGroup });
+         
+         const targetGroupIndex = groups.findIndex(g => g.id === newGroupId);
+         if(targetGroupIndex !== -1) {
+            const targetGroup = form.getValues(`groups.${targetGroupIndex}`);
+            const newTasksInTargetGroup = [...targetGroup.tasks, task];
+            updateGroup(targetGroupIndex, { ...targetGroup, tasks: newTasksInTargetGroup });
+         }
+
+     } else {
+        // Update task within the same group
+         const updatedTasks = [...sourceGroup.tasks];
+         updatedTasks[taskIdx] = task;
+         updateGroup(groupIdx, { ...sourceGroup, tasks: updatedTasks });
+     }
   }
 
   const handleToggleTask = (groupIdx: number, taskIdx: number) => {
@@ -193,7 +208,9 @@ export function TasksBoard() {
                                     </div>
                                     <TaskActions 
                                         task={task}
-                                        onUpdate={(data) => handleUpdateTask(groupIdx, originalIndex, data)}
+                                        groups={groups}
+                                        currentGroupId={group.id}
+                                        onUpdate={(data, newGroupId) => handleUpdateTask(groupIdx, originalIndex, data, newGroupId)}
                                         onDelete={() => handleRemoveTask(groupIdx, originalIndex)} 
                                     />
                                 </div>
@@ -302,7 +319,7 @@ function GroupActions({ onRename, onDelete }: { onRename: (name: string) => void
   );
 }
 
-function TaskActions({ task, onUpdate, onDelete }: { task: Task, onUpdate: (data: Omit<Task, 'id' | 'completed'>) => void, onDelete: () => void }) {
+function TaskActions({ task, groups, currentGroupId, onUpdate, onDelete }: { task: Task, groups: TaskGroup[], currentGroupId: string, onUpdate: (data: Omit<Task, 'id' | 'completed'>, newGroupId?: string) => void, onDelete: () => void }) {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -313,6 +330,8 @@ function TaskActions({ task, onUpdate, onDelete }: { task: Task, onUpdate: (data
             <DropdownMenuContent align="end">
                  <EditTaskDialog
                     task={task}
+                    groups={groups}
+                    currentGroupId={currentGroupId}
                     onUpdateTask={onUpdate}
                     trigger={
                         <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
@@ -510,23 +529,25 @@ function AddTaskDialog({ onAddTask, groups }: { onAddTask: (task: Omit<Task, 'id
 }
 
 
-function EditTaskDialog({ task, onUpdateTask, trigger }: { task: Task, onUpdateTask: (task: Omit<Task, 'id' | 'completed'>) => void, trigger: React.ReactNode }) {
+function EditTaskDialog({ task, groups, currentGroupId, onUpdateTask, trigger }: { task: Task, groups: TaskGroup[], currentGroupId: string, onUpdateTask: (task: Omit<Task, 'id' | 'completed'>, newGroupId?: string) => void, trigger: React.ReactNode }) {
   const [open, setOpen] = React.useState(false);
   
-  const form = useForm<Omit<Task, 'id' | 'completed'>>({
+  const form = useForm<TaskDialogFormValues>({
+      resolver: zodResolver(taskDialogSchema),
       defaultValues: {
           name: task.name,
           description: task.description,
           renew: task.renew,
           notifications: task.notifications,
+          groupId: currentGroupId,
       }
   });
 
   const renewValue = form.watch("renew");
   
-  const onSubmit = (data: Omit<Task, 'id' | 'completed'>) => {
-    onUpdateTask(data);
-    form.reset(data);
+  const onSubmit = (data: TaskDialogFormValues) => {
+    const { groupId, ...taskData } = data;
+    onUpdateTask(taskData, groupId);
     setOpen(false);
   }
 
@@ -559,6 +580,26 @@ function EditTaskDialog({ task, onUpdateTask, trigger }: { task: Task, onUpdateT
                         <FormItem>
                             <FormLabel>Description (Optional)</FormLabel>
                             <FormControl><Textarea placeholder="Add more details about the task..." {...field} /></FormControl>
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="groupId"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Group</FormLabel>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                               <FormControl>
+                                 <SelectTrigger><SelectValue /></SelectTrigger>
+                               </FormControl>
+                               <SelectContent>
+                                   {groups.map(group => (
+                                       <SelectItem key={group.id} value={group.id}>{group.name}</SelectItem>
+                                   ))}
+                               </SelectContent>
+                            </Select>
                         </FormItem>
                     )}
                 />

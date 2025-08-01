@@ -1,5 +1,6 @@
 
 
+
 export type Domain = {
   id: string;
   name: string;
@@ -135,4 +136,31 @@ export type GenerateOfferOutput = {
   description: string;
   price: number;
   features: string[];
+}
+
+export type BrandVoice = {
+  tone: string;
+  style: string;
+  examples: string;
+}
+
+export type BrandColor = {
+  id: string;
+  name: string;
+  hex: string;
+}
+
+export type BrandLogo = {
+    id: string;
+    name: string;
+    url: string;
+}
+
+export type Persona = {
+  id: string;
+  name: string;
+  avatar: string;
+  bio: string;
+  goals: string[];
+  painPoints: string[];
 }

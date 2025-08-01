@@ -16,7 +16,6 @@ import {
   SidebarTrigger,
   SidebarGroup,
   SidebarGroupLabel,
-  SidebarSeparator,
 } from "@/components/ui/sidebar"
 import {
   BrainCircuit,
@@ -48,6 +47,10 @@ import {
   Archive,
   Handshake,
   Palette,
+  Building,
+  Workflow,
+  Sparkles,
+  Wrench,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import {
@@ -72,29 +75,41 @@ const favouritesNavItems = [
   { href: "/research", icon: Search, label: "Research" },
 ]
 
-const essentialsNavItems = [
-  { href: "/", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/tasks", icon: ListTodo, label: "Tasks" },
-  { href: "/notes", icon: Notebook, label: "Notes" },
-  { href: "/gm", icon: MessageSquare, label: "GM" },
-  { href: "/clients", icon: Users, label: "Client" },
-  { href: "/projects", icon: KanbanSquare, label: "Projects" },
-  { href: "/outreach", icon: SendHorizonal, label: "Outreach" },
-  { href: "/finance", icon: CircleDollarSign, label: "Finance" },
-  { href: "/autodocs", icon: FileText, label: "AutoDocs" },
-  { href: "/template-builder", icon: LayoutTemplate, label: "Template Builder" },
-  { href: "/integration-hub", icon: Blocks, label: "Integration Hub" },
-  { href: "/audit-room", icon: GanttChartSquare, label: "Audit Room" },
-  { href: "/mindspace", icon: Network, label: "Mindspace" },
-  { href: "/cortex-room", icon: Target, label: "Cortex Room" },
-  { href: "/writing-lab", icon: FlaskConical, label: "Writing Lab" },
-  { href: "/routine-clock", icon: Clock, label: "Routine Clock" },
-  { href: "/pipeline-tracker", icon: View, label: "Pipeline Tracker" },
-  { href: "/client-portal", icon: Shield, label: "Client Portal" },
+const mainNavItems = [
+    { href: "/", icon: LayoutDashboard, label: "Dashboard" },
+    { href: "/tasks", icon: ListTodo, label: "Tasks" },
+    { href: "/notes", icon: Notebook, label: "Notes" },
+    { href: "/gm", icon: MessageSquare, label: "GM" },
+    { href: "/clients", icon: Users, label: "Client" },
+    { href: "/projects", icon: KanbanSquare, label: "Projects" },
+    { href: "/outreach", icon: SendHorizonal, label: "Outreach" },
+    { href: "/finance", icon: CircleDollarSign, label: "Finance" },
+]
+
+const businessBuilderNavItems = [
   { href: "/offer-builder", icon: Package, label: "Offer Builder" },
   { href: "/asset-tracker", icon: Archive, label: "Asset Tracker" },
   { href: "/deal-room", icon: Handshake, label: "Deal Room" },
   { href: "/brand-room", icon: Palette, label: "Brand Room" },
+]
+
+const workflowNavItems = [
+    { href: "/routine-clock", icon: Clock, label: "Routine Clock" },
+    { href: "/pipeline-tracker", icon: View, label: "Pipeline Tracker" },
+    { href: "/client-portal", icon: Shield, label: "Client Portal" },
+]
+
+const aiAdvantageNavItems = [
+    { href: "/mindspace", icon: Network, label: "Mindspace" },
+    { href: "/cortex-room", icon: Target, label: "Cortex Room" },
+    { href: "/writing-lab", icon: FlaskConical, label: "Writing Lab" },
+]
+
+const utilityNavItems = [
+  { href: "/autodocs", icon: FileText, label: "AutoDocs" },
+  { href: "/template-builder", icon: LayoutTemplate, label: "Template Builder" },
+  { href: "/integration-hub", icon: Blocks, label: "Integration Hub" },
+  { href: "/audit-room", icon: GanttChartSquare, label: "Audit Room" },
 ]
 
 const contentCreationNavItems = [
@@ -151,9 +166,81 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </SidebarMenu>
           </SidebarGroup>
           <SidebarGroup className="mt-4">
-            <SidebarGroupLabel>Essentials</SidebarGroupLabel>
+            <SidebarGroupLabel>Main</SidebarGroupLabel>
             <SidebarMenu>
-              {essentialsNavItems.map((item) => (
+              {mainNavItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <Link href={item.href}>
+                    <SidebarMenuButton
+                      isActive={pathname === item.href}
+                      tooltip={item.label}
+                    >
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+          <SidebarGroup className="mt-4">
+             <SidebarGroupLabel>Business Builder</SidebarGroupLabel>
+            <SidebarMenu>
+              {businessBuilderNavItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <Link href={item.href}>
+                    <SidebarMenuButton
+                      isActive={pathname === item.href}
+                      tooltip={item.label}
+                    >
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+          <SidebarGroup className="mt-4">
+             <SidebarGroupLabel>Workflow</SidebarGroupLabel>
+            <SidebarMenu>
+              {workflowNavItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <Link href={item.href}>
+                    <SidebarMenuButton
+                      isActive={pathname === item.href}
+                      tooltip={item.label}
+                    >
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+          <SidebarGroup className="mt-4">
+             <SidebarGroupLabel>AI Advantage</SidebarGroupLabel>
+            <SidebarMenu>
+              {aiAdvantageNavItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <Link href={item.href}>
+                    <SidebarMenuButton
+                      isActive={pathname === item.href}
+                      tooltip={item.label}
+                    >
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+           <SidebarGroup className="mt-4">
+             <SidebarGroupLabel>Utility / Automation</SidebarGroupLabel>
+            <SidebarMenu>
+              {utilityNavItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <Link href={item.href}>
                     <SidebarMenuButton

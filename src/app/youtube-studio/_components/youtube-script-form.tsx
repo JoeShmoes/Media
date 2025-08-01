@@ -3,7 +3,7 @@ import * as React from "react"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Bot, Copy, Image as ImageIcon, Volume2, Loader2, PlayCircle, Video, Download, CheckCircle, Circle } from "lucide-react"
+import { Bot, Copy, Image as ImageIcon, Volume2, Loader2, PlayCircle, Video, Download, CheckCircle, Circle, Pencil } from "lucide-react"
 
 import {
   generateYouTubeScript,
@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/accordion"
 import { Separator } from "@/components/ui/separator"
 import { ImageSlideshow } from "./image-slideshow"
+import { Textarea } from "@/components/ui/textarea"
 
 const formSchema = z.object({
   topic: z.string().min(5, "Topic must be at least 5 characters"),
@@ -48,6 +49,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>
 
 type GeneratedImages = { [paragraphIndex: number]: string[] };
+type CustomPrompts = { [paragraphIndex: number]: string };
 
 type GenerationState = "idle" | "script" | "images" | "audio" | "video" | "done" | "error";
 type GenerationStatus = {
@@ -101,6 +103,7 @@ export function YoutubeScriptForm() {
   const [generatedImages, setGeneratedImages] = React.useState<GeneratedImages>({})
   const [generatedAudio, setGeneratedAudio] = React.useState<string | null>(null)
   const [generatedVideo, setGeneratedVideo] = React.useState<string | null>(null)
+  const [customPrompts, setCustomPrompts] = React.useState<CustomPrompts>({});
 
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [generationStatus, setGenerationStatus] = React.useState<GenerationStatus>({
@@ -130,6 +133,10 @@ export function YoutubeScriptForm() {
       title: "Copied to clipboard!",
     })
   }
+
+  const handleCustomPromptChange = (index: number, value: string) => {
+    setCustomPrompts(prev => ({...prev, [index]: value}));
+  }
   
   const handleGenerateAll = async (data: FormValues) => {
     setIsGenerating(true);
@@ -137,6 +144,7 @@ export function YoutubeScriptForm() {
     setGeneratedImages({});
     setGeneratedAudio(null);
     setGeneratedVideo(null);
+    setCustomPrompts({});
     setGenerationStatus({ script: 'script', images: 'idle', audio: 'idle', video: 'idle' });
 
     try {
@@ -147,7 +155,7 @@ export function YoutubeScriptForm() {
         const paragraphs = scriptResult.script.split('\n').filter(p => p.trim().length > 0);
 
         // 2. Generate Images
-        const imagePromises = paragraphs.map(p => generateYoutubeImages({ paragraph: p }));
+        const imagePromises = paragraphs.map((p, index) => generateYoutubeImages({ paragraph: p, prompt: customPrompts[index] }));
         const imageResults = await Promise.all(imagePromises);
         const newImages = imageResults.reduce((acc, result, index) => {
             acc[index] = result.images;
@@ -308,7 +316,17 @@ export function YoutubeScriptForm() {
                                 <Copy className="h-4 w-4" />
                             </Button>
                         </div>
-                        <div className="mt-2">
+                        <div className="mt-2 space-y-2">
+                           <div className="relative">
+                                <Pencil className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Textarea
+                                  placeholder="Enter a custom prompt for image generation, or leave blank to use the paragraph above."
+                                  value={customPrompts[index] || ""}
+                                  onChange={(e) => handleCustomPromptChange(index, e.target.value)}
+                                  className="pl-8"
+                                  disabled={isGenerating && generationStatus.images === 'images'}
+                                />
+                            </div>
                            {generationStatus.images === 'images' && !generatedImages[index] ? (
                              <div className="flex justify-center items-center h-32">
                                 <Loader2 className="animate-spin text-primary" />

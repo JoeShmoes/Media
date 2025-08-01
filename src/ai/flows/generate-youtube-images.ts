@@ -12,6 +12,7 @@ import {z} from 'genkit';
 
 const GenerateYoutubeImagesInputSchema = z.object({
   paragraph: z.string().describe('A paragraph from the YouTube script.'),
+  prompt: z.string().optional().describe('An optional custom prompt for image generation. If not provided, the paragraph will be used as the prompt.'),
 });
 export type GenerateYoutubeImagesInput = z.infer<typeof GenerateYoutubeImagesInputSchema>;
 
@@ -30,12 +31,14 @@ const generateYoutubeImagesFlow = ai.defineFlow(
     inputSchema: GenerateYoutubeImagesInputSchema,
     outputSchema: GenerateYoutubeImagesOutputSchema,
   },
-  async ({ paragraph }) => {
+  async ({ paragraph, prompt }) => {
+    const imageGenerationPrompt = prompt || `Generate a realistic and cinematic image for the following scene: ${paragraph}`;
+    
     const imagePromises = Array(3).fill(null).map(async () => {
       try {
         const { media } = await ai.generate({
           model: 'googleai/gemini-2.0-flash-preview-image-generation',
-          prompt: `Generate a realistic and cinematic image for the following scene: ${paragraph}`,
+          prompt: imageGenerationPrompt,
           config: {
             responseModalities: ['TEXT', 'IMAGE'],
           },

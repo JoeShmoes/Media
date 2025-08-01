@@ -148,7 +148,7 @@ export function TasksBoard() {
                   <div className="flex items-center gap-2">
                      <CollapsibleTrigger asChild>
                         <Button variant="ghost" size="icon">
-                            <ChevronDown className="h-5 w-5 transition-transform duration-200 [&[data-state=open]]:-rotate-90"/>
+                            <ChevronDown className="h-5 w-5 transition-transform duration-200 [&[data-state=open]]:rotate-180"/>
                         </Button>
                      </CollapsibleTrigger>
                      <CardTitle>{group.name}</CardTitle>
@@ -162,7 +162,7 @@ export function TasksBoard() {
                 </CardHeader>
                 <CollapsibleContent>
                     <CardContent className="space-y-3">
-                        {sortedTasks.map((task, taskIdx) => {
+                        {sortedTasks.map((task) => {
                             const originalIndex = group.tasks.findIndex(t => t.id === task.id);
                             return (
                                 <div key={task.id} className="flex items-center p-2 rounded-lg hover:bg-muted/50 transition-colors">
@@ -344,7 +344,7 @@ function AddTaskDialog({ onAddTask }: { onAddTask: (task: Omit<Task, 'id' | 'com
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Repeat</FormLabel>
-                            <Select onValueChange={(value) => field.onChange(value === "custom" ? [] : value)} defaultValue="Never">
+                            <Select onValueChange={(value) => field.onChange(value === 'custom' ? [] : value)} defaultValue="Never">
                                <FormControl>
                                  <SelectTrigger><SelectValue/></SelectTrigger>
                                </FormControl>
@@ -357,7 +357,7 @@ function AddTaskDialog({ onAddTask }: { onAddTask: (task: Omit<Task, 'id' | 'com
                         </FormItem>
                     )}
                 />
-                 {renewValue !== "Never" && (
+                 {Array.isArray(renewValue) && (
                      <FormField
                         control={form.control}
                         name="renew"
@@ -365,7 +365,7 @@ function AddTaskDialog({ onAddTask }: { onAddTask: (task: Omit<Task, 'id' | 'com
                             <FormItem>
                                 <div className="grid grid-cols-4 gap-2 py-2">
                                     {daysOfWeek.map(day => {
-                                        const selectedDays = Array.isArray(field.value) ? field.value : (renewValue === "Everyday" ? daysOfWeek : []);
+                                        const selectedDays = Array.isArray(field.value) ? field.value : [];
                                         return (
                                             <div key={day} className="flex items-center space-x-2">
                                                 <Checkbox
@@ -379,7 +379,7 @@ function AddTaskDialog({ onAddTask }: { onAddTask: (task: Omit<Task, 'id' | 'com
                                                         } else {
                                                             newDays = currentDays.filter(d => d !== day);
                                                         }
-                                                        field.onChange(newDays.length > 0 ? newDays : "custom");
+                                                        field.onChange(newDays);
                                                     }}
                                                 />
                                                 <label htmlFor={day} className="text-sm font-medium leading-none">

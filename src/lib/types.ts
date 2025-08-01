@@ -1,6 +1,7 @@
 
 
 
+
 export type Client = {
   id: string
   name: string
@@ -85,4 +86,17 @@ export type Transaction = {
   amount: number;
   date: string;
   description: string;
+};
+
+export type OfferFeature = {
+  id: string;
+  name: string;
+};
+
+export type Offer = {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  features: OfferFeature[];
 };

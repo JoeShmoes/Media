@@ -1,55 +1,113 @@
+
+"use client"
+import * as React from "react"
 import { PageHeader } from "@/components/page-header";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, PackageCheck, GitCompareArrows, BarChart3 } from "lucide-react";
+import { PlusCircle } from "lucide-react";
+import type { Offer } from "@/lib/types";
+import { OfferDialog } from "./_components/offer-dialog";
+import { OfferCard } from "./_components/offer-card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 export default function OfferBuilderPage() {
+  const [offers, setOffers] = React.useState<Offer[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [editingOffer, setEditingOffer] = React.useState<Offer | null>(null);
+
+  const handleAddOffer = () => {
+    setEditingOffer(null);
+    setIsDialogOpen(true);
+  }
+
+  const handleEditOffer = (offer: Offer) => {
+    setEditingOffer(offer);
+    setIsDialogOpen(true);
+  }
+
+  const handleDeleteOffer = (offerId: string) => {
+    setOffers(offers.filter(offer => offer.id !== offerId));
+  }
+
+  const handleSaveOffer = (offerData: Omit<Offer, 'id'> & {id?: string}) => {
+    if (offerData.id) {
+      setOffers(offers.map(o => (o.id === offerData.id ? { ...o, ...offerData } : o)));
+    } else {
+      const newOffer: Offer = {
+        ...offerData,
+        id: `offer-${Date.now()}`
+      };
+      setOffers([newOffer, ...offers]);
+    }
+  }
+
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <PageHeader title="Offer Builder">
-        <Button><PlusCircle className="mr-2"/> New Offer</Button>
+        <Button onClick={handleAddOffer}>
+          <PlusCircle className="mr-2"/> New Offer
+        </Button>
       </PageHeader>
+      
+      <OfferDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        offer={editingOffer}
+        onSave={handleSaveOffer}
+      />
+
       <p className="text-muted-foreground">
         Visually develop and test new products or services.
       </p>
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="glassmorphic">
-          <CardHeader>
-            <CardTitle>Value Proposition Canvas</CardTitle>
-            <CardDescription>Map out pain points, gains, and solutions for your target audience.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button variant="outline" className="w-full">Open Canvas</Button>
-          </CardContent>
-        </Card>
-        <Card className="glassmorphic">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><PackageCheck /> Stack Builder</CardTitle>
-            <CardDescription>Build and present your offer stack with all its components visually.</CardDescription>
-          </CardHeader>
-          <CardContent>
-             <Button className="w-full">Build a Stack</Button>
-          </CardContent>
-        </Card>
-        <Card className="glassmorphic">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><GitCompareArrows /> Price Testing</CardTitle>
-            <CardDescription>Create A/B comparisons for different price points or packages.</CardDescription>
-          </CardHeader>
-          <CardContent>
-             <Button variant="secondary" className="w-full">New Price Test</Button>
-          </CardContent>
-        </Card>
-        <Card className="glassmorphic md:col-span-2 lg:col-span-3">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><BarChart3 /> Offer Tracker</CardTitle>
-            <CardDescription>Track the performance of your offers across different audience segments.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex justify-center items-center h-48 bg-muted/30 rounded-md">
-             <p className="text-muted-foreground">Offer performance charts will be displayed here.</p>
-          </CardContent>
-        </Card>
-      </div>
+
+      {offers.length === 0 ? (
+         <div className="flex flex-col items-center justify-center text-center py-24 border-2 border-dashed rounded-lg">
+          <h3 className="text-xl font-semibold">No offers yet</h3>
+          <p className="text-muted-foreground mt-2 mb-4">Click "New Offer" to build your first offer stack.</p>
+          <Button onClick={handleAddOffer}>
+            <PlusCircle className="mr-2"/> New Offer
+          </Button>
+        </div>
+      ) : (
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 items-start">
+          {offers.map(offer => (
+            <AlertDialog key={offer.id}>
+              <OfferCard 
+                offer={offer} 
+                onEdit={() => handleEditOffer(offer)} 
+                onDelete={() => {
+                  const trigger = document.getElementById(`delete-trigger-${offer.id}`);
+                  trigger?.click();
+                }}
+              />
+              <AlertDialogTrigger asChild id={`delete-trigger-${offer.id}`} className="hidden">
+                  <Button variant="destructive">Delete</Button>
+              </AlertDialogTrigger>
+               <AlertDialogContent>
+                  <AlertDialogHeader>
+                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                          This will permanently delete the offer. This action cannot be undone.
+                      </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => handleDeleteOffer(offer.id)}>Delete</AlertDialogAction>
+                  </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -34,13 +34,19 @@ const generateYoutubeVideoFlow = ai.defineFlow(
     outputSchema: GenerateYoutubeVideoOutputSchema,
   },
   async ({ script, images, audio }) => {
+    
+    const promptParts = [
+        { text: `Generate a video based on the following script, using the provided images as reference for the scenes. The provided audio is the voiceover for the entire video. The video's duration should match the audio's duration. Script: ${script}` },
+         ...images.map(url => ({ media: { url, contentType: 'image/png' } })),
+    ];
+    
+    if (audio) {
+        promptParts.push({ media: { url: audio, contentType: 'audio/wav' } });
+    }
+
     let { operation } = await ai.generate({
         model: 'googleai/veo-2.0-generate-001',
-        prompt: [
-            { text: `Generate a video based on the following script, using the provided images as reference for the scenes. The provided audio is the voiceover for the entire video. The video's duration should match the audio's duration. Script: ${script}` },
-            ...images.map(url => ({ media: { url, contentType: 'image/png' } })),
-            { media: { url: audio, contentType: 'audio/wav' } },
-        ],
+        prompt: promptParts,
         config: {
           aspectRatio: '16:9',
         },

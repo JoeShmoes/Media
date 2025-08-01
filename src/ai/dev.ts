@@ -9,3 +9,4 @@ import '@/ai/flows/perform-research.ts';
 import '@/ai/flows/generate-youtube-images.ts';
 import '@/ai/flows/generate-youtube-audio.ts';
 import '@/ai/flows/generate-youtube-video.ts';
+import '@/ai/flows/generate-offer.ts';

@@ -26,7 +26,9 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import type { Offer, OfferFeature } from "@/lib/types"
-import { PlusCircle, Trash2 } from "lucide-react"
+import { PlusCircle, Trash2, Bot, Loader2 } from "lucide-react"
+import { generateOffer } from "@/ai/flows/generate-offer"
+import { useToast } from "@/hooks/use-toast"
 
 const featureSchema = z.object({
     id: z.string(),
@@ -51,6 +53,9 @@ interface OfferDialogProps {
 }
 
 export function OfferDialog({ open, onOpenChange, offer, onSave }: OfferDialogProps) {
+  const [isGenerating, setIsGenerating] = React.useState(false);
+  const { toast } = useToast();
+
   const form = useForm<FormValues>({
     resolver: zodResolver(offerSchema),
     defaultValues: {
@@ -62,7 +67,7 @@ export function OfferDialog({ open, onOpenChange, offer, onSave }: OfferDialogPr
     }
   })
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, replace } = useFieldArray({
     control: form.control,
     name: "features"
   });
@@ -84,6 +89,33 @@ export function OfferDialog({ open, onOpenChange, offer, onSave }: OfferDialogPr
   const onSubmit = (data: FormValues) => {
     onSave(data)
     onOpenChange(false)
+  }
+
+  const handleAiAssist = async () => {
+    setIsGenerating(true);
+    try {
+        const productInfo = prompt("What product or service are you selling?");
+        const targetAudience = prompt("Who is your target audience?");
+        if (!productInfo || !targetAudience) {
+          setIsGenerating(false);
+          return;
+        }
+
+        const result = await generateOffer({ productInfo, targetAudience });
+        form.setValue("title", result.title);
+        form.setValue("description", result.description);
+        form.setValue("price", result.price);
+        replace(result.features.map(f => ({ id: `feature-${Date.now()}-${f.substring(0,5)}`, name: f })));
+
+    } catch (e) {
+        toast({
+            variant: "destructive",
+            title: "Error Generating Offer",
+            description: "There was an issue generating the offer. Please try again.",
+        });
+    } finally {
+        setIsGenerating(false);
+    }
   }
 
   return (
@@ -173,7 +205,11 @@ export function OfferDialog({ open, onOpenChange, offer, onSave }: OfferDialogPr
                 </Button>
             </div>
             
-            <DialogFooter>
+            <DialogFooter className="gap-2 sm:justify-between">
+                <Button type="button" variant="outline" onClick={handleAiAssist} disabled={isGenerating}>
+                    {isGenerating ? <Loader2 className="animate-spin" /> : <Bot />}
+                    AI Assist
+                </Button>
               <Button type="submit">Save Offer</Button>
             </DialogFooter>
           </form>

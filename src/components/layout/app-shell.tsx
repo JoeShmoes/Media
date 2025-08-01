@@ -1,3 +1,4 @@
+
 "use client"
 import * as React from "react"
 import Link from "next/link"
@@ -40,12 +41,10 @@ import {
   Network,
   Target,
   FlaskConical,
-  Clock,
   View,
   Shield,
   Package,
   Archive,
-  Handshake,
   Palette,
   Building,
   Workflow,
@@ -93,7 +92,6 @@ const businessBuilderNavItems = [
 ]
 
 const workflowNavItems = [
-    { href: "/routine-clock", icon: Clock, label: "Routine Clock" },
     { href: "/pipeline-tracker", icon: View, label: "Pipeline Tracker" },
     { href: "/client-portal", icon: Shield, label: "Client Portal" },
 ]

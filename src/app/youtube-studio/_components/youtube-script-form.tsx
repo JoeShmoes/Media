@@ -3,8 +3,7 @@ import * as React from "react"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Bot, Copy, Image as ImageIcon, Volume2, Loader2, PlayCircle, Video, Download } from "lucide-react"
-import Image from "next/image"
+import { Bot, Copy, Image as ImageIcon, Volume2, Loader2, PlayCircle, Video, Download, CheckCircle, Circle } from "lucide-react"
 
 import {
   generateYouTubeScript,
@@ -50,18 +49,67 @@ type FormValues = z.infer<typeof formSchema>
 
 type GeneratedImages = { [paragraphIndex: number]: string[] };
 
+type GenerationState = "idle" | "script" | "images" | "audio" | "video" | "done" | "error";
+type GenerationStatus = {
+    script: GenerationState;
+    images: GenerationState;
+    audio: GenerationState;
+    video: GenerationState;
+}
+
+const GenerationTracker = ({ status }: { status: GenerationStatus }) => {
+    const steps = [
+        { key: "script" as keyof GenerationStatus, label: "Script" },
+        { key: "images" as keyof GenerationStatus, label: "Images" },
+        { key: "audio" as keyof GenerationStatus, label: "Voiceover" },
+        { key: "video" as keyof GenerationStatus, label: "Video" },
+    ]
+
+    const getIcon = (stepStatus: GenerationState) => {
+        switch (stepStatus) {
+            case "idle":
+                return <Circle className="h-5 w-5 text-muted-foreground" />;
+            case "script":
+            case "images":
+            case "audio":
+            case "video":
+                return <Loader2 className="h-5 w-5 animate-spin" />;
+            case "done":
+                return <CheckCircle className="h-5 w-5 text-green-500" />;
+            case "error":
+                return <Circle className="h-5 w-5 text-destructive" />; // Replace with a more suitable error icon if available
+            default:
+                return <Circle className="h-5 w-5 text-muted-foreground" />;
+        }
+    }
+
+    return (
+        <div className="space-y-4">
+            {steps.map((step, index) => (
+                <div key={step.key} className="flex items-center gap-4">
+                    {getIcon(status[step.key])}
+                    <span className="font-medium">{step.label}</span>
+                </div>
+            ))}
+        </div>
+    )
+}
+
+
 export function YoutubeScriptForm() {
   const [generatedScript, setGeneratedScript] = React.useState<GenerateYouTubeScriptOutput | null>(null)
   const [generatedImages, setGeneratedImages] = React.useState<GeneratedImages>({})
   const [generatedAudio, setGeneratedAudio] = React.useState<string | null>(null)
   const [generatedVideo, setGeneratedVideo] = React.useState<string | null>(null)
-  
-  const [isLoadingScript, setIsLoadingScript] = React.useState(false)
-  const [isLoadingImages, setIsLoadingImages] = React.useState(false)
-  const [isLoadingAudio, setIsLoadingAudio] = React.useState(false)
-  const [isLoadingVideo, setIsLoadingVideo] = React.useState(false)
-  const [loadingParagraph, setLoadingParagraph] = React.useState<number | null>(null)
 
+  const [isGenerating, setIsGenerating] = React.useState(false);
+  const [generationStatus, setGenerationStatus] = React.useState<GenerationStatus>({
+      script: 'idle',
+      images: 'idle',
+      audio: 'idle',
+      video: 'idle',
+  });
+  
   const { toast } = useToast()
 
   const form = useForm<FormValues>({
@@ -76,27 +124,6 @@ export function YoutubeScriptForm() {
   }, [generatedScript]);
 
 
-  const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    setIsLoadingScript(true)
-    setGeneratedScript(null)
-    setGeneratedImages({})
-    setGeneratedAudio(null)
-    setGeneratedVideo(null)
-    try {
-      const result = await generateYouTubeScript(data)
-      setGeneratedScript(result)
-    } catch (error) {
-      console.error(error)
-      toast({
-        variant: "destructive",
-        title: "Error Generating Script",
-        description: "There was an issue generating the script. Please try again.",
-      })
-    } finally {
-      setIsLoadingScript(false)
-    }
-  }
-
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text)
     toast({
@@ -104,79 +131,59 @@ export function YoutubeScriptForm() {
     })
   }
   
-  const handleGenerateImages = async (paragraph: string, index: number) => {
-    setLoadingParagraph(index);
-    try {
-      const result = await generateYoutubeImages({ paragraph });
-      setGeneratedImages(prev => ({ ...prev, [index]: result.images }));
-    } catch (error) {
-       console.error(error)
-       toast({
-        variant: "destructive",
-        title: "Error Generating Images",
-        description: "There was an issue generating images for the paragraph.",
-      })
-    } finally {
-        setLoadingParagraph(null);
-    }
-  }
-  
-  const handleGenerateAllImages = async () => {
-    if (!scriptParagraphs) return;
-    setIsLoadingImages(true);
-    for (let i = 0; i < scriptParagraphs.length; i++) {
-        await handleGenerateImages(scriptParagraphs[i], i);
-    }
-    setIsLoadingImages(false);
-  }
+  const handleGenerateAll = async (data: FormValues) => {
+    setIsGenerating(true);
+    setGeneratedScript(null);
+    setGeneratedImages({});
+    setGeneratedAudio(null);
+    setGeneratedVideo(null);
+    setGenerationStatus({ script: 'script', images: 'idle', audio: 'idle', video: 'idle' });
 
-  const handleGenerateAudio = async () => {
-    if (!generatedScript) return;
-    setIsLoadingAudio(true);
     try {
-        const result = await generateYoutubeAudio({ script: generatedScript.script });
-        setGeneratedAudio(result.audio);
-    } catch (error) {
-        console.error(error);
-        toast({
-            variant: "destructive",
-            title: "Error Generating Audio",
-            description: "There was an issue generating the voiceover.",
-        });
-    } finally {
-        setIsLoadingAudio(false);
-    }
-  };
+        // 1. Generate Script
+        const scriptResult = await generateYouTubeScript(data);
+        setGeneratedScript(scriptResult);
+        setGenerationStatus(prev => ({ ...prev, script: 'done', images: 'images' }));
+        const paragraphs = scriptResult.script.split('\n').filter(p => p.trim().length > 0);
 
-  const handleGenerateVideo = async () => {
-    if (!generatedScript || !generatedAudio || Object.keys(generatedImages).length === 0) {
-        toast({
-            variant: "destructive",
-            title: "Missing Content",
-            description: "Please generate a script, audio, and at least one image before generating the video.",
-        });
-        return;
-    }
-    setIsLoadingVideo(true);
-    try {
-        const allImages = Object.values(generatedImages).flat();
-        const result = await generateYoutubeVideo({
-            script: generatedScript.script,
-            audio: generatedAudio,
+        // 2. Generate Images
+        const imagePromises = paragraphs.map(p => generateYoutubeImages({ paragraph: p }));
+        const imageResults = await Promise.all(imagePromises);
+        const newImages = imageResults.reduce((acc, result, index) => {
+            acc[index] = result.images;
+            return acc;
+        }, {} as GeneratedImages);
+        setGeneratedImages(newImages);
+        setGenerationStatus(prev => ({ ...prev, images: 'done', audio: 'audio' }));
+
+        // 3. Generate Audio
+        const audioResult = await generateYoutubeAudio({ script: scriptResult.script });
+        setGeneratedAudio(audioResult.audio);
+        setGenerationStatus(prev => ({ ...prev, audio: 'done', video: 'video' }));
+
+        // 4. Generate Video
+        const allImages = Object.values(newImages).flat();
+        const videoResult = await generateYoutubeVideo({
+            script: scriptResult.script,
+            audio: audioResult.audio,
             images: allImages,
         });
-        setGeneratedVideo(result.video);
+        setGeneratedVideo(videoResult.video);
+        setGenerationStatus(prev => ({ ...prev, video: 'done' }));
+
     } catch (error) {
         console.error(error);
+        const currentStep = Object.keys(generationStatus).find(k => generationStatus[k as keyof GenerationStatus] === 'images' || generationStatus[k as keyof GenerationStatus] === 'audio' || generationStatus[k as keyof GenerationStatus] === 'video' || generationStatus[k as keyof GenerationStatus] === 'script' )
+        setGenerationStatus(prev => ({ ...prev, [currentStep || 'script']: 'error' }));
         toast({
             variant: "destructive",
-            title: "Error Generating Video",
-            description: "There was an issue generating the video. This can be due to high demand. Please try again later.",
+            title: `Error During ${currentStep || 'Generation'}`,
+            description: "There was an issue generating media. Please try again.",
         });
     } finally {
-        setIsLoadingVideo(false);
+        setIsGenerating(false);
     }
-  };
+  }
 
 
   return (
@@ -184,11 +191,11 @@ export function YoutubeScriptForm() {
       <div className="space-y-8">
         <Card className="glassmorphic">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
+            <form onSubmit={form.handleSubmit(handleGenerateAll)}>
               <CardHeader>
                 <CardTitle>Video Idea</CardTitle>
                 <CardDescription>
-                  Enter your video topic to generate a full script.
+                  Enter your video topic to generate a full script and all media assets.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -196,68 +203,64 @@ export function YoutubeScriptForm() {
                   <FormItem>
                     <FormLabel>Video Topic</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., A day in the life of a solo entrepreneur" {...field} />
+                      <Input placeholder="e.g., A day in the life of a solo entrepreneur" {...field} disabled={isGenerating} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
               </CardContent>
               <CardFooter>
-                <Button type="submit" disabled={isLoadingScript}>
-                  {isLoadingScript ? <Loader2 className="animate-spin" /> : <Bot />}
-                  {isLoadingScript ? "Generating..." : "Generate Script"}
+                <Button type="submit" disabled={isGenerating} className="w-full">
+                  {isGenerating ? <Loader2 className="animate-spin" /> : <Bot />}
+                  {isGenerating ? "Generating Media..." : "Generate Media Assets"}
                 </Button>
               </CardFooter>
             </form>
           </Form>
         </Card>
         
-        {generatedScript && (
-          <Card className="glassmorphic">
-            <CardHeader>
-                <CardTitle>AI Media Suite</CardTitle>
-                <CardDescription>Generate visuals, audio and video for your script.</CardDescription>
-            </CardHeader>
-            <CardContent className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <Button onClick={handleGenerateAllImages} disabled={isLoadingImages || isLoadingScript}>
-                    {isLoadingImages ? <Loader2 className="animate-spin" /> : <ImageIcon />}
-                    {isLoadingImages ? "Generating Images..." : "Generate All Images"}
-                </Button>
-                 <Button onClick={handleGenerateAudio} disabled={isLoadingAudio || isLoadingScript}>
-                    {isLoadingAudio ? <Loader2 className="animate-spin" /> : <Volume2 />}
-                    {isLoadingAudio ? "Generating Audio..." : "Generate Voiceover"}
-                </Button>
-                 <Button onClick={handleGenerateVideo} disabled={isLoadingVideo || !generatedAudio || Object.keys(generatedImages).length === 0}>
-                    {isLoadingVideo ? <Loader2 className="animate-spin" /> : <Video />}
-                    {isLoadingVideo ? "Generating Video..." : "Generate Video"}
-                </Button>
-            </CardContent>
-             {generatedAudio && (
-                 <CardContent>
-                    <div className="w-full space-y-2">
-                        <h4 className="font-medium flex items-center"><PlayCircle className="mr-2"/> Generated Voiceover</h4>
-                        <audio controls src={generatedAudio} className="w-full">
-                            Your browser does not support the audio element.
-                        </audio>
-                    </div>
-                </CardContent>
-            )}
-             {generatedVideo && (
+        {isGenerating && (
+             <Card className="glassmorphic">
+                <CardHeader>
+                    <CardTitle>Generation Progress</CardTitle>
+                    <CardDescription>The AI is creating your assets. Please wait.</CardDescription>
+                </CardHeader>
                 <CardContent>
-                     <div className="w-full space-y-2">
-                        <h4 className="font-medium flex items-center"><Video className="mr-2"/> Generated Video</h4>
-                        <video controls src={generatedVideo} className="w-full rounded-md" />
-                         <Button asChild className="mt-2">
-                            <a href={generatedVideo} download="youtube-video.mp4">
-                                <Download className="mr-2" /> Download Video
-                            </a>
-                        </Button>
-                    </div>
+                   <GenerationTracker status={generationStatus} />
                 </CardContent>
-             )}
-          </Card>
+             </Card>
         )}
 
+        {(generatedAudio || generatedVideo) && (
+            <Card className="glassmorphic">
+                <CardHeader>
+                    <CardTitle>Generated Media</CardTitle>
+                </CardHeader>
+                 {generatedAudio && (
+                     <CardContent>
+                        <div className="w-full space-y-2">
+                            <h4 className="font-medium flex items-center"><PlayCircle className="mr-2"/> Generated Voiceover</h4>
+                            <audio controls src={generatedAudio} className="w-full">
+                                Your browser does not support the audio element.
+                            </audio>
+                        </div>
+                    </CardContent>
+                )}
+                 {generatedVideo && (
+                    <CardContent>
+                         <div className="w-full space-y-2">
+                            <h4 className="font-medium flex items-center"><Video className="mr-2"/> Final Video</h4>
+                            <video controls src={generatedVideo} className="w-full rounded-md" />
+                             <Button asChild className="mt-2 w-full">
+                                <a href={generatedVideo} download="youtube-video.mp4">
+                                    <Download className="mr-2" /> Download Video
+                                </a>
+                            </Button>
+                        </div>
+                    </CardContent>
+                 )}
+            </Card>
+        )}
       </div>
       <Card className="glassmorphic">
         <CardHeader>
@@ -267,7 +270,7 @@ export function YoutubeScriptForm() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {isLoadingScript ? (
+          {generationStatus.script === 'script' && !generatedScript ? (
             <div className="space-y-4">
               <Skeleton className="h-10 w-full" />
               <Skeleton className="h-40 w-full" />
@@ -294,7 +297,7 @@ export function YoutubeScriptForm() {
             </Accordion>
             <Separator className="my-4" />
             <div>
-                <h3 className="text-lg font-semibold mb-2">Script</h3>
+                <h3 className="text-lg font-semibold mb-2">Script & Scenes</h3>
                  {scriptParagraphs.map((paragraph, index) => (
                    <div key={index} className="mb-6">
                         <div className="relative">
@@ -306,16 +309,16 @@ export function YoutubeScriptForm() {
                             </Button>
                         </div>
                         <div className="mt-2">
-                           {loadingParagraph === index ? (
+                           {generationStatus.images === 'images' && !generatedImages[index] ? (
                              <div className="flex justify-center items-center h-32">
                                 <Loader2 className="animate-spin text-primary" />
                              </div>
                            ) : generatedImages[index] ? (
                                 <ImageSlideshow images={generatedImages[index]} />
                            ) : (
-                                <Button size="sm" variant="outline" onClick={() => handleGenerateImages(paragraph, index)} disabled={loadingParagraph !== null}>
-                                    <ImageIcon className="mr-2" /> Generate Images
-                                </Button>
+                                <div className="flex justify-center items-center h-32 bg-muted/50 rounded-md">
+                                    <p className="text-muted-foreground text-sm">Waiting for images...</p>
+                                </div>
                            )}
                         </div>
                    </div>

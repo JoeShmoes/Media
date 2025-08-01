@@ -34,6 +34,10 @@ import {
   Bell,
   ListTodo,
   Notebook,
+  FileText,
+  LayoutTemplate,
+  Blocks,
+  GanttChartSquare,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import {
@@ -67,6 +71,10 @@ const essentialsNavItems = [
   { href: "/projects", icon: KanbanSquare, label: "Projects" },
   { href: "/outreach", icon: SendHorizonal, label: "Outreach" },
   { href: "/finance", icon: CircleDollarSign, label: "Finance" },
+  { href: "/autodocs", icon: FileText, label: "AutoDocs" },
+  { href: "/template-builder", icon: LayoutTemplate, label: "Template Builder" },
+  { href: "/integration-hub", icon: Blocks, label: "Integration Hub" },
+  { href: "/audit-room", icon: GanttChartSquare, label: "Audit Room" },
 ]
 
 const contentCreationNavItems = [
@@ -103,14 +111,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Icons.logo className="w-8 h-8 text-white group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10 transition-all group-data-[state=expanded]:hidden"/>
             <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">Nexaris Media</span>
         </SidebarHeader>
-        <SidebarSeparator />
         <SidebarContent>
           <SidebarGroup className="mt-4">
              <SidebarGroupLabel>Favourites</SidebarGroupLabel>
             <SidebarMenu>
               {favouritesNavItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <Link href={item.href} passHref>
+                  <Link href={item.href}>
                     <SidebarMenuButton
                       isActive={pathname === item.href}
                       tooltip={item.label}
@@ -128,7 +135,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <SidebarMenu>
               {essentialsNavItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <Link href={item.href} passHref>
+                  <Link href={item.href}>
                     <SidebarMenuButton
                       isActive={pathname === item.href}
                       tooltip={item.label}
@@ -146,7 +153,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <SidebarMenu>
               {contentCreationNavItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <Link href={item.href} passHref>
+                  <Link href={item.href}>
                     <SidebarMenuButton
                       isActive={pathname === item.href}
                       tooltip={item.label}

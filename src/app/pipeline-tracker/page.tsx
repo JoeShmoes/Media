@@ -6,18 +6,18 @@ import { PlusCircle } from "lucide-react";
 export default function PipelineTrackerPage() {
   const boardData = {
     leads: [
-      { id: "lead-1", title: "Prospect from Website", value: "$2,500" },
-      { id: "lead-2", title: "Referral from Synergy", value: "$5,000" },
+      { id: "lead-1", title: "Prospect from Website", value: 2500 },
+      { id: "lead-2", title: "Referral from Synergy", value: 5000 },
     ],
     "needs-analysis": [
-      { id: "need-1", title: "Initial call with Apex", value: "$10,000" },
+      { id: "need-1", title: "Initial call with Apex", value: 10000 },
     ],
     proposal: [
-      { id: "prop-1", title: "Send proposal to Innovate Inc.", value: "$7,500", status: "Hot" },
+      { id: "prop-1", title: "Send proposal to Innovate Inc.", value: 7500, status: "Hot" },
     ],
     negotiation: [],
     closed: [
-      { id: "closed-1", title: "Won: QuantumLeap Deal", value: "$15,000", status: "Won" },
+      { id: "closed-1", title: "Won: QuantumLeap Deal", value: 15000, status: "Won" },
     ],
   };
 
@@ -53,7 +53,7 @@ export default function PipelineTrackerPage() {
                 <Card key={task.id} className="glassmorphic">
                   <CardContent className="p-3">
                     <p className="font-medium">{task.title}</p>
-                    <p className="text-sm text-muted-foreground">{task.value}</p>
+                    <p className="text-sm text-muted-foreground">${task.value.toLocaleString()}</p>
                     {task.status && (
                        <span className={`mt-2 inline-block w-3 h-3 rounded-full ${statusColors[task.status]}`} title={task.status} />
                     )}

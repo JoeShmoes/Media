@@ -37,12 +37,11 @@ const generateYoutubeVideoFlow = ai.defineFlow(
     let { operation } = await ai.generate({
         model: 'googleai/veo-2.0-generate-001',
         prompt: [
-            { text: `Generate a video based on the following script, using the provided images as reference for the scenes. The audio for the video is provided. Script: ${script}` },
+            { text: `Generate a video based on the following script, using the provided images as reference for the scenes. The provided audio is the voiceover for the entire video. The video's duration should match the audio's duration. Script: ${script}` },
             ...images.map(url => ({ media: { url, contentType: 'image/png' } })),
             { media: { url: audio, contentType: 'audio/wav' } },
         ],
         config: {
-          durationSeconds: 8,
           aspectRatio: '16:9',
         },
       });
@@ -64,7 +63,7 @@ const generateYoutubeVideoFlow = ai.defineFlow(
 
     const videoPart = operation.output?.message?.content.find((p) => !!p.media && p.media.contentType?.startsWith('video/'));
 
-    if (!videoPart || !videoPart.media) {
+    if (!videoPart || !videoPart.media || !videoPart.media.url) {
         throw new Error('Failed to find the generated video');
     }
 
@@ -78,8 +77,8 @@ const generateYoutubeVideoFlow = ai.defineFlow(
         throw new Error(`Failed to fetch video: ${videoDownloadResponse.statusText}`);
     }
     
-    const buffer = await videoDownloadResponse.buffer();
-    const base64Video = buffer.toString('base64');
+    const buffer = await videoDownloadResponse.arrayBuffer();
+    const base64Video = Buffer.from(buffer).toString('base64');
     
     return {
         video: `data:video/mp4;base64,${base64Video}`,

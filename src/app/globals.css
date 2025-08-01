@@ -85,7 +85,6 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif;
   }
   
   /* Hide scrollbar for Chrome, Safari and Opera */

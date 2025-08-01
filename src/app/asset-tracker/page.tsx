@@ -43,6 +43,11 @@ export default function AssetTrackerPage() {
   const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
   const [isSearching, setIsSearching] = React.useState(false);
   const [searchResults, setSearchResults] = React.useState<SearchAssetsOutput | null>(null);
+  
+  // Refs for scrolling
+  const domainsRef = React.useRef<HTMLDivElement>(null);
+  const designRef = React.useRef<HTMLDivElement>(null);
+  const legalRef = React.useRef<HTMLDivElement>(null);
 
 
   // Load data from localStorage
@@ -89,6 +94,22 @@ export default function AssetTrackerPage() {
             legalDocs,
           });
           setSearchResults(results);
+
+          // Scroll to section if results are in only one category
+          const { domainIds, designAssetIds, legalDocIds } = results;
+          const resultCategories = [domainIds.length > 0, designAssetIds.length > 0, legalDocIds.length > 0];
+          const singleCategory = resultCategories.filter(Boolean).length === 1;
+          
+          if (singleCategory) {
+            if (domainIds.length > 0) {
+              domainsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else if (designAssetIds.length > 0) {
+              designRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else if (legalDocIds.length > 0) {
+              legalRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }
+
         } catch (error) {
           console.error("AI search failed:", error);
           toast({
@@ -190,7 +211,7 @@ export default function AssetTrackerPage() {
           </CardContent>
         </Card>
 
-        <Card className="glassmorphic">
+        <Card className="glassmorphic" ref={domainsRef}>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle>Domains & Tools</CardTitle>
@@ -205,7 +226,7 @@ export default function AssetTrackerPage() {
           </CardContent>
         </Card>
 
-        <Card className="glassmorphic">
+        <Card className="glassmorphic" ref={designRef}>
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle>Design Library</CardTitle>
@@ -220,7 +241,7 @@ export default function AssetTrackerPage() {
           </CardContent>
         </Card>
 
-        <Card className="glassmorphic">
+        <Card className="glassmorphic" ref={legalRef}>
           <CardHeader className="flex flex-row items-center justify-between">
              <div>
                 <CardTitle>Legal Docs</CardTitle>
@@ -238,3 +259,5 @@ export default function AssetTrackerPage() {
     </div>
   );
 }
+
+    

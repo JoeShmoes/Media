@@ -15,7 +15,9 @@ const GenerateOutreachCopyInputSchema = z.object({
   leadData: z.string().describe('Additional information about the lead, such as their company, role, and interests.'),
   outreachType: z.enum(['DM', 'Email', 'Phone']).describe('The type of outreach copy to generate.'),
   productDescription: z.string().describe('Description of the product or service being offered.'),
-  length: z.enum(["Short", "Long"]).describe("The desired length of the message.")
+  length: z.enum(["Short", "Long"]).describe("The desired length of the message."),
+  userContext: z.string().optional().describe("Background context about the user sending the message."),
+  userName: z.string().describe("The name of the user sending the message.")
 });
 export type GenerateOutreachCopyInput = z.infer<typeof GenerateOutreachCopyInputSchema>;
 
@@ -46,15 +48,21 @@ const prompt = ai.definePrompt({
   - Message Length: {{{length}}}
   - Product/Service: {{{productDescription}}}
 
+  **Your Context:**
+  - My Name: {{{userName}}}
+  - My Background: {{{userContext}}}
+
   **Instructions:**
-  1.  **Be Human:** Write in a natural, conversational tone. Avoid overly formal or robotic language.
+  1.  **Be Human:** Write in a natural, conversational tone. Avoid overly formal or robotic language. Use my background context to inform your writing style.
   2.  **Be Professional:** The goal is to start a business relationship, so maintain a respectful tone.
   3.  **Avoid Excessive Praise:** Reference the lead's work or achievements if relevant, but do so concisely and genuinely. Do not "waffle" or "glaze." The focus should be on providing value.
-  4.  **Subject Line (for Emails):** If the outreach type is 'Email', create a compelling, short, and personalized subject line. Do not include "Subject:" in the output. If the type is not 'Email', the subject field should be empty.
-  5.  **Message Length:** Adhere to the requested length.
+  4.  **No Generic Openings:** For longer emails, do NOT start with "I hope this message finds you well" or similar generic phrases. Get straight to the point.
+  5.  **Subject Line (for Emails):** If the outreach type is 'Email', create a compelling, short, and personalized subject line. Do not include "Subject:" in the output. If the type is not 'Email', the subject field should be empty.
+  6.  **Message Length:** Adhere to the requested length.
       - **Short:** A brief, concise message, typically 2-3 sentences. Perfect for a quick DM or initial contact.
       - **Long:** A more detailed message, typically 2-3 paragraphs, providing more context.
-  6.  **Call to Action:** End with a clear, low-friction call to action.
+  7.  **Call to Action:** End with a clear, low-friction call to action.
+  8.  **Sign-off:** End the message with a professional closing like "Sincerely," or "--", followed by my name: {{{userName}}}.
 
   Generate the outreach copy now.
   `,

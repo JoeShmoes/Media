@@ -43,6 +43,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 const formSchema = z.object({
   leadName: z.string().min(2, "Lead name is required"),
   leadData: z.string().min(10, "Lead data must be at least 10 characters"),
+  userContext: z.string().optional(),
   outreachType: z.enum(["DM", "Email", "Phone"]),
   productDescription: z.string().min(10, "Product description must be at least 10 characters"),
   length: z.enum(["Short", "Long"]),
@@ -58,17 +59,22 @@ export function OutreachForm() {
     defaultValues: {
       leadName: "",
       leadData: "",
+      userContext: "I am the founder of Nexaris Media, an AI-powered agency that helps businesses scale with intelligent automation and content creation.",
       outreachType: "Email",
       productDescription: "An all-in-one AI command hub to run and scale businesses.",
-      length: "Short",
+      length: "Long",
     },
   })
 
-  const onSubmit: SubmitHandler<GenerateOutreachCopyInput> = async (data) => {
+  const onSubmit: SubmitHandler<z.infer<typeof formSchema>> = async (data) => {
     setIsLoading(true)
     setGeneratedCopy(null)
     try {
-      const result = await generateOutreachCopy(data)
+       const input: GenerateOutreachCopyInput = {
+        ...data,
+        userName: "Fozan", // In a real app, this would come from user data
+      };
+      const result = await generateOutreachCopy(input)
       setGeneratedCopy(result)
     } catch (error) {
       console.error(error)
@@ -91,9 +97,9 @@ export function OutreachForm() {
 
   return (
     <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
       <div className="grid md:grid-cols-2 gap-8 items-start">
         <Card className="glassmorphic">
-          <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardHeader>
               <CardTitle>Lead Details</CardTitle>
               <CardDescription>
@@ -123,6 +129,22 @@ export function OutreachForm() {
                     <FormControl>
                       <Textarea
                         placeholder="e.g., CEO at Innovate Inc, interested in scaling operations..."
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+               <FormField
+                control={form.control}
+                name="userContext"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Your Context</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Describe yourself, your company, or your role..."
                         {...field}
                       />
                     </FormControl>
@@ -198,7 +220,6 @@ export function OutreachForm() {
                 {isLoading ? "Generating..." : "Generate Copy"}
               </Button>
             </CardFooter>
-          </form>
         </Card>
         <Card className="glassmorphic sticky top-24">
           <CardHeader>
@@ -253,6 +274,7 @@ export function OutreachForm() {
           </CardContent>
         </Card>
       </div>
+      </form>
     </Form>
   )
 }

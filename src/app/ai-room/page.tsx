@@ -1,7 +1,7 @@
-"use client"
-
 import { PageHeader } from "@/components/page-header"
-import { AiRoomChat } from "./_components/ai-room-chat"
+import dynamic from "next/dynamic"
+
+const AiRoomChat = dynamic(() => import("./_components/ai-room-chat").then(mod => mod.AiRoomChat), { ssr: false })
 
 export default function AiRoomPage() {
   return (

@@ -1,7 +1,7 @@
-"use client"
-
 import { PageHeader } from "@/components/page-header"
-import { ContentForm } from "./_components/content-form"
+import dynamic from "next/dynamic"
+
+const ContentForm = dynamic(() => import("./_components/content-form").then(mod => mod.ContentForm), { ssr: false })
 
 export default function ContentPage() {
   return (

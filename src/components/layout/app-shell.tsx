@@ -65,13 +65,13 @@ const essentialsNavItems = [
   { href: "/gm", icon: MessageSquare, label: "GM" },
   { href: "/clients", icon: Users, label: "Client" },
   { href: "/projects", icon: KanbanSquare, label: "Projects" },
+  { href: "/outreach", icon: SendHorizonal, label: "Outreach" },
   { href: "/finance", icon: CircleDollarSign, label: "Finance" },
 ]
 
 const contentCreationNavItems = [
   { href: "/content", icon: PenSquare, label: "Content" },
   { href: "/youtube-studio", icon: Youtube, label: "Studio" },
-  { href: "/outreach", icon: SendHorizonal, label: "Outreach" },
 ]
 
 function Clock() {

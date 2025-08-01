@@ -53,6 +53,11 @@ import {
 } from "@/components/ui/popover"
 import { Icons } from "../icons"
 
+const favouritesNavItems = [
+  { href: "/ai-room", icon: BrainCircuit, label: "Crifohay" },
+  { href: "/research", icon: Search, label: "Research" },
+]
+
 const essentialsNavItems = [
   { href: "/", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/tasks", icon: ListTodo, label: "Tasks" },
@@ -67,8 +72,6 @@ const contentCreationNavItems = [
   { href: "/content", icon: PenSquare, label: "Content" },
   { href: "/youtube-studio", icon: Youtube, label: "Studio" },
   { href: "/outreach", icon: SendHorizonal, label: "Outreach" },
-  { href: "/ai-room", icon: BrainCircuit, label: "AI Room" },
-  { href: "/research", icon: Search, label: "Research" },
 ]
 
 function Clock() {
@@ -102,6 +105,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </SidebarHeader>
         <SidebarSeparator />
         <SidebarContent>
+          <SidebarGroup className="mt-4">
+             <SidebarGroupLabel>Favourites</SidebarGroupLabel>
+            <SidebarMenu>
+              {favouritesNavItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <Link href={item.href} legacyBehavior passHref>
+                    <SidebarMenuButton
+                      isActive={pathname === item.href}
+                      tooltip={item.label}
+                    >
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
           <SidebarGroup className="mt-4">
             <SidebarGroupLabel>Essentials</SidebarGroupLabel>
             <SidebarMenu>
@@ -171,7 +192,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-sidebar/80 backdrop-blur-md px-4 sm:px-6">
+        <header className="sticky top-0 z-10 flex h-14 items-center gap-4 bg-sidebar/80 backdrop-blur-md px-4 sm:px-6">
             <SidebarTrigger />
              <div className="relative flex-1 md:grow-0">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />

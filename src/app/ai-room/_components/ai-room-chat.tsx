@@ -164,94 +164,96 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full">
-        <ScrollArea className="flex-1" ref={scrollAreaRef}>
-          <div className="space-y-6 p-4">
-            {messages.map((message, index) => (
-              <div key={index}>
-                  {editingMessage?.index === index ? (
-                     <div className="flex items-end gap-2">
-                        <Textarea
-                            value={editingMessage.content}
-                            onChange={(e) => setEditingMessage({ ...editingMessage, content: e.target.value })}
-                            className="flex-1 resize-none"
-                            autoFocus
-                        />
-                        <div className="flex gap-1">
-                            <Button size="icon" onClick={handleSaveEdit} disabled={isLoading}><Save className="w-4 h-4"/></Button>
-                            <Button size="icon" variant="ghost" onClick={handleCancelEdit}><X className="w-4 h-4"/></Button>
-                        </div>
-                     </div>
-                  ) : (
-                    <div
-                        className={cn(
-                        "flex items-start gap-3 group",
-                        message.role === "user" && "justify-end"
-                        )}
-                    >
-                        {message.role === "assistant" && (
-                        <Avatar className="h-8 w-8 bg-primary text-primary-foreground p-1.5">
-                            <Icons.logo className="w-full h-full" />
-                        </Avatar>
-                        )}
-                        <div
-                        className={cn(
-                            "rounded-lg p-3 max-w-sm md:max-w-xl relative",
-                            message.role === "user"
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted"
-                        )}
-                        >
-                          <ReactMarkdown className="prose prose-sm dark:prose-invert prose-p:my-0 break-words">
-                            {message.content}
-                          </ReactMarkdown>
-
-                        </div>
-                        {message.role === "user" && (
-                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleStartEdit(index, message.content)}><Edit className="h-4 w-4" /></Button>
-                                <AlertDialog>
-                                    <AlertDialogTrigger asChild>
-                                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive"><Trash2 className="h-4 w-4"/></Button>
-                                    </AlertDialogTrigger>
-                                    <AlertDialogContent>
-                                        <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle></AlertDialogHeader>
-                                        <AlertDialogDescription>This will delete the message and the AI's response. This action cannot be undone.</AlertDialogDescription>
-                                        <AlertDialogFooter>
-                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <AlertDialogAction onClick={() => onDeleteMessage(session.id, index)}>Delete</AlertDialogAction>
-                                        </AlertDialogFooter>
-                                    </AlertDialogContent>
-                                </AlertDialog>
-                                <Avatar className="h-8 w-8">
-                                    <AvatarImage src="https://placehold.co/40x40.png" alt="@fozan" data-ai-hint="man portrait"/>
-                                    <AvatarFallback>FS</AvatarFallback>
-                                </Avatar>
+    <div className="flex flex-col h-full">
+        <div className="flex-1 overflow-y-auto">
+            <ScrollArea className="h-full" ref={scrollAreaRef}>
+            <div className="space-y-6 p-4">
+                {messages.map((message, index) => (
+                <div key={index}>
+                    {editingMessage?.index === index ? (
+                        <div className="flex items-end gap-2">
+                            <Textarea
+                                value={editingMessage.content}
+                                onChange={(e) => setEditingMessage({ ...editingMessage, content: e.target.value })}
+                                className="flex-1 resize-none"
+                                autoFocus
+                            />
+                            <div className="flex gap-1">
+                                <Button size="icon" onClick={handleSaveEdit} disabled={isLoading}><Save className="w-4 h-4"/></Button>
+                                <Button size="icon" variant="ghost" onClick={handleCancelEdit}><X className="w-4 h-4"/></Button>
                             </div>
-                        )}
-                        {message.role === "assistant" && (
-                            <Button variant="ghost" size="icon" className="h-7 w-7 self-center opacity-0 group-hover:opacity-100 transition-opacity" onClick={handleContinue}>
-                                <Plus className="w-4 h-4"/>
-                            </Button>
-                        )}
+                        </div>
+                    ) : (
+                        <div
+                            className={cn(
+                            "flex items-start gap-3 group",
+                            message.role === "user" && "justify-end"
+                            )}
+                        >
+                            {message.role === "assistant" && (
+                            <Avatar className="h-8 w-8 bg-primary text-primary-foreground p-1.5">
+                                <Icons.logo className="w-full h-full" />
+                            </Avatar>
+                            )}
+                            <div
+                            className={cn(
+                                "rounded-lg p-3 max-w-sm md:max-w-xl relative",
+                                message.role === "user"
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-muted"
+                            )}
+                            >
+                            <ReactMarkdown className="prose prose-sm dark:prose-invert prose-p:my-0 break-words">
+                                {message.content}
+                            </ReactMarkdown>
+
+                            </div>
+                            {message.role === "user" && (
+                                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleStartEdit(index, message.content)}><Edit className="h-4 w-4" /></Button>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive"><Trash2 className="h-4 w-4"/></Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle></AlertDialogHeader>
+                                            <AlertDialogDescription>This will delete the message and the AI's response. This action cannot be undone.</AlertDialogDescription>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction onClick={() => onDeleteMessage(session.id, index)}>Delete</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                    <Avatar className="h-8 w-8">
+                                        <AvatarImage src="https://placehold.co/40x40.png" alt="@fozan" data-ai-hint="man portrait"/>
+                                        <AvatarFallback>FS</AvatarFallback>
+                                    </Avatar>
+                                </div>
+                            )}
+                            {message.role === "assistant" && (
+                                <Button variant="ghost" size="icon" className="h-7 w-7 self-center opacity-0 group-hover:opacity-100 transition-opacity" onClick={handleContinue}>
+                                    <Plus className="w-4 h-4"/>
+                                </Button>
+                            )}
+                        </div>
+                    )}
+                </div>
+                ))}
+                {isLoading && (
+                <div className="flex items-start gap-3">
+                    <Avatar className="h-8 w-8 bg-primary text-primary-foreground p-1.5">
+                        <Icons.logo className="w-full h-full" />
+                    </Avatar>
+                    <div className="rounded-lg p-3 bg-muted flex items-center gap-1">
+                        <span className="h-2 w-2 bg-foreground/50 rounded-full animate-pulse delay-0" />
+                        <span className="h-2 w-2 bg-foreground/50 rounded-full animate-pulse delay-150" />
+                        <span className="h-2 w-2 bg-foreground/50 rounded-full animate-pulse delay-300" />
                     </div>
-                  )}
-              </div>
-            ))}
-            {isLoading && (
-              <div className="flex items-start gap-3">
-                 <Avatar className="h-8 w-8 bg-primary text-primary-foreground p-1.5">
-                    <Icons.logo className="w-full h-full" />
-                  </Avatar>
-                  <div className="rounded-lg p-3 bg-muted flex items-center gap-1">
-                    <span className="h-2 w-2 bg-foreground/50 rounded-full animate-pulse delay-0" />
-                    <span className="h-2 w-2 bg-foreground/50 rounded-full animate-pulse delay-150" />
-                    <span className="h-2 w-2 bg-foreground/50 rounded-full animate-pulse delay-300" />
-                  </div>
-              </div>
-            )}
-          </div>
-        </ScrollArea>
+                </div>
+                )}
+            </div>
+            </ScrollArea>
+        </div>
         <div className="p-4 border-t">
             <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex w-full items-center space-x-2">

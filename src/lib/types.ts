@@ -1,5 +1,13 @@
 
 
+export type GeneratePersonaOutput = {
+    name: string;
+    avatar: string;
+    bio: string;
+    goals: string[];
+    painPoints: string[];
+};
+
 
 export type Domain = {
   id: string;

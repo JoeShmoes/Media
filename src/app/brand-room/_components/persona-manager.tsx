@@ -2,7 +2,7 @@
 "use client"
 
 import * as React from "react"
-import { Users, PlusCircle, Edit, Trash2 } from "lucide-react"
+import { Users, PlusCircle, Edit, Trash2, Bot } from "lucide-react"
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -10,6 +10,8 @@ import type { Persona } from "@/lib/types"
 import { PersonaDialog } from "./persona-dialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import { PersonaAiDialog } from "./persona-ai-dialog"
+import type { GeneratePersonaOutput } from "@/ai/flows/generate-persona"
 
 interface PersonaManagerProps {
   personas: Persona[]
@@ -18,11 +20,12 @@ interface PersonaManagerProps {
 
 export function PersonaManager({ personas, setPersonas }: PersonaManagerProps) {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false)
+  const [isAiDialogOpen, setIsAiDialogOpen] = React.useState(false)
   const [editingPersona, setEditingPersona] = React.useState<Persona | null>(null)
 
   const handleSave = (personaData: Omit<Persona, 'id'> & { id?: string }) => {
     if (personaData.id) {
-      setPersonas(personas.map(p => p.id === personaData.id ? { ...p, ...personaData } : p))
+      setPersonas(personas.map(p => p.id === personaData.id ? { ...p, ...personaData } as Persona : p))
     } else {
       setPersonas([...personas, { ...personaData, id: `persona-${Date.now()}` }])
     }
@@ -37,17 +40,30 @@ export function PersonaManager({ personas, setPersonas }: PersonaManagerProps) {
     setIsDialogOpen(true);
   }
 
+  const handlePersonaGenerated = (generatedPersona: GeneratePersonaOutput) => {
+    const newPersona: Omit<Persona, 'id'> = {
+      ...generatedPersona,
+    };
+    handleSave(newPersona);
+    setIsAiDialogOpen(false);
+  }
+
   return (
     <>
     <Card className="glassmorphic">
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-row items-start justify-between">
         <div>
           <CardTitle className="flex items-center gap-2"><Users /> Target Personas</CardTitle>
           <CardDescription>Create and manage profiles for your target audiences.</CardDescription>
         </div>
-        <Button variant="outline" onClick={() => { setEditingPersona(null); setIsDialogOpen(true); }}>
-            <PlusCircle className="mr-2"/> Add Persona
-        </Button>
+        <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => setIsAiDialogOpen(true)}>
+                <Bot className="mr-2 h-4 w-4"/> AI Assist
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => { setEditingPersona(null); setIsDialogOpen(true); }}>
+                <PlusCircle className="mr-2 h-4 w-4"/> Add Persona
+            </Button>
+        </div>
       </CardHeader>
       <CardContent>
         {personas.length === 0 ? (
@@ -115,6 +131,11 @@ export function PersonaManager({ personas, setPersonas }: PersonaManagerProps) {
         onOpenChange={setIsDialogOpen}
         persona={editingPersona}
         onSave={handleSave}
+    />
+    <PersonaAiDialog
+        open={isAiDialogOpen}
+        onOpenChange={setIsAiDialogOpen}
+        onPersonaGenerated={handlePersonaGenerated}
     />
     </>
   )

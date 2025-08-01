@@ -4,7 +4,7 @@ import * as React from "react"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { PlusCircle, Trash2, Palette, Image as ImageIcon } from "lucide-react"
+import { PlusCircle, Trash2, Palette, Image as ImageIcon, Upload } from "lucide-react"
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -22,7 +22,6 @@ type ColorFormValues = z.infer<typeof colorSchema>
 
 const logoSchema = z.object({
   name: z.string().min(1, "Logo name is required"),
-  url: z.string().url("Must be a valid URL"),
 })
 type LogoFormValues = z.infer<typeof logoSchema>
 
@@ -35,15 +34,12 @@ interface VisualIdentityProps {
 
 export function VisualIdentity({ colors, setColors, logos, setLogos }: VisualIdentityProps) {
   const { toast } = useToast()
+  const logoFileInputRef = React.useRef<HTMLInputElement>(null);
+  const [logoName, setLogoName] = React.useState("");
 
   const colorForm = useForm<ColorFormValues>({
     resolver: zodResolver(colorSchema),
     defaultValues: { name: "", hex: "" },
-  })
-
-  const logoForm = useForm<LogoFormValues>({
-    resolver: zodResolver(logoSchema),
-    defaultValues: { name: "", url: "" },
   })
 
   const handleAddColor = (data: ColorFormValues) => {
@@ -55,10 +51,39 @@ export function VisualIdentity({ colors, setColors, logos, setLogos }: VisualIde
     setColors(prev => prev.filter(c => c.id !== id))
   }
   
-  const handleAddLogo = (data: LogoFormValues) => {
-    setLogos(prev => [...prev, { ...data, id: `logo-${Date.now()}` }])
-    logoForm.reset()
-  }
+  const handleLogoFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && logoName) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const url = e.target?.result as string;
+        setLogos(prev => [...prev, { id: `logo-${Date.now()}`, name: logoName, url }]);
+        setLogoName("");
+      };
+      reader.readAsDataURL(file);
+    } else if (!logoName) {
+        toast({
+            variant: "destructive",
+            title: "Logo Name Required",
+            description: "Please enter a name for the logo before selecting a file.",
+        });
+    }
+    // Reset file input
+    if(logoFileInputRef.current) logoFileInputRef.current.value = "";
+  };
+
+  const handleUploadClick = () => {
+    if (!logoName.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Logo Name Required",
+        description: "Please enter a name before uploading a logo.",
+      });
+      return;
+    }
+    logoFileInputRef.current?.click();
+  };
+
 
   const handleDeleteLogo = (id: string) => {
     setLogos(prev => prev.filter(l => l.id !== id))
@@ -136,17 +161,23 @@ export function VisualIdentity({ colors, setColors, logos, setLogos }: VisualIde
               </div>
             ))}
           </div>
-          <Form {...logoForm}>
-            <form onSubmit={logoForm.handleSubmit(handleAddLogo)} className="flex items-start gap-2">
-              <FormField control={logoForm.control} name="name" render={({ field }) => (
-                <FormItem className="flex-1"><FormControl><Input placeholder="Main Logo" {...field} /></FormControl><FormMessage /></FormItem>
-              )} />
-              <FormField control={logoForm.control} name="url" render={({ field }) => (
-                <FormItem className="flex-1"><FormControl><Input placeholder="https://placehold.co/100x100.png" {...field} /></FormControl><FormMessage /></FormItem>
-              )} />
-              <Button type="submit" size="icon"><PlusCircle /></Button>
-            </form>
-          </Form>
+          <div className="flex items-start gap-2">
+             <Input 
+                placeholder="Logo Name (e.g., Main Logo)" 
+                value={logoName}
+                onChange={(e) => setLogoName(e.target.value)}
+              />
+             <Button onClick={handleUploadClick}>
+                <Upload className="mr-2 h-4 w-4" /> Upload
+             </Button>
+             <input
+                type="file"
+                ref={logoFileInputRef}
+                onChange={handleLogoFileChange}
+                className="hidden"
+                accept="image/png, image/jpeg, image/svg+xml"
+             />
+          </div>
         </div>
       </CardContent>
     </Card>

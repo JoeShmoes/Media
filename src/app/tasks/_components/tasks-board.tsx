@@ -108,7 +108,7 @@ export function TasksBoard() {
     name: "groups",
   });
 
-  const handleAddTask = (task: Omit<Task, 'id' | 'completed'>, groupIdx: number = 0) => {
+  const handleAddTask = (task: Omit<Task, 'id' | 'completed'>, groupIdx: number) => {
      const currentTasks = form.getValues(`groups.${groupIdx}.tasks`);
      const newTask: Task = { ...task, id: `task-${Date.now()}`, completed: false };
      form.setValue(`groups.${groupIdx}.tasks`, [...currentTasks, newTask]);
@@ -134,7 +134,7 @@ export function TasksBoard() {
   return (
     <div className="space-y-4">
       <div className="flex justify-end gap-2">
-        <AddTaskDialog onAddTask={handleAddTask} />
+        <AddTaskDialog onAddTask={(task) => handleAddTask(task, 0)} />
         <AddGroupDialog onAddGroup={(name) => appendGroup({ id: `group-${Date.now()}`, name, tasks: [] })} />
       </div>
 
@@ -283,7 +283,7 @@ function GroupActions({ onRename, onDelete }: { onRename: (name: string) => void
 }
 
 
-function AddTaskDialog({ onAddTask }: { onAddTask: (task: Omit<Task, 'id' | 'completed'>, groupIdx?: number) => void }) {
+function AddTaskDialog({ onAddTask }: { onAddTask: (task: Omit<Task, 'id' | 'completed'>) => void }) {
   const [open, setOpen] = React.useState(false);
   
   const form = useForm<Omit<Task, 'id' | 'completed'>>({

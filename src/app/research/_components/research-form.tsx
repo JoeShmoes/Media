@@ -5,9 +5,10 @@ import { z } from "zod"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Bot, User, BookOpen, Search, Send, Loader2 } from "lucide-react"
+import { useDebounce } from 'use-debounce';
 
 import { cn } from "@/lib/utils"
-import { performResearch, searchWikipedia, PerformResearchInput } from "@/ai/flows/perform-research"
+import { performResearch, searchWikipedia, getWikipediaSummaryForClient, PerformResearchInput } from "@/ai/flows/perform-research"
 import type { WikipediaSearchResult } from "@/lib/types"
 
 import { Button } from "@/components/ui/button"
@@ -17,6 +18,7 @@ import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 const searchSchema = z.object({
   topic: z.string().min(2, "Topic is required"),
@@ -33,10 +35,14 @@ export function ResearchForm() {
   const [searchResults, setSearchResults] = React.useState<WikipediaSearchResult[] | null>(null)
   const [selectedArticle, setSelectedArticle] = React.useState<WikipediaSearchResult | null>(null)
   const [hoveredArticle, setHoveredArticle] = React.useState<WikipediaSearchResult | null>(null)
+  const [previewContent, setPreviewContent] = React.useState<string | null>(null)
   const [researchResult, setResearchResult] = React.useState<{ summary: string, answer: string } | null>(null)
   const [isSearching, setIsSearching] = React.useState(false)
   const [isResearching, setIsResearching] = React.useState(false)
+  const [isPreviewLoading, setIsPreviewLoading] = React.useState(false);
   const { toast } = useToast()
+
+  const [debouncedHoveredArticle] = useDebounce(hoveredArticle, 300);
 
   const searchForm = useForm<SearchFormValues>({
     resolver: zodResolver(searchSchema),
@@ -48,6 +54,25 @@ export function ResearchForm() {
     defaultValues: { question: "" },
   });
 
+  React.useEffect(() => {
+    if (debouncedHoveredArticle) {
+      const fetchPreview = async () => {
+        setIsPreviewLoading(true);
+        try {
+          const summary = await getWikipediaSummaryForClient({ topic: debouncedHoveredArticle.title });
+          setPreviewContent(summary);
+        } catch (error) {
+          setPreviewContent("Could not load preview.");
+        } finally {
+          setIsPreviewLoading(false);
+        }
+      };
+      fetchPreview();
+    } else {
+      setPreviewContent(null);
+    }
+  }, [debouncedHoveredArticle]);
+
 
   const onSearchSubmit: SubmitHandler<SearchFormValues> = async (data) => {
     setIsSearching(true)
@@ -55,6 +80,7 @@ export function ResearchForm() {
     setSelectedArticle(null)
     setResearchResult(null)
     setHoveredArticle(null)
+    setPreviewContent(null);
 
     try {
       const results = await searchWikipedia(data)
@@ -251,18 +277,25 @@ export function ResearchForm() {
       <Card className="glassmorphic">
         <CardHeader>
           <CardTitle>Article Preview</CardTitle>
-          <CardDescription>Hover over an article to see a preview.</CardDescription>
+          <CardDescription>Hover over an article to see its summary.</CardDescription>
         </CardHeader>
         <CardContent>
-          {hoveredArticle ? (
+          {isPreviewLoading && (
             <div className="space-y-2">
-                <h3 className="font-semibold">{hoveredArticle.title}</h3>
-                <p className="text-sm text-muted-foreground">{hoveredArticle.description}</p>
-                <Button className="mt-4 w-full" onClick={() => handleSelectArticle(hoveredArticle)}>
-                    Select and Research
-                </Button>
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-5/6" />
             </div>
-          ) : (
+          )}
+          {!isPreviewLoading && previewContent ? (
+            <ScrollArea className="h-96">
+                <div className="space-y-2 pr-4">
+                    <h3 className="font-semibold">{debouncedHoveredArticle?.title}</h3>
+                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{previewContent}</p>
+                </div>
+            </ScrollArea>
+          ) : !isPreviewLoading && (
              <div className="text-center text-muted-foreground py-24">
               Hover over an article to see a preview here.
             </div>

@@ -10,7 +10,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import wikipedia, { type WikipediaResult } from 'wikipedia';
+import wikipedia, { type WikipediaResult, type WikipediaSummary } from 'wikipedia';
 
 const PerformResearchInputSchema = z.object({
   topic: z.string().describe('The research topic (article title).'),
@@ -52,7 +52,7 @@ export async function searchWikipedia(input: WikipediaSearchInput): Promise<Wiki
   }
 }
 
-const getWikipediaSummary = ai.defineTool(
+const getWikipediaSummaryTool = ai.defineTool(
   {
     name: 'getWikipediaSummary',
     description: 'Get a summary of a Wikipedia article for a given page title.',
@@ -64,13 +64,25 @@ const getWikipediaSummary = ai.defineTool(
       const page = await wikipedia.page(topic);
       const summary = await page.summary();
       // Return first 3 paragraphs
-      return summary.content.split('\n').slice(0, 3).join('\n');
+      return summary.extract;
     } catch (error) {
       console.error('Wikipedia summary fetch failed:', error);
       return 'Could not find information on this topic.';
     }
   }
 );
+
+// This function is exported to be used directly by the client component
+export async function getWikipediaSummaryForClient({ topic }: { topic: string }): Promise<string> {
+  try {
+    const page = await wikipedia.page(topic);
+    const summary = await page.summary();
+    return summary.extract;
+  } catch (error) {
+    console.error('Wikipedia summary fetch failed:', error);
+    return 'Could not fetch summary for this topic.';
+  }
+}
 
 
 export async function performResearch(input: PerformResearchInput): Promise<PerformResearchOutput> {
@@ -81,7 +93,7 @@ const prompt = ai.definePrompt({
   name: 'performResearchPrompt',
   input: {schema: PerformResearchInputSchema},
   output: {schema: PerformResearchOutputSchema},
-  tools: [getWikipediaSummary],
+  tools: [getWikipediaSummaryTool],
   prompt: `You are a research assistant.
   First, use the getWikipediaSummary tool to find information on the given topic: {{{topic}}}.
   The result will be the summary of the Wikipedia article.

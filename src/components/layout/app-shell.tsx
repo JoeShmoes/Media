@@ -4,7 +4,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import type { Client, Deal, Project } from "@/lib/types"
+import type { Client, Deal, Project, Note } from "@/lib/types"
 
 import {
   SidebarProvider,
@@ -181,6 +181,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [clients, setClients] = React.useState<Client[]>([]);
   const [projects, setProjects] = React.useState<Project[]>([]);
   const [deals, setDeals] = React.useState<Deal[]>([]);
+  const [notes, setNotes] = React.useState<Note[]>([]);
 
   React.useEffect(() => {
     // Load searchable data from localStorage
@@ -193,6 +194,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       const savedDeals = localStorage.getItem("deals");
       if (savedDeals) setDeals(JSON.parse(savedDeals));
+
+      const savedNotes = localStorage.getItem("notes");
+      if (savedNotes) setNotes(JSON.parse(savedNotes));
 
     } catch (error) {
       console.error("Failed to load searchable data from local storage", error);
@@ -459,6 +463,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                         <CommandItem key={`deal-${deal.id}`} value={`Deal: ${deal.title}`} onSelect={() => runCommand(() => router.push('/pipeline-tracker'))}>
                             <View className="mr-2 h-4 w-4" />
                             <span>{deal.title}</span>
+                        </CommandItem>
+                    ))}
+                </CommandGroup>
+                 <CommandGroup heading="Notes">
+                    {notes.map((note) => (
+                        <CommandItem key={`note-${note.id}`} value={`Note: ${note.title}`} onSelect={() => runCommand(() => router.push('/notes'))}>
+                            <Notebook className="mr-2 h-4 w-4" />
+                            <span>{note.title}</span>
                         </CommandItem>
                     ))}
                 </CommandGroup>

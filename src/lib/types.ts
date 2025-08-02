@@ -1,6 +1,12 @@
 
 
-
+export type GenerateSopOutput = {
+  title: string;
+  steps: {
+      title: string;
+      description: string;
+  }[];
+};
 
 
 

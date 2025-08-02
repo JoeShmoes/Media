@@ -14,6 +14,9 @@ import { CallNoteDisplay } from "./_components/call-note-display";
 import { MeetingSummaryDialog } from "./_components/meeting-summary-dialog";
 import type { SummarizeTranscriptOutput } from "@/ai/flows/summarize-transcript";
 import { MeetingSummaryDisplay } from "./_components/meeting-summary-display";
+import { SopDialog } from "./_components/sop-dialog";
+import type { GenerateSopOutput } from "@/ai/flows/generate-sop";
+import { SopDisplay } from "./_components/sop-display";
 
 export default function AutoDocsPage() {
   const [isBriefDialogOpen, setIsBriefDialogOpen] = React.useState(false);
@@ -25,24 +28,36 @@ export default function AutoDocsPage() {
   const [isSummaryDialogOpen, setIsSummaryDialogOpen] = React.useState(false);
   const [generatedSummary, setGeneratedSummary] = React.useState<SummarizeTranscriptOutput | null>(null);
 
+  const [isSopDialogOpen, setIsSopDialogOpen] = React.useState(false);
+  const [generatedSop, setGeneratedSop] = React.useState<GenerateSopOutput | null>(null);
 
-  const handleBriefGenerated = (brief: GenerateContentBriefOutput) => {
-    setGeneratedBrief(brief);
+  const clearAllOutputs = () => {
+    setGeneratedBrief(null);
     setGeneratedCallNote(null);
     setGeneratedSummary(null);
+    setGeneratedSop(null);
+  }
+
+  const handleBriefGenerated = (brief: GenerateContentBriefOutput) => {
+    clearAllOutputs();
+    setGeneratedBrief(brief);
   }
 
   const handleNoteGenerated = (note: GenerateCallNoteOutput) => {
+    clearAllOutputs();
     setGeneratedCallNote(note);
-    setGeneratedBrief(null);
-    setGeneratedSummary(null);
   }
   
   const handleSummaryGenerated = (summary: SummarizeTranscriptOutput) => {
+    clearAllOutputs();
     setGeneratedSummary(summary);
-    setGeneratedBrief(null);
-    setGeneratedCallNote(null);
   }
+
+  const handleSopGenerated = (sop: GenerateSopOutput) => {
+    clearAllOutputs();
+    setGeneratedSop(sop);
+  }
+
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
@@ -62,6 +77,12 @@ export default function AutoDocsPage() {
         open={isSummaryDialogOpen}
         onOpenChange={setIsSummaryDialogOpen}
         onSummaryGenerated={handleSummaryGenerated}
+      />
+
+      <SopDialog
+        open={isSopDialogOpen}
+        onOpenChange={setIsSopDialogOpen}
+        onSopGenerated={handleSopGenerated}
       />
 
       <PageHeader title="AutoDocs" />
@@ -104,7 +125,7 @@ export default function AutoDocsPage() {
             <CardDescription>Generate SOPs, policies, or training guides.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button className="w-full" disabled>New from Template</Button>
+            <Button className="w-full" onClick={() => setIsSopDialogOpen(true)}>Generate SOP</Button>
           </CardContent>
         </Card>
         <Card className="glassmorphic">
@@ -121,6 +142,7 @@ export default function AutoDocsPage() {
       {generatedBrief && <ContentBriefDisplay brief={generatedBrief} />}
       {generatedCallNote && <CallNoteDisplay note={generatedCallNote} />}
       {generatedSummary && <MeetingSummaryDisplay summary={generatedSummary} />}
+      {generatedSop && <SopDisplay sop={generatedSop} />}
     </div>
   );
 }

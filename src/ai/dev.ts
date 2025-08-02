@@ -15,3 +15,4 @@ import '@/ai/flows/generate-brand-voice.ts';
 import '@/ai/flows/generate-content-brief.ts';
 import '@/ai/flows/generate-call-note.ts';
 import '@/ai/flows/summarize-transcript.ts';
+import '@/ai/flows/generate-sop.ts';

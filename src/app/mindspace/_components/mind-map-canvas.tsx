@@ -62,8 +62,8 @@ export function MindMapCanvas() {
     }
   }
 
-  if (loading) return <div className="h-full flex items-center justify-center"><p>Loading Mindspace...</p></div>
-  if (error) return <div className="h-full flex items-center justify-center"><p>Error: {error.message}</p></div>
+  if (loading) return <div className="h-full w-full flex items-center justify-center"><p>Loading Mindspace...</p></div>
+  if (error) return <div className="h-full w-full flex items-center justify-center"><p>Error: {error.message}</p></div>
 
   return (
     <div

@@ -25,7 +25,7 @@ const colors = [
 ]
 
 export function MindMapNodeComponent({ node, onUpdate, onDelete, allNodes }: MindMapNodeProps) {
-    const nodeRef = React.useRef(null);
+  const nodeRef = React.useRef(null);
   const [isConnecting, setIsConnecting] = React.useState(false)
 
   const handleConnect = (endNodeId: string) => {
@@ -100,4 +100,3 @@ export function MindMapNodeComponent({ node, onUpdate, onDelete, allNodes }: Min
     </>
   )
 }
-

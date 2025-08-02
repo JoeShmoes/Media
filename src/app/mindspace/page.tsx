@@ -5,7 +5,7 @@ import { MindMapCanvas } from "./_components/mind-map-canvas";
 
 export default function MindspacePage() {
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col h-full">
        <div className="p-4 md:p-8 md:pb-4 pt-6">
             <PageHeader title="Mindspace" />
             <p className="text-muted-foreground -mt-4">

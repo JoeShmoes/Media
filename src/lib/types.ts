@@ -258,3 +258,12 @@ export type SavedDocument = {
   createdAt: string;
   content: GenerateContentBriefOutput | GenerateCallNoteOutput | SummarizeTranscriptOutput | GenerateSopOutput | CompareVersionsOutput;
 };
+
+export type IntegrationCategory = "Project Management" | "Communication & Scheduling" | "Custom Automations";
+
+export type Integration = {
+    name: string;
+    icon: React.ReactElement;
+    href: string;
+    category?: IntegrationCategory;
+}

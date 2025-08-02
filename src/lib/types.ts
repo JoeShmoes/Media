@@ -2,6 +2,7 @@
 
 
 
+
 export type GeneratePersonaOutput = {
     name: string;
     avatar: string;
@@ -49,6 +50,14 @@ export type Client = {
   status: "Prospect" | "Active" | "Completed"
   lastContact: string
 }
+
+export type ClientResource = {
+  id: string;
+  name: string;
+  fileUrl: string;
+  clientIds: string[]; // List of client IDs who can access this
+};
+
 
 export type Project = {
   id: string

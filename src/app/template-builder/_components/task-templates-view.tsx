@@ -15,12 +15,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { TaskTemplatePreviewDialog } from "./task-template-preview-dialog";
 
 export function TaskTemplatesView() {
   const [templates, setTemplates] = React.useState<TaskTemplate[]>([]);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [editingTemplate, setEditingTemplate] = React.useState<TaskTemplate | null>(null);
   const [deletingTemplate, setDeletingTemplate] = React.useState<TaskTemplate | null>(null);
+  const [previewingTemplate, setPreviewingTemplate] = React.useState<TaskTemplate | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
   const [isMounted, setIsMounted] = React.useState(false);
   
   React.useEffect(() => {
@@ -49,6 +52,11 @@ export function TaskTemplatesView() {
   const handleEditTemplate = (template: TaskTemplate) => {
     setEditingTemplate(template);
     setIsDialogOpen(true);
+  }
+  
+  const handlePreviewTemplate = (template: TaskTemplate) => {
+    setPreviewingTemplate(template);
+    setIsPreviewOpen(true);
   }
 
   const handleDeleteTemplate = (templateId: string) => {
@@ -92,6 +100,13 @@ export function TaskTemplatesView() {
         template={editingTemplate}
         onSave={handleSaveTemplate}
       />
+      
+      <TaskTemplatePreviewDialog
+        open={isPreviewOpen}
+        onOpenChange={setIsPreviewOpen}
+        template={previewingTemplate}
+      />
+
 
        <AlertDialog open={!!deletingTemplate} onOpenChange={() => setDeletingTemplate(null)}>
           <AlertDialogContent>
@@ -122,6 +137,7 @@ export function TaskTemplatesView() {
              <TaskTemplateCard 
                 key={template.id}
                 template={template}
+                onView={() => handlePreviewTemplate(template)}
                 onEdit={() => handleEditTemplate(template)} 
                 onDelete={() => setDeletingTemplate(template)}
               />

@@ -7,13 +7,14 @@ import type { OfferTemplate } from "@/lib/types"
 
 interface OfferTemplateCardProps {
   template: OfferTemplate
+  onView: () => void
   onEdit: () => void
   onDelete: () => void
 }
 
-export function OfferTemplateCard({ template, onEdit, onDelete }: OfferTemplateCardProps) {
+export function OfferTemplateCard({ template, onView, onEdit, onDelete }: OfferTemplateCardProps) {
   return (
-    <Card className="glassmorphic flex flex-col group">
+    <Card className="glassmorphic flex flex-col group cursor-pointer hover:bg-muted/50 transition-colors" onClick={onView}>
       <CardHeader>
         <CardTitle>{template.templateName}</CardTitle>
         <CardDescription>Offer Template</CardDescription>

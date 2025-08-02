@@ -15,12 +15,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { OutreachTemplatePreviewDialog } from "./outreach-template-preview-dialog";
 
 export function OutreachTemplatesView() {
   const [templates, setTemplates] = React.useState<OutreachTemplate[]>([]);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [editingTemplate, setEditingTemplate] = React.useState<OutreachTemplate | null>(null);
   const [deletingTemplate, setDeletingTemplate] = React.useState<OutreachTemplate | null>(null);
+  const [previewingTemplate, setPreviewingTemplate] = React.useState<OutreachTemplate | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
   const [isMounted, setIsMounted] = React.useState(false);
   
   React.useEffect(() => {
@@ -49,6 +52,11 @@ export function OutreachTemplatesView() {
   const handleEditTemplate = (template: OutreachTemplate) => {
     setEditingTemplate(template);
     setIsDialogOpen(true);
+  }
+  
+  const handlePreviewTemplate = (template: OutreachTemplate) => {
+    setPreviewingTemplate(template);
+    setIsPreviewOpen(true);
   }
 
   const handleDeleteTemplate = (templateId: string) => {
@@ -92,6 +100,12 @@ export function OutreachTemplatesView() {
         template={editingTemplate}
         onSave={handleSaveTemplate}
       />
+      
+      <OutreachTemplatePreviewDialog
+        open={isPreviewOpen}
+        onOpenChange={setIsPreviewOpen}
+        template={previewingTemplate}
+      />
 
        <AlertDialog open={!!deletingTemplate} onOpenChange={() => setDeletingTemplate(null)}>
           <AlertDialogContent>
@@ -122,6 +136,7 @@ export function OutreachTemplatesView() {
              <OutreachTemplateCard 
                 key={template.id}
                 template={template}
+                onView={() => handlePreviewTemplate(template)}
                 onEdit={() => handleEditTemplate(template)} 
                 onDelete={() => setDeletingTemplate(template)}
               />

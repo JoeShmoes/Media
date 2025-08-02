@@ -8,13 +8,14 @@ import type { TaskTemplate } from "@/lib/types"
 
 interface TaskTemplateCardProps {
   template: TaskTemplate
+  onView: () => void
   onEdit: () => void
   onDelete: () => void
 }
 
-export function TaskTemplateCard({ template, onEdit, onDelete }: TaskTemplateCardProps) {
+export function TaskTemplateCard({ template, onView, onEdit, onDelete }: TaskTemplateCardProps) {
   return (
-    <Card className="glassmorphic flex flex-col group">
+    <Card className="glassmorphic flex flex-col group cursor-pointer hover:bg-muted/50 transition-colors" onClick={onView}>
       <CardHeader>
         <CardTitle>{template.templateName}</CardTitle>
       </CardHeader>

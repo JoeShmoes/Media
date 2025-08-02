@@ -9,13 +9,14 @@ import { Badge } from "@/components/ui/badge"
 
 interface ProjectTemplateCardProps {
   template: ProjectTemplate
+  onView: () => void
   onEdit: () => void
   onDelete: () => void
 }
 
-export function ProjectTemplateCard({ template, onEdit, onDelete }: ProjectTemplateCardProps) {
+export function ProjectTemplateCard({ template, onView, onEdit, onDelete }: ProjectTemplateCardProps) {
   return (
-    <Card className="glassmorphic flex flex-col group">
+    <Card className="glassmorphic flex flex-col group cursor-pointer hover:bg-muted/50 transition-colors" onClick={onView}>
       <CardHeader>
         <CardTitle>{template.templateName}</CardTitle>
         <CardDescription>Project Template</CardDescription>

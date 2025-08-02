@@ -8,13 +8,14 @@ import { Badge } from "@/components/ui/badge"
 
 interface OutreachTemplateCardProps {
   template: OutreachTemplate
+  onView: () => void
   onEdit: () => void
   onDelete: () => void
 }
 
-export function OutreachTemplateCard({ template, onEdit, onDelete }: OutreachTemplateCardProps) {
+export function OutreachTemplateCard({ template, onView, onEdit, onDelete }: OutreachTemplateCardProps) {
   return (
-    <Card className="glassmorphic flex flex-col group">
+    <Card className="glassmorphic flex flex-col group cursor-pointer hover:bg-muted/50 transition-colors" onClick={onView}>
       <CardHeader>
         <CardTitle>{template.templateName}</CardTitle>
         <CardDescription>Outreach Template</CardDescription>

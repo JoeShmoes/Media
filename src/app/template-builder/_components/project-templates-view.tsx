@@ -1,4 +1,3 @@
-
 "use client"
 import * as React from "react"
 import { Button } from "@/components/ui/button";
@@ -16,12 +15,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { ProjectTemplatePreviewDialog } from "./project-template-preview-dialog";
 
 export function ProjectTemplatesView() {
   const [templates, setTemplates] = React.useState<ProjectTemplate[]>([]);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [editingTemplate, setEditingTemplate] = React.useState<ProjectTemplate | null>(null);
   const [deletingTemplate, setDeletingTemplate] = React.useState<ProjectTemplate | null>(null);
+  const [previewingTemplate, setPreviewingTemplate] = React.useState<ProjectTemplate | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
   const [isMounted, setIsMounted] = React.useState(false);
   
   React.useEffect(() => {
@@ -50,6 +52,11 @@ export function ProjectTemplatesView() {
   const handleEditTemplate = (template: ProjectTemplate) => {
     setEditingTemplate(template);
     setIsDialogOpen(true);
+  }
+  
+  const handlePreviewTemplate = (template: ProjectTemplate) => {
+    setPreviewingTemplate(template);
+    setIsPreviewOpen(true);
   }
 
   const handleDeleteTemplate = (templateId: string) => {
@@ -93,6 +100,12 @@ export function ProjectTemplatesView() {
         template={editingTemplate}
         onSave={handleSaveTemplate}
       />
+      
+      <ProjectTemplatePreviewDialog
+        open={isPreviewOpen}
+        onOpenChange={setIsPreviewOpen}
+        template={previewingTemplate}
+      />
 
        <AlertDialog open={!!deletingTemplate} onOpenChange={() => setDeletingTemplate(null)}>
           <AlertDialogContent>
@@ -123,6 +136,7 @@ export function ProjectTemplatesView() {
              <ProjectTemplateCard 
                 key={template.id}
                 template={template}
+                onView={() => handlePreviewTemplate(template)}
                 onEdit={() => handleEditTemplate(template)} 
                 onDelete={() => setDeletingTemplate(template)}
               />

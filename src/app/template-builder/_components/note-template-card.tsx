@@ -8,13 +8,14 @@ import type { NoteTemplate } from "@/lib/types"
 
 interface NoteTemplateCardProps {
   template: NoteTemplate
+  onView: () => void
   onEdit: () => void
   onDelete: () => void
 }
 
-export function NoteTemplateCard({ template, onEdit, onDelete }: NoteTemplateCardProps) {
+export function NoteTemplateCard({ template, onView, onEdit, onDelete }: NoteTemplateCardProps) {
   return (
-    <Card className="glassmorphic flex flex-col group">
+    <Card className="glassmorphic flex flex-col group cursor-pointer hover:bg-muted/50 transition-colors" onClick={onView}>
       <CardHeader>
         <CardTitle>{template.templateName}</CardTitle>
       </CardHeader>

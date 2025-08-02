@@ -15,12 +15,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { NoteTemplatePreviewDialog } from "./note-template-preview-dialog";
 
 export function NoteTemplatesView() {
   const [templates, setTemplates] = React.useState<NoteTemplate[]>([]);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [editingTemplate, setEditingTemplate] = React.useState<NoteTemplate | null>(null);
   const [deletingTemplate, setDeletingTemplate] = React.useState<NoteTemplate | null>(null);
+  const [previewingTemplate, setPreviewingTemplate] = React.useState<NoteTemplate | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
   const [isMounted, setIsMounted] = React.useState(false);
   
   React.useEffect(() => {
@@ -49,6 +52,11 @@ export function NoteTemplatesView() {
   const handleEditTemplate = (template: NoteTemplate) => {
     setEditingTemplate(template);
     setIsDialogOpen(true);
+  }
+  
+  const handlePreviewTemplate = (template: NoteTemplate) => {
+    setPreviewingTemplate(template);
+    setIsPreviewOpen(true);
   }
 
   const handleDeleteTemplate = (templateId: string) => {
@@ -92,6 +100,12 @@ export function NoteTemplatesView() {
         template={editingTemplate}
         onSave={handleSaveTemplate}
       />
+      
+       <NoteTemplatePreviewDialog
+        open={isPreviewOpen}
+        onOpenChange={setIsPreviewOpen}
+        template={previewingTemplate}
+      />
 
        <AlertDialog open={!!deletingTemplate} onOpenChange={() => setDeletingTemplate(null)}>
           <AlertDialogContent>
@@ -122,6 +136,7 @@ export function NoteTemplatesView() {
              <NoteTemplateCard 
                 key={template.id}
                 template={template}
+                onView={() => handlePreviewTemplate(template)}
                 onEdit={() => handleEditTemplate(template)} 
                 onDelete={() => setDeletingTemplate(template)}
               />

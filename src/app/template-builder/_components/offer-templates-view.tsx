@@ -15,12 +15,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { OfferTemplatePreviewDialog } from "./offer-template-preview-dialog";
 
 export function OfferTemplatesView() {
   const [templates, setTemplates] = React.useState<OfferTemplate[]>([]);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [editingTemplate, setEditingTemplate] = React.useState<OfferTemplate | null>(null);
   const [deletingTemplate, setDeletingTemplate] = React.useState<OfferTemplate | null>(null);
+  const [previewingTemplate, setPreviewingTemplate] = React.useState<OfferTemplate | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
   const [isMounted, setIsMounted] = React.useState(false);
   
   React.useEffect(() => {
@@ -49,6 +52,11 @@ export function OfferTemplatesView() {
   const handleEditTemplate = (template: OfferTemplate) => {
     setEditingTemplate(template);
     setIsDialogOpen(true);
+  }
+  
+  const handlePreviewTemplate = (template: OfferTemplate) => {
+    setPreviewingTemplate(template);
+    setIsPreviewOpen(true);
   }
 
   const handleDeleteTemplate = (templateId: string) => {
@@ -92,6 +100,12 @@ export function OfferTemplatesView() {
         template={editingTemplate}
         onSave={handleSaveTemplate}
       />
+      
+      <OfferTemplatePreviewDialog
+        open={isPreviewOpen}
+        onOpenChange={setIsPreviewOpen}
+        template={previewingTemplate}
+      />
 
        <AlertDialog open={!!deletingTemplate} onOpenChange={() => setDeletingTemplate(null)}>
           <AlertDialogContent>
@@ -122,6 +136,7 @@ export function OfferTemplatesView() {
              <OfferTemplateCard 
                 key={template.id}
                 template={template}
+                onView={() => handlePreviewTemplate(template)}
                 onEdit={() => handleEditTemplate(template)} 
                 onDelete={() => setDeletingTemplate(template)}
               />

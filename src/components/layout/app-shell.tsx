@@ -50,6 +50,7 @@ import {
   Workflow,
   Sparkles,
   Wrench,
+  HelpCircle,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import {
@@ -67,6 +68,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Icons } from "../icons"
 
 const favouritesNavItems = [
@@ -93,7 +95,7 @@ const businessBuilderNavItems = [
 ]
 
 const aiAdvantageNavItems = [
-    { href: "/mindspace", icon: Network, label: "Mindspace" },
+    { href: "https://miro.com/app/dashboard/", icon: Network, label: "Miro", external: true },
     { href: "/cortex-room", icon: Target, label: "Cortex Room" },
     { href: "/writing-lab", icon: FlaskConical, label: "Writing Lab" },
 ]
@@ -199,15 +201,38 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <SidebarMenu>
               {aiAdvantageNavItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <Link href={item.href}>
-                    <SidebarMenuButton
-                      isActive={pathname === item.href}
-                      tooltip={item.label}
-                    >
-                      <item.icon />
-                      <span>{item.label}</span>
-                    </SidebarMenuButton>
-                  </Link>
+                  {item.external ? (
+                     <a href={item.href} target="_blank" rel="noopener noreferrer" className="flex items-center w-full">
+                       <SidebarMenuButton
+                          isActive={false}
+                          tooltip={item.label}
+                          className="w-full"
+                       >
+                         <item.icon />
+                         <span className="flex items-center justify-between w-full">
+                            {item.label}
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <HelpCircle className="h-4 w-4 text-muted-foreground"/>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>This opens Miro in a new tab.</p>
+                                </TooltipContent>
+                            </Tooltip>
+                         </span>
+                       </SidebarMenuButton>
+                     </a>
+                  ) : (
+                    <Link href={item.href}>
+                      <SidebarMenuButton
+                        isActive={pathname === item.href}
+                        tooltip={item.label}
+                      >
+                        <item.icon />
+                        <span>{item.label}</span>
+                      </SidebarMenuButton>
+                    </Link>
+                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>

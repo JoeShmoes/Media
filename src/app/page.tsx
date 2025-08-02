@@ -47,7 +47,7 @@ const chartConfig = {
 
 export default function Dashboard() {
   const { settings } = useSettings();
-  const cardClassName = settings.roomBackground === 'blur' ? "glassmorphic" : "";
+  const cardClassName = "glassmorphic";
   const [isMounted, setIsMounted] = React.useState(false);
   
   // State for dashboard data
@@ -239,3 +239,5 @@ export default function Dashboard() {
     </div>
   )
 }
+
+    

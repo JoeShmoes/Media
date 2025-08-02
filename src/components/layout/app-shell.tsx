@@ -51,6 +51,7 @@ import {
   Sparkles,
   Wrench,
   HelpCircle,
+  User,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import {
@@ -301,13 +302,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="justify-start w-full h-auto p-2">
                  <div className="flex items-center gap-3">
-                   <Avatar className="h-8 w-8">
-                    <AvatarImage src="https://placehold.co/40x40.png" alt="@fozan" data-ai-hint="man portrait" />
-                    <AvatarFallback>FS</AvatarFallback>
-                  </Avatar>
+                   <div className="h-8 w-8 flex items-center justify-center">
+                    <User className="h-5 w-5"/>
+                   </div>
                   <div className="flex-col items-start group-data-[collapsible=icon]:hidden">
                       <span className="text-sm font-medium text-foreground">Fozan Shazad</span>
-                      <span className="text-xs text-muted-foreground">Entrepreneur</span>
                   </div>
                 </div>
               </Button>

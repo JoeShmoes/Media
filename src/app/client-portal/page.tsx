@@ -38,7 +38,9 @@ export default function ClientPortalPage() {
         setIsMounted(true);
         try {
             const savedClients = localStorage.getItem("clients");
-            if (savedClients) setClients(JSON.parse(savedClients));
+            if (savedClients) {
+                setClients(JSON.parse(savedClients));
+            }
 
             const savedResources = localStorage.getItem("clientResources");
             if (savedResources) setResources(JSON.parse(savedResources));

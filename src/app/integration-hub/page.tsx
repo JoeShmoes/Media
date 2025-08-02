@@ -1,7 +1,7 @@
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, MessageCircle, Code, Zap, Calendar, Mail, KanbanSquare, GanttChartSquare, Book } from "lucide-react";
+import { ArrowRight, MessageCircle, Code, Zap, Calendar, Mail, KanbanSquare, GanttChartSquare, Book, Plus } from "lucide-react";
 
 export default function IntegrationHubPage() {
     const projectManagementIntegrations = [
@@ -21,7 +21,7 @@ export default function IntegrationHubPage() {
     const automationIntegrations = [
         { name: "Zapier / Webhooks", icon: <Zap/>, href: "https://zapier.com" },
         { name: "Make.com", icon: <Zap/>, href: "https://make.com" },
-        { name: "API Playground", icon: <Code/>, href: "#" }, // Placeholder link
+        { name: "API Playground", icon: <Code/>, href: "#" },
     ]
 
   return (
@@ -66,7 +66,7 @@ export default function IntegrationHubPage() {
                 <CardTitle>Custom Automations</CardTitle>
                 <CardDescription>Create custom workflows with webhooks and the API playground.</CardDescription>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
                  {automationIntegrations.map(int => (
                     <Button variant="outline" key={int.name} className="justify-between" asChild>
                          <a href={int.href} target="_blank" rel="noopener noreferrer">
@@ -74,6 +74,9 @@ export default function IntegrationHubPage() {
                         </a>
                     </Button>
                 ))}
+                 <Button variant="outline" className="justify-between">
+                    Connect More Apps <Plus/>
+                 </Button>
             </CardContent>
         </Card>
        </div>

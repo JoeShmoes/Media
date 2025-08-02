@@ -89,11 +89,7 @@ const businessBuilderNavItems = [
   { href: "/offer-builder", icon: Package, label: "Offer Builder" },
   { href: "/asset-tracker", icon: Archive, label: "Asset Tracker" },
   { href: "/brand-room", icon: Palette, label: "Brand Room" },
-]
-
-const workflowNavItems = [
-    { href: "/pipeline-tracker", icon: View, label: "Pipeline Tracker" },
-    { href: "/client-portal", icon: Shield, label: "Client Portal" },
+  { href: "/pipeline-tracker", icon: View, label: "Pipeline Tracker" },
 ]
 
 const aiAdvantageNavItems = [
@@ -184,24 +180,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
              <SidebarGroupLabel>Business Builder</SidebarGroupLabel>
             <SidebarMenu>
               {businessBuilderNavItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <Link href={item.href}>
-                    <SidebarMenuButton
-                      isActive={pathname === item.href}
-                      tooltip={item.label}
-                    >
-                      <item.icon />
-                      <span>{item.label}</span>
-                    </SidebarMenuButton>
-                  </Link>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroup>
-          <SidebarGroup className="mt-4">
-             <SidebarGroupLabel>Workflow</SidebarGroupLabel>
-            <SidebarMenu>
-              {workflowNavItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <Link href={item.href}>
                     <SidebarMenuButton

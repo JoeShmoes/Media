@@ -1,9 +1,7 @@
 
 "use client"
 
-import dynamic from "next/dynamic"
-
-const OutreachForm = dynamic(() => import("./_components/outreach-form").then(mod => mod.OutreachForm), { ssr: false })
+import { OutreachForm } from "./_components/outreach-form"
 
 export default function OutreachPage() {
   return (

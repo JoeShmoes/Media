@@ -1,9 +1,7 @@
 
 "use client"
 
-import dynamic from "next/dynamic"
-
-const ContentForm = dynamic(() => import("./_components/content-form").then(mod => mod.ContentForm), { ssr: false })
+import { ContentForm } from "./_components/content-form"
 
 export default function ContentPage() {
   return (

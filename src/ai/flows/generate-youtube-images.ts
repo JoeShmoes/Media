@@ -48,10 +48,12 @@ const generateYoutubeImagesFlow = ai.defineFlow(
 
     const results = await Promise.allSettled(imagePromises);
     
-    const images = results
-      .filter(result => result.status === 'fulfilled' && result.value.media?.url)
-      // @ts-ignore - we've already filtered for fulfilled promises
-      .map(result => result.value.media!.url);
+    const images: string[] = [];
+    for (const result of results) {
+      if (result.status === 'fulfilled' && result.value.media?.url) {
+        images.push(result.value.media.url);
+      }
+    }
     
     if (images.length === 0) {
         throw new Error('All image generation attempts failed for the paragraph.');

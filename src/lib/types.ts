@@ -2,6 +2,7 @@
 
 export type MindMapNode = {
   id: string;
+  type: 'idea'; // Add more types like 'card', 'shape' later
   content: string;
   position: { x: number; y: number };
   connections: string[];

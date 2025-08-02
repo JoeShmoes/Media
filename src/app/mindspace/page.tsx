@@ -21,6 +21,7 @@ export default function MindspacePage() {
         setNodes([
           {
             id: "central-node",
+            type: "idea",
             content: "My Great Idea",
             position: { x: 400, y: 300 },
             connections: [],

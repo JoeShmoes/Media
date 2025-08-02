@@ -27,6 +27,7 @@ export function MindMapCanvas({
     const canvasRect = canvasRef.current.getBoundingClientRect();
     const newNode: MindMapNode = {
       id: `node-${Date.now()}`,
+      type: 'idea',
       content: "New Idea",
       position: {
         x: e.clientX - canvasRect.left,

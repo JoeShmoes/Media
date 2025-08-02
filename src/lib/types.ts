@@ -1,5 +1,14 @@
 
 
+export type CompareVersionsOutput = {
+    summary: string;
+    diff: {
+        type: "added" | "removed" | "unchanged";
+        text: string;
+    }[];
+};
+
+
 export type GenerateSopOutput = {
   title: string;
   steps: {

@@ -17,6 +17,9 @@ import { MeetingSummaryDisplay } from "./_components/meeting-summary-display";
 import { SopDialog } from "./_components/sop-dialog";
 import type { GenerateSopOutput } from "@/ai/flows/generate-sop";
 import { SopDisplay } from "./_components/sop-display";
+import { VersionComparisonDialog } from "./_components/version-comparison-dialog";
+import type { CompareVersionsOutput } from "@/ai/flows/compare-versions";
+import { VersionComparisonDisplay } from "./_components/version-comparison-display";
 
 export default function AutoDocsPage() {
   const [isBriefDialogOpen, setIsBriefDialogOpen] = React.useState(false);
@@ -30,12 +33,16 @@ export default function AutoDocsPage() {
 
   const [isSopDialogOpen, setIsSopDialogOpen] = React.useState(false);
   const [generatedSop, setGeneratedSop] = React.useState<GenerateSopOutput | null>(null);
+  
+  const [isComparisonDialogOpen, setIsComparisonDialogOpen] = React.useState(false);
+  const [comparisonResult, setComparisonResult] = React.useState<CompareVersionsOutput | null>(null);
 
   const clearAllOutputs = () => {
     setGeneratedBrief(null);
     setGeneratedCallNote(null);
     setGeneratedSummary(null);
     setGeneratedSop(null);
+    setComparisonResult(null);
   }
 
   const handleBriefGenerated = (brief: GenerateContentBriefOutput) => {
@@ -56,6 +63,11 @@ export default function AutoDocsPage() {
   const handleSopGenerated = (sop: GenerateSopOutput) => {
     clearAllOutputs();
     setGeneratedSop(sop);
+  }
+  
+  const handleComparisonGenerated = (result: CompareVersionsOutput) => {
+    clearAllOutputs();
+    setComparisonResult(result);
   }
 
 
@@ -83,6 +95,12 @@ export default function AutoDocsPage() {
         open={isSopDialogOpen}
         onOpenChange={setIsSopDialogOpen}
         onSopGenerated={handleSopGenerated}
+      />
+      
+       <VersionComparisonDialog
+        open={isComparisonDialogOpen}
+        onOpenChange={setIsComparisonDialogOpen}
+        onComparisonGenerated={handleComparisonGenerated}
       />
 
       <PageHeader title="AutoDocs" />
@@ -134,7 +152,7 @@ export default function AutoDocsPage() {
             <CardDescription>Compare two summaries or notes with diff highlights.</CardDescription>
           </CardHeader>
           <CardContent>
-             <Button variant="outline" className="w-full" disabled>Compare Documents</Button>
+             <Button className="w-full" onClick={() => setIsComparisonDialogOpen(true)}>Compare Documents</Button>
           </CardContent>
         </Card>
       </div>
@@ -143,6 +161,7 @@ export default function AutoDocsPage() {
       {generatedCallNote && <CallNoteDisplay note={generatedCallNote} />}
       {generatedSummary && <MeetingSummaryDisplay summary={generatedSummary} />}
       {generatedSop && <SopDisplay sop={generatedSop} />}
+      {comparisonResult && <VersionComparisonDisplay result={comparisonResult} />}
     </div>
   );
 }

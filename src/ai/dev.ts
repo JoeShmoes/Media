@@ -1,3 +1,4 @@
+
 import { config } from 'dotenv';
 config();
 
@@ -16,3 +17,4 @@ import '@/ai/flows/generate-content-brief.ts';
 import '@/ai/flows/generate-call-note.ts';
 import '@/ai/flows/summarize-transcript.ts';
 import '@/ai/flows/generate-sop.ts';
+import '@/ai/flows/compare-versions.ts';

@@ -1,3 +1,4 @@
+
 "use client"
 import * as React from "react";
 import { PageHeader } from "@/components/page-header";
@@ -7,13 +8,25 @@ import { Upload } from "lucide-react";
 import { ContentBriefDialog } from "./_components/content-brief-dialog";
 import type { GenerateContentBriefOutput } from "@/ai/flows/generate-content-brief";
 import { ContentBriefDisplay } from "./_components/content-brief-display";
+import { CallNoteDialog } from "./_components/call-note-dialog";
+import type { GenerateCallNoteOutput } from "@/ai/flows/generate-call-note";
+import { CallNoteDisplay } from "./_components/call-note-display";
 
 export default function AutoDocsPage() {
   const [isBriefDialogOpen, setIsBriefDialogOpen] = React.useState(false);
   const [generatedBrief, setGeneratedBrief] = React.useState<GenerateContentBriefOutput | null>(null);
 
+  const [isCallNoteDialogOpen, setIsCallNoteDialogOpen] = React.useState(false);
+  const [generatedCallNote, setGeneratedCallNote] = React.useState<GenerateCallNoteOutput | null>(null);
+
   const handleBriefGenerated = (brief: GenerateContentBriefOutput) => {
     setGeneratedBrief(brief);
+    setGeneratedCallNote(null);
+  }
+
+  const handleNoteGenerated = (note: GenerateCallNoteOutput) => {
+    setGeneratedCallNote(note);
+    setGeneratedBrief(null);
   }
 
   return (
@@ -22,6 +35,12 @@ export default function AutoDocsPage() {
         open={isBriefDialogOpen}
         onOpenChange={setIsBriefDialogOpen}
         onBriefGenerated={handleBriefGenerated}
+      />
+      
+      <CallNoteDialog
+        open={isCallNoteDialogOpen}
+        onOpenChange={setIsCallNoteDialogOpen}
+        onNoteGenerated={handleNoteGenerated}
       />
 
       <PageHeader title="AutoDocs" />
@@ -46,7 +65,7 @@ export default function AutoDocsPage() {
             <CardDescription>Quickly enter post-call notes and let AI enhance them.</CardDescription>
           </CardHeader>
           <CardContent>
-             <Button className="w-full" disabled>Create Call Note</Button>
+             <Button className="w-full" onClick={() => setIsCallNoteDialogOpen(true)}>Create Call Note</Button>
           </CardContent>
         </Card>
         <Card className="glassmorphic">
@@ -79,6 +98,7 @@ export default function AutoDocsPage() {
       </div>
       
       {generatedBrief && <ContentBriefDisplay brief={generatedBrief} />}
+      {generatedCallNote && <CallNoteDisplay note={generatedCallNote} />}
     </div>
   );
 }

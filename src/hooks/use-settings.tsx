@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -5,21 +6,74 @@ import * as React from "react";
 export type SidebarLayout = "expanded" | "minimal" | "hidden";
 export type RoomBackground = "solid" | "blur" | "custom";
 export type TimeFormat = "12hr" | "24hr";
-export type SettingCategory = 'universal' | 'profile' | 'notifications' | 'workspace' | 'cortex' | 'dashboard' | 'tasks' | 'notes' | 'research' | 'gm' | 'clients' | 'projects' | 'outreach' | 'finance' | 'offer-builder' | 'asset-tracker' | 'brand-room' | 'pipeline-tracker' | 'ai-advantage' | 'autodocs' | 'template-builder' | 'integration-hub' | 'make-com' | 'content-studio' ;
+export type SettingCategory = 
+  | 'universal' | 'profile' | 'notifications' | 'workspace' 
+  | 'cortex' | 'dashboard' | 'tasks' | 'notes' | 'research' 
+  | 'gm' | 'clients' | 'projects' | 'outreach' | 'finance' 
+  | 'offerBuilder' | 'assetTracker' | 'brandRoom' | 'pipelineTracker' 
+  | 'aiAdvantage' | 'autoDocs' | 'templateBuilder' | 'integrationHub' 
+  | 'make' | 'contentStudio';
 
-
-interface Settings {
+export type Settings = {
+  // Universal
   sidebarLayout: SidebarLayout;
   roomBackground: RoomBackground;
+  roomAccessControl: 'private' | 'shared' | 'team';
   autosave: boolean;
   timeFormat: TimeFormat;
-}
+  dateRange: 'today' | 'this-week' | 'custom';
+  aiAssistant: boolean;
+  quickSync: boolean;
+  exportOptions: 'pdf' | 'docx' | 'csv' | 'png';
+
+  // Workspace
+  workspaceName: string;
+  tagline: string;
+  favouritesPanelVisibility: boolean;
+
+  // Cortex
+  llmModel: 'gpt4o' | 'claude';
+  cortexMemory: boolean;
+  fileUpload: boolean;
+  promptStyle: 'formal' | 'casual' | 'tactical' | 'copywriting';
+  llmApiKey: string;
+
+  // Tasks
+  tasksDefaultView: 'list' | 'board' | 'calendar' | 'gantt';
+  dailyTaskLimit: number;
+  autoRollover: boolean;
+  aiTaskSuggestions: boolean;
+};
 
 const defaultSettings: Settings = {
+  // Universal
   sidebarLayout: "expanded",
   roomBackground: "blur",
+  roomAccessControl: "private",
   autosave: true,
   timeFormat: "12hr",
+  dateRange: "this-week",
+  aiAssistant: true,
+  quickSync: false,
+  exportOptions: "pdf",
+
+  // Workspace
+  workspaceName: "Nexaris Media",
+  tagline: "Your Central AI Command Hub",
+  favouritesPanelVisibility: true,
+  
+  // Cortex
+  llmModel: "gpt4o",
+  cortexMemory: true,
+  fileUpload: true,
+  promptStyle: "casual",
+  llmApiKey: "",
+
+  // Tasks
+  tasksDefaultView: "list",
+  dailyTaskLimit: 10,
+  autoRollover: true,
+  aiTaskSuggestions: true,
 };
 
 interface SettingsContextValue {
@@ -44,7 +98,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     try {
       const savedSettings = localStorage.getItem("appSettings");
       if (savedSettings) {
-        setSettings(JSON.parse(savedSettings));
+        setSettings(prev => ({...prev, ...JSON.parse(savedSettings)}));
       }
     } catch (error) {
       console.error("Failed to load settings from local storage", error);
@@ -53,7 +107,9 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   
   React.useEffect(() => {
     try {
-      localStorage.setItem("appSettings", JSON.stringify(settings));
+      if (settings !== defaultSettings) {
+         localStorage.setItem("appSettings", JSON.stringify(settings));
+      }
     } catch (error)      {
        console.error("Failed to save settings to local storage", error);
     }

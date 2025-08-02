@@ -34,24 +34,25 @@ const generateYoutubeImagesFlow = ai.defineFlow(
   async ({ paragraph, prompt }) => {
     const imageGenerationPrompt = prompt || `Generate a realistic and cinematic image for the following scene: ${paragraph}`;
     
-    const imagePromises = Array(3).fill(null).map(async () => {
-      try {
-        const { media } = await ai.generate({
-          model: 'googleai/gemini-2.0-flash-preview-image-generation',
-          prompt: imageGenerationPrompt,
-          config: {
-            responseModalities: ['TEXT', 'IMAGE'],
-          },
-        });
-        return media?.url || null;
-      } catch (error) {
-        console.error("Image generation for a paragraph failed:", error);
-        return null; // Return null if an individual image generation fails
-      }
-    });
-
-    const results = await Promise.all(imagePromises);
-    const images = results.filter((url): url is string => url !== null);
+    const images: string[] = [];
+    for (let i = 0; i < 3; i++) {
+        try {
+            // eslint-disable-next-line no-await-in-loop
+            const { media } = await ai.generate({
+                model: 'googleai/gemini-2.0-flash-preview-image-generation',
+                prompt: imageGenerationPrompt,
+                config: {
+                    responseModalities: ['TEXT', 'IMAGE'],
+                },
+            });
+            if (media?.url) {
+                images.push(media.url);
+            }
+        } catch (error) {
+            console.error(`Image generation for a paragraph failed on attempt ${i + 1}:`, error);
+            // Allow for some failures, but don't add nulls to the array
+        }
+    }
     
     if (images.length === 0) {
         // If all image generations failed, we can either throw an error or return an empty array.

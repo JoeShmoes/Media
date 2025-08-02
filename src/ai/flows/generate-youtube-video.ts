@@ -9,7 +9,6 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { MediaPart } from 'genkit';
 
 const GenerateYoutubeVideoInputSchema = z.object({
   script: z.string().describe('The YouTube video script.'),
@@ -38,12 +37,9 @@ const generateYoutubeVideoFlow = ai.defineFlow(
     const promptParts = [
         { text: `Generate a video based on the following script, using the provided images as reference for the scenes. The provided audio is the voiceover for the entire video. The video's duration should match the audio's duration. Script: ${script}` },
          ...images.map(url => ({ media: { url, contentType: 'image/png' } })),
+         { media: { url: audio, contentType: 'audio/wav' } }
     ];
     
-    if (audio) {
-        promptParts.push({ media: { url: audio, contentType: 'audio/wav' } });
-    }
-
     let { operation } = await ai.generate({
         model: 'googleai/veo-2.0-generate-001',
         prompt: promptParts,

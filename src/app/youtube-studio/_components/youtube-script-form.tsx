@@ -134,6 +134,27 @@ export function YoutubeScriptForm() {
     })
   }
 
+  const downloadTextFile = (content: string, filename: string) => {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+  
+  const downloadDataUri = (dataUri: string, filename: string) => {
+     const a = document.createElement('a');
+     a.href = dataUri;
+     a.download = filename;
+     document.body.appendChild(a);
+     a.click();
+     document.body.removeChild(a);
+  }
+
   const handleCustomPromptChange = (index: number, value: string) => {
     setCustomPrompts(prev => ({...prev, [index]: value}));
   }
@@ -173,6 +194,9 @@ export function YoutubeScriptForm() {
 
         // 4. Generate Video
         const allImages = Object.values(newImages).flat();
+        if (allImages.length === 0) {
+            throw new Error("No images were generated, cannot create video.");
+        }
         const videoResult = await generateYoutubeVideo({
             script: scriptResult.script,
             audio: audioResult.audio,
@@ -188,7 +212,7 @@ export function YoutubeScriptForm() {
         toast({
             variant: "destructive",
             title: `Error During ${currentStep || 'Generation'}`,
-            description: "There was an issue generating media. Please try again.",
+            description: (error as Error).message || "There was an issue generating media. Please try again.",
         });
     } finally {
         setIsGenerating(false);
@@ -253,6 +277,9 @@ export function YoutubeScriptForm() {
                             <audio controls src={generatedAudio} className="w-full">
                                 Your browser does not support the audio element.
                             </audio>
+                             <Button onClick={() => downloadDataUri(generatedAudio, 'voiceover.wav')} variant="outline" className="w-full">
+                                <Download className="mr-2" /> Download Voiceover
+                            </Button>
                         </div>
                     </CardContent>
                 )}
@@ -294,12 +321,17 @@ export function YoutubeScriptForm() {
                   <AccordionTrigger className="capitalize">{key}</AccordionTrigger>
                   <AccordionContent>
                     <div className="relative">
-                      <p className="whitespace-pre-wrap font-mono text-sm p-4 rounded-md bg-muted/50 pr-10">
+                      <p className="whitespace-pre-wrap font-mono text-sm p-4 rounded-md bg-muted/50 pr-20">
                         {generatedScript[key]}
                       </p>
-                      <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-8 w-8" onClick={() => handleCopy(generatedScript[key])}>
-                        <Copy className="h-4 w-4" />
-                      </Button>
+                       <div className="absolute top-1 right-1 flex gap-1">
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => downloadTextFile(generatedScript[key], `${key}.txt`)}>
+                            <Download className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopy(generatedScript[key])}>
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                       </div>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
@@ -311,12 +343,17 @@ export function YoutubeScriptForm() {
                  {scriptParagraphs.map((paragraph, index) => (
                    <div key={index} className="mb-6">
                         <div className="relative">
-                             <p className="whitespace-pre-wrap font-mono text-sm p-4 rounded-md bg-muted/50 pr-10">
+                             <p className="whitespace-pre-wrap font-mono text-sm p-4 rounded-md bg-muted/50 pr-20">
                                 {paragraph}
                              </p>
-                             <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-8 w-8" onClick={() => handleCopy(paragraph)}>
-                                <Copy className="h-4 w-4" />
-                            </Button>
+                              <div className="absolute top-1 right-1 flex gap-1">
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => downloadTextFile(paragraph, `scene-${index+1}_script.txt`)}>
+                                    <Download className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleCopy(paragraph)}>
+                                    <Copy className="h-4 w-4" />
+                                </Button>
+                              </div>
                         </div>
                         <div className="mt-2 space-y-2">
                            <div className="relative">
@@ -334,7 +371,16 @@ export function YoutubeScriptForm() {
                                 <Loader2 className="animate-spin text-primary" />
                              </div>
                            ) : generatedImages[index] ? (
-                                <ImageSlideshow images={generatedImages[index]} />
+                                <>
+                                    <ImageSlideshow images={generatedImages[index]} />
+                                    <Button 
+                                        onClick={() => generatedImages[index].forEach((img, i) => downloadDataUri(img, `scene-${index+1}_image-${i+1}.png`))} 
+                                        variant="outline" 
+                                        className="w-full"
+                                    >
+                                        <Download className="mr-2" /> Download Images for Scene {index + 1}
+                                    </Button>
+                                </>
                            ) : (
                                 <div className="flex justify-center items-center h-32 bg-muted/50 rounded-md">
                                     <p className="text-muted-foreground text-sm">Waiting for images...</p>

@@ -71,7 +71,7 @@ export default function AutoDocsPage() {
               <p className="text-sm text-muted-foreground">Generate summaries, briefs, or documentation automatically.</p>
              </div>
           </header>
-          <div className="flex-1 h-full overflow-y-auto p-4 md:p-6">
+          <div key={activeService} className="flex-1 h-full overflow-y-auto p-4 md:p-6">
             {renderContent()}
           </div>
       </div>

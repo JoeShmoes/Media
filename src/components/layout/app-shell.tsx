@@ -75,6 +75,8 @@ import { Icons } from "../icons"
 import { SettingsDialog } from "./settings-dialog"
 import { useSettings } from "@/hooks/use-settings"
 import { PageHeader } from "../page-header"
+import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
+import { useRouter } from "next/navigation"
 
 const navLinks = [
     { href: "/", icon: LayoutDashboard, label: "Dashboard", description: "A high-level overview of your business." },
@@ -169,8 +171,21 @@ function LiveClock() {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const router = useRouter()
   const { settings, setSetting } = useSettings();
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
+  const [isCommandOpen, setIsCommandOpen] = React.useState(false);
+  
+  React.useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault()
+        setIsCommandOpen((open) => !open)
+      }
+    }
+    document.addEventListener("keydown", down)
+    return () => document.removeEventListener("keydown", down)
+  }, [])
   
   const sidebarOpen = settings.sidebarLayout === 'expanded';
   const setSidebarOpen = (isOpen: boolean) => {
@@ -178,6 +193,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   const currentPage = navLinks.find(link => link.href === pathname);
+  
+  const runCommand = (command: () => void) => {
+    setIsCommandOpen(false)
+    command()
+  }
 
   return (
     <SidebarProvider open={sidebarOpen} onOpenChange={setSidebarOpen}>
@@ -189,7 +209,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
              <div className="relative group-data-[collapsible=icon]:hidden">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input type="search" placeholder="Search..." className="w-full rounded-lg bg-background pl-8" />
+                <Input 
+                    type="search" 
+                    placeholder="Search..." 
+                    className="w-full rounded-lg bg-background pl-8" 
+                    onClick={() => setIsCommandOpen(true)}
+                 />
             </div>
         </SidebarHeader>
         <SidebarContent>
@@ -379,6 +404,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </Sidebar>
       <SidebarInset>
         <SettingsDialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
+        <CommandDialog open={isCommandOpen} onOpenChange={setIsCommandOpen}>
+            <CommandInput placeholder="Type a command or search..." />
+            <CommandList>
+                <CommandEmpty>No results found.</CommandEmpty>
+                <CommandGroup heading="Rooms">
+                    {navLinks.map((link) => (
+                       <CommandItem key={link.href} value={link.label} onSelect={() => runCommand(() => router.push(link.href))}>
+                           <link.icon className="mr-2 h-4 w-4" />
+                           <span>{link.label}</span>
+                       </CommandItem>
+                    ))}
+                </CommandGroup>
+            </CommandList>
+        </CommandDialog>
         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 bg-sidebar/80 backdrop-blur-md px-4 sm:px-6">
             <SidebarTrigger />
             <div className="flex-1 text-center">

@@ -155,7 +155,7 @@ export function YoutubeScriptForm() {
         const paragraphs = scriptResult.script.split('\n').filter(p => p.trim().length > 0);
 
         // 2. Generate Images
-        const imagePromises = paragraphs.map((p, index) => generateYoutubeImages({ paragraph: p, prompt: customPrompts[index] }));
+        const imagePromises = paragraphs.map((p, index) => generateYoutubeImages({ paragraph: p, prompt: customPrompts[index] || undefined }));
         const imageResults = await Promise.all(imagePromises);
         const newImages = imageResults.reduce((acc, result, index) => {
             if (result) {

@@ -21,13 +21,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Switch } from "../ui/switch"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
 import { Input } from "../ui/input"
+import { useSettings, type SettingCategory } from "@/hooks/use-settings"
 
 interface SettingsDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
-type SettingCategory = 'universal' | 'profile' | 'notifications' | 'workspace' | 'cortex' | 'dashboard' | 'tasks' | 'notes' | 'research' | 'gm' | 'clients' | 'projects' | 'outreach' | 'finance' | 'offer-builder' | 'asset-tracker' | 'brand-room' | 'pipeline-tracker' | 'ai-advantage' | 'autodocs' | 'template-builder' | 'integration-hub' | 'make-com' | 'content-studio' ;
 
 const settingCategories: { id: SettingCategory, label: string, icon: React.ReactElement }[] = [
     { id: 'universal', label: 'Universal', icon: <Wrench/> },
@@ -62,6 +62,7 @@ const roomSettingCategories: { id: SettingCategory, label: string, icon: React.R
 
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const { theme, setTheme } = useTheme()
+  const { settings, setSetting } = useSettings();
   const [activeCategory, setActiveCategory] = React.useState<SettingCategory>('universal')
 
   const renderContent = () => {
@@ -91,7 +92,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                         </div>
                         <div className="space-y-2">
                             <Label>Sidebar Layout</Label>
-                            <Select defaultValue="expanded">
+                             <Select value={settings.sidebarLayout} onValueChange={(v) => setSetting('sidebarLayout', v as any)}>
                                 <SelectTrigger><SelectValue/></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="expanded">Expanded</SelectItem>
@@ -102,7 +103,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                         </div>
                         <div className="space-y-2">
                             <Label>Room Background</Label>
-                            <Select defaultValue="blur">
+                             <Select value={settings.roomBackground} onValueChange={(v) => setSetting('roomBackground', v as any)}>
                                 <SelectTrigger><SelectValue/></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="solid">Solid Color</SelectItem>
@@ -120,11 +121,11 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     <CardContent className="space-y-4">
                         <div className="flex items-center justify-between">
                             <Label htmlFor="autosave">Autosave</Label>
-                            <Switch id="autosave" defaultChecked/>
+                            <Switch id="autosave" checked={settings.autosave} onCheckedChange={(c) => setSetting('autosave', c)}/>
                         </div>
                         <div className="space-y-2">
                             <Label>Time Format</Label>
-                            <Select defaultValue="12hr">
+                            <Select value={settings.timeFormat} onValueChange={(v) => setSetting('timeFormat', v as any)}>
                                 <SelectTrigger><SelectValue/></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="12hr">12-hour</SelectItem>

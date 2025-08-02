@@ -5,6 +5,7 @@ import { AppShell } from '@/components/layout/app-shell';
 import { Toaster } from "@/components/ui/toaster";
 import { SplashScreen } from '@/components/layout/splash-screen';
 import { ThemeProvider } from 'next-themes';
+import { SettingsProvider } from '@/hooks/use-settings';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -25,12 +26,14 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+          <SettingsProvider>
             <SplashScreen>
             <AppShell>
                 {children}
             </AppShell>
             </SplashScreen>
             <Toaster />
+          </SettingsProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -72,6 +72,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Icons } from "../icons"
 import { SettingsDialog } from "./settings-dialog"
+import { useSettings } from "@/hooks/use-settings"
 
 const favouritesNavItems = [
   { href: "/ai-room", icon: BrainCircuit, label: "Crifohay" },
@@ -114,6 +115,7 @@ const contentCreationNavItems = [
 ]
 
 function LiveClock() {
+  const { settings } = useSettings();
   const [time, setTime] = React.useState<Date | null>(null);
 
   React.useEffect(() => {
@@ -128,17 +130,30 @@ function LiveClock() {
     return null;
   }
 
-  return <div className="text-sm font-medium text-muted-foreground">{time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>;
+  const formatOptions: Intl.DateTimeFormatOptions = {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: settings.timeFormat === '12hr',
+  };
+
+  return <div className="text-sm font-medium text-muted-foreground">{time.toLocaleTimeString([], formatOptions)}</div>;
 }
 
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const { settings, setSetting } = useSettings();
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
+  
+  const sidebarOpen = settings.sidebarLayout === 'expanded';
+  const setSidebarOpen = (isOpen: boolean) => {
+      setSetting('sidebarLayout', isOpen ? 'expanded' : 'minimal');
+  }
 
   return (
-    <SidebarProvider>
-      <Sidebar collapsible="icon">
+    <SidebarProvider open={sidebarOpen} onOpenChange={setSidebarOpen}>
+      <Sidebar collapsible={settings.sidebarLayout === 'hidden' ? 'offcanvas' : 'icon'}>
         <SidebarHeader className="flex items-center gap-2">
             <Icons.logo className="w-8 h-8 text-white group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10 transition-all group-data-[state=expanded]:hidden"/>
             <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">Nexaris Media</span>

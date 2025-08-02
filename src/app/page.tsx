@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PageHeader } from "@/components/page-header"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { cn } from "@/lib/utils"
+import { useSettings } from "@/hooks/use-settings"
 
 const chartData = [
   { month: "January", clients: 1, sales: 1200 },
@@ -29,11 +30,14 @@ const chartConfig = {
 }
 
 export default function Dashboard() {
+  const { settings } = useSettings();
+  const cardClassName = settings.roomBackground === 'blur' ? "glassmorphic" : "";
+
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <PageHeader title="Dashboard" />
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="glassmorphic">
+        <Card className={cardClassName}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
@@ -43,7 +47,7 @@ export default function Dashboard() {
             <p className="text-xs text-muted-foreground">+20.1% from last month</p>
           </CardContent>
         </Card>
-        <Card className="glassmorphic">
+        <Card className={cardClassName}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Clients</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
@@ -53,7 +57,7 @@ export default function Dashboard() {
             <p className="text-xs text-muted-foreground">+180.1% from last month</p>
           </CardContent>
         </Card>
-        <Card className="glassmorphic">
+        <Card className={cardClassName}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Projects</CardTitle>
             <Briefcase className="h-4 w-4 text-muted-foreground" />
@@ -63,7 +67,7 @@ export default function Dashboard() {
             <p className="text-xs text-muted-foreground">+5 since last week</p>
           </CardContent>
         </Card>
-        <Card className="glassmorphic">
+        <Card className={cardClassName}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending Tasks</CardTitle>
             <ListTodo className="h-4 w-4 text-muted-foreground" />
@@ -75,7 +79,7 @@ export default function Dashboard() {
         </Card>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className={cn("col-span-4 glassmorphic")}>
+        <Card className={cn("col-span-4", cardClassName)}>
           <CardHeader>
             <CardTitle>Sales & Active Clients</CardTitle>
           </CardHeader>
@@ -100,7 +104,7 @@ export default function Dashboard() {
             </ChartContainer>
           </CardContent>
         </Card>
-        <Card className={cn("col-span-4 lg:col-span-3 glassmorphic")}>
+        <Card className={cn("col-span-4 lg:col-span-3", cardClassName)}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Lightbulb className="h-5 w-5 text-yellow-400" />

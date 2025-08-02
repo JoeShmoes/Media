@@ -1,4 +1,3 @@
-
 "use client"
 import * as React from "react";
 import { PanelLeft } from "lucide-react";
@@ -9,6 +8,8 @@ import type { TemplateType } from "@/lib/types";
 import { TemplateBuilderSidebar } from "./_components/template-builder-sidebar";
 import { TaskTemplatesView } from "./_components/task-templates-view";
 import { NoteTemplatesView } from "./_components/note-templates-view";
+import { OfferTemplatesView } from "./_components/offer-templates-view";
+import { OutreachTemplatesView } from "./_components/outreach-templates-view";
 
 
 export default function TemplateBuilderPage() {
@@ -26,6 +27,10 @@ export default function TemplateBuilderPage() {
         return <TaskTemplatesView />;
       case "Note":
         return <NoteTemplatesView />;
+      case "Offer":
+        return <OfferTemplatesView />;
+      case "Outreach":
+        return <OutreachTemplatesView />;
       default:
         return <p>Select a template type to begin.</p>;
     }

@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { LayoutTemplate, FileText } from "lucide-react"
+import { LayoutTemplate, FileText, Package, SendHorizonal } from "lucide-react"
 
 import type { TemplateType } from "@/lib/types"
 import { Button } from "@/components/ui/button"
@@ -15,6 +15,8 @@ interface TemplateBuilderSidebarProps {
 const templateTypes: { type: TemplateType, icon: React.ReactElement, label: string }[] = [
     { type: "Task", icon: <LayoutTemplate className="h-4 w-4" />, label: "Task Templates" },
     { type: "Note", icon: <FileText className="h-4 w-4" />, label: "Note Templates" },
+    { type: "Offer", icon: <Package className="h-4 w-4" />, label: "Offer Templates" },
+    { type: "Outreach", icon: <SendHorizonal className="h-4 w-4" />, label: "Outreach Templates" },
 ]
 
 

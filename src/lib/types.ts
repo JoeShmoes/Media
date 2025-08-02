@@ -282,5 +282,22 @@ export type NoteTemplate = {
     noteContent?: string;
 }
 
+export type OfferTemplate = {
+  id: string;
+  templateName: string;
+  offerTitle: string;
+  offerDescription: string;
+  offerPrice: number;
+  offerFeatures: string[];
+};
 
-export type TemplateType = 'Task' | 'Note';
+export type OutreachTemplate = {
+  id: string;
+  templateName: string;
+  outreachType: "DM" | "Email" | "Phone" | "Follow Up";
+  outreachSubject?: string;
+  outreachBody: string;
+}
+
+
+export type TemplateType = 'Task' | 'Note' | 'Offer' | 'Outreach';

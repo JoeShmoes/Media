@@ -267,3 +267,10 @@ export type Integration = {
     href: string;
     category?: IntegrationCategory;
 }
+
+export type TaskTemplate = {
+    id: string;
+    templateName: string;
+    taskName: string;
+    taskDescription?: string;
+}

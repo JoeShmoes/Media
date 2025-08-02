@@ -230,7 +230,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <SidebarHeader className="flex flex-col items-stretch gap-2">
             <div className="flex items-center gap-2">
                 <Icons.logo className="w-8 h-8 text-white group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10 transition-all group-data-[state=expanded]:hidden"/>
-                <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">BizMaster AI</span>
+                <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">Nexaris Media</span>
             </div>
              <div className="relative group-data-[collapsible=icon]:hidden">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -428,7 +428,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </DropdownMenu>
         </SidebarFooter>
       </Sidebar>
-      <SidebarInset>
+      <main className="flex-1">
         <SettingsDialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
         <CommandDialog open={isCommandOpen} onOpenChange={setIsCommandOpen}>
             <CommandInput placeholder="Type a command or search..." />
@@ -509,7 +509,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           </header>
         {children}
-      </SidebarInset>
+      </main>
     </SidebarProvider>
   )
 }

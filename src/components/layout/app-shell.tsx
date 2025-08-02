@@ -4,6 +4,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import type { Client, Deal, Project } from "@/lib/types"
 
 import {
   SidebarProvider,
@@ -176,7 +177,27 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
   const [isCommandOpen, setIsCommandOpen] = React.useState(false);
   
+  // States for searchable data
+  const [clients, setClients] = React.useState<Client[]>([]);
+  const [projects, setProjects] = React.useState<Project[]>([]);
+  const [deals, setDeals] = React.useState<Deal[]>([]);
+
   React.useEffect(() => {
+    // Load searchable data from localStorage
+    try {
+      const savedClients = localStorage.getItem("clients");
+      if (savedClients) setClients(JSON.parse(savedClients));
+      
+      const savedProjects = localStorage.getItem("projects");
+      if (savedProjects) setProjects(Object.values(JSON.parse(savedProjects)).flat() as Project[]);
+
+      const savedDeals = localStorage.getItem("deals");
+      if (savedDeals) setDeals(JSON.parse(savedDeals));
+
+    } catch (error) {
+      console.error("Failed to load searchable data from local storage", error);
+    }
+
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault()
@@ -214,6 +235,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     placeholder="Search..." 
                     className="w-full rounded-lg bg-background pl-8" 
                     onClick={() => setIsCommandOpen(true)}
+                    readOnly
                  />
             </div>
         </SidebarHeader>
@@ -414,6 +436,30 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                            <link.icon className="mr-2 h-4 w-4" />
                            <span>{link.label}</span>
                        </CommandItem>
+                    ))}
+                </CommandGroup>
+                 <CommandGroup heading="Clients">
+                    {clients.map((client) => (
+                        <CommandItem key={`client-${client.id}`} value={`Client: ${client.name}`} onSelect={() => runCommand(() => router.push('/clients'))}>
+                            <Users className="mr-2 h-4 w-4" />
+                            <span>{client.name}</span>
+                        </CommandItem>
+                    ))}
+                </CommandGroup>
+                <CommandGroup heading="Projects">
+                    {projects.map((project) => (
+                        <CommandItem key={`project-${project.id}`} value={`Project: ${project.title}`} onSelect={() => runCommand(() => router.push('/projects'))}>
+                            <KanbanSquare className="mr-2 h-4 w-4" />
+                            <span>{project.title}</span>
+                        </CommandItem>
+                    ))}
+                </CommandGroup>
+                 <CommandGroup heading="Deals">
+                    {deals.map((deal) => (
+                        <CommandItem key={`deal-${deal.id}`} value={`Deal: ${deal.title}`} onSelect={() => runCommand(() => router.push('/pipeline-tracker'))}>
+                            <View className="mr-2 h-4 w-4" />
+                            <span>{deal.title}</span>
+                        </CommandItem>
                     ))}
                 </CommandGroup>
             </CommandList>

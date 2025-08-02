@@ -1,8 +1,8 @@
 
 
+
 export type MindMapNode = {
   id: string;
-  type: 'idea'; // Add more types like 'card', 'shape' later
   content: string;
   position: { x: number; y: number };
   connections: string[];
@@ -34,7 +34,7 @@ export type DesignAsset = {
 };
 
 export type LegalDocument = {
-  id: string;
+  id:string;
   name: string;
   type: "Contract" | "NDA" | "Template" | "Other";
   fileUrl: string;
@@ -191,15 +191,6 @@ export type Persona = {
   painPoints: string[];
 }
 
-export type RoutineBlock = {
-  id: string;
-  name: string;
-  day: DayOfWeek;
-  startTime: string; // "HH:MM"
-  endTime: string;   // "HH:MM"
-};
-
-
 export type DealStatus = "leads" | "needs-analysis" | "proposal" | "negotiation" | "closed-won" | "closed-lost";
 
 export type Deal = {
@@ -210,3 +201,4 @@ export type Deal = {
   clientName?: string;
   notes?: string;
 };
+

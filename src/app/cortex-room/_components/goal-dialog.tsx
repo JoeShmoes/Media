@@ -3,7 +3,7 @@
 
 import * as React from "react"
 import { z } from "zod"
-import { useForm, useFieldArray } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 
 import { Button } from "@/components/ui/button"
@@ -224,7 +224,7 @@ export function GoalDialog({ open, onOpenChange, goal, onSave, projects, tasks }
                 />
               </div>
             </ScrollArea>
-            <DialogFooter className="pr-6">
+            <DialogFooter className="pr-6 pt-4">
               <Button type="submit">Save Goal</Button>
             </DialogFooter>
           </form>

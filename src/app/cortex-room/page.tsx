@@ -4,7 +4,7 @@ import * as React from "react"
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Target, Link, Gauge, KanbanSquare, ListTodo } from "lucide-react";
+import { PlusCircle, Target, Gauge } from "lucide-react";
 import type { Goal, Project, Task, TaskGroup, ProjectBoard } from "@/lib/types";
 import { GoalList } from "./_components/goal-list";
 import { GoalDialog } from "./_components/goal-dialog";
@@ -129,16 +129,6 @@ export default function CortexRoomPage() {
             <CardContent className="flex flex-col items-center justify-center">
                 <p className="text-6xl font-bold text-green-400">{focusScore}%</p>
                 <p className="text-sm text-muted-foreground mt-2">Completed</p>
-            </CardContent>
-            </Card>
-            <Card className="glassmorphic">
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Link /> Tactical Mapping</CardTitle>
-                <CardDescription>Assign goals to specific projects and tasks.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-                <Button className="w-full justify-start" variant="outline" disabled><KanbanSquare/> Link to Project</Button>
-                <Button className="w-full justify-start" variant="outline" disabled><ListTodo /> Link to Task</Button>
             </CardContent>
             </Card>
         </div>

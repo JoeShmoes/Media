@@ -103,7 +103,6 @@ const utilityNavItems = [
   { href: "/autodocs", icon: FileText, label: "AutoDocs" },
   { href: "/template-builder", icon: LayoutTemplate, label: "Template Builder" },
   { href: "/integration-hub", icon: Blocks, label: "Integration Hub" },
-  { href: "/audit-room", icon: GanttChartSquare, label: "Audit Room" },
   { href: "https://make.com", icon: Workflow, label: "Make.com", external: true },
 ]
 

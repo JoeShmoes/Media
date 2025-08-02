@@ -1,140 +1,364 @@
 
-"use client";
+"use client"
+import * as React from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 
-import * as React from "react";
-import { PageHeader } from "@/components/page-header";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { LineChart, PieChart, AlertTriangle } from "lucide-react";
-import type { Project, ProjectBoard, Task, TaskGroup } from "@/lib/types";
-import { Progress } from "@/components/ui/progress";
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarFooter,
+  SidebarInset,
+  SidebarTrigger,
+  SidebarGroup,
+  SidebarGroupLabel,
+} from "@/components/ui/sidebar"
+import {
+  BrainCircuit,
+  CircleDollarSign,
+  KanbanSquare,
+  LayoutDashboard,
+  MessageSquare,
+  PenSquare,
+  Search,
+  SendHorizonal,
+  Users,
+  Youtube,
+  Settings,
+  LogOut,
+  Bell,
+  ListTodo,
+  Notebook,
+  FileText,
+  LayoutTemplate,
+  Blocks,
+  GanttChartSquare,
+  Network,
+  Target,
+  FlaskConical,
+  View,
+  Shield,
+  Package,
+  Archive,
+  Palette,
+  Building,
+  Workflow,
+  Sparkles,
+  Wrench,
+  HelpCircle,
+} from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { Icons } from "@/components/icons"
 
-export default function AuditRoomPage() {
-  const [projects, setProjects] = React.useState<Project[]>([]);
-  const [tasks, setTasks] = React.useState<Task[]>([]);
-  const [isMounted, setIsMounted] = React.useState(false);
+const favouritesNavItems = [
+  { href: "/ai-room", icon: BrainCircuit, label: "Crifohay" },
+  { href: "/research", icon: Search, label: "Research" },
+]
+
+const mainNavItems = [
+    { href: "/", icon: LayoutDashboard, label: "Dashboard" },
+    { href: "/tasks", icon: ListTodo, label: "Tasks" },
+    { href: "/notes", icon: Notebook, label: "Notes" },
+    { href: "/gm", icon: MessageSquare, label: "GM" },
+    { href: "/clients", icon: Users, label: "Client" },
+    { href: "/projects", icon: KanbanSquare, label: "Projects" },
+    { href: "/outreach", icon: SendHorizonal, label: "Outreach" },
+    { href: "/finance", icon: CircleDollarSign, label: "Finance" },
+]
+
+const businessBuilderNavItems = [
+  { href: "/offer-builder", icon: Package, label: "Offer Builder" },
+  { href: "/asset-tracker", icon: Archive, label: "Asset Tracker" },
+  { href: "/brand-room", icon: Palette, label: "Brand Room" },
+  { href: "/pipeline-tracker", icon: View, label: "Pipeline Tracker" },
+]
+
+const aiAdvantageNavItems = [
+    { href: "https://miro.com/app/dashboard/", icon: Network, label: "Miro", external: true },
+    { href: "/cortex-room", icon: Target, label: "Cortex Room" },
+]
+
+const utilityNavItems = [
+  { href: "/autodocs", icon: FileText, label: "AutoDocs" },
+  { href: "/template-builder", icon: LayoutTemplate, label: "Template Builder" },
+  { href: "/integration-hub", icon: Blocks, label: "Integration Hub" },
+  { href: "https://make.com", icon: Workflow, label: "Make.com", external: true },
+]
+
+const contentCreationNavItems = [
+  { href: "/content", icon: PenSquare, label: "Content" },
+  { href: "/youtube-studio", icon: Youtube, label: "Studio" },
+]
+
+function LiveClock() {
+  const [time, setTime] = React.useState<Date | null>(null);
 
   React.useEffect(() => {
-    setIsMounted(true);
-    try {
-      const savedProjects = localStorage.getItem("projects");
-      if (savedProjects) {
-        const board: ProjectBoard = JSON.parse(savedProjects);
-        const allProjects = Object.values(board).flat();
-        setProjects(allProjects);
-      }
-
-      const savedTasks = localStorage.getItem("tasks");
-      if (savedTasks) {
-          const board: { groups: TaskGroup[] } = JSON.parse(savedTasks);
-          const allTasks = board.groups.flatMap(g => g.tasks);
-          setTasks(allTasks);
-      }
-    } catch (error) {
-      console.error("Failed to load data from local storage", error);
-    }
+    setTime(new Date());
+    const interval = setInterval(() => {
+      setTime(new Date());
+    }, 1000);
+    return () => clearInterval(interval);
   }, []);
 
-  const taskAnalysis = React.useMemo(() => {
-    if (tasks.length === 0) return { completed: 0, pending: 0, completionRate: 0 };
-    const completed = tasks.filter(t => t.completed).length;
-    const pending = tasks.length - completed;
-    const completionRate = Math.round((completed / tasks.length) * 100);
-    return { completed, pending, completionRate };
-  }, [tasks]);
-  
-  const projectAnalysis = React.useMemo(() => {
-    if (projects.length === 0) return { active: 0, completed: 0, stalled: 0 };
-    const active = projects.filter(p => p.status !== 'launch').length;
-    const completed = projects.filter(p => p.status === 'launch').length;
-    // Stalled logic is a placeholder as we don't track update dates yet.
-    const stalled = 0; 
-    return { active, completed, stalled };
-  }, [projects]);
-  
-  if (!isMounted) {
+  if (!time) {
     return null;
   }
 
-  return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader title="Audit Room" />
-      <p className="text-muted-foreground">
-        Analyze weekly/monthly output and identify bottlenecks.
-      </p>
-      <div className="grid gap-8 md:grid-cols-2">
-        <Card className="glassmorphic">
-          <CardHeader>
-            <CardTitle>Task Completion Analysis</CardTitle>
-            <CardDescription>View your productivity by category.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <div className="flex justify-between mb-1">
-                <span className="font-medium">{taskAnalysis.completionRate}% Completion Rate</span>
-                <span className="text-muted-foreground">{taskAnalysis.completed} / {tasks.length} tasks</span>
-              </div>
-              <Progress value={taskAnalysis.completionRate} />
-            </div>
-            <p className="text-sm text-muted-foreground">AI Suggestion: Your completion rate is strong. Focus on knocking out the remaining {taskAnalysis.pending} tasks.</p>
-          </CardContent>
-        </Card>
-        <Card className="glassmorphic">
-          <CardHeader>
-            <CardTitle>Project Audit Log</CardTitle>
-            <CardDescription>Track what moved forward and what stalled.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-             <div className="grid grid-cols-3 gap-4 text-center">
-                <div>
-                  <p className="text-2xl font-bold">{projectAnalysis.active}</p>
-                  <p className="text-sm text-muted-foreground">Active</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{projectAnalysis.completed}</p>
-                  <p className="text-sm text-muted-foreground">Completed</p>
-                </div>
-                 <div>
-                  <p className="text-2xl font-bold">{projectAnalysis.stalled}</p>
-                  <p className="text-sm text-muted-foreground">Stalled</p>
-                </div>
-             </div>
-             {projectAnalysis.stalled > 0 && (
-                <p className="text-sm text-muted-foreground flex items-center gap-2">
-                  <AlertTriangle className="text-yellow-400 h-4 w-4"/> AI Flag: {projectAnalysis.stalled} project has stalled. Consider following up.
-                </p>
-             )}
-          </CardContent>
-        </Card>
-        <Card className="glassmorphic">
-          <CardHeader>
-            <CardTitle>Time Audit</CardTitle>
-            <CardDescription>Compare your calendar vs. real-time behavior.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex justify-center items-center h-48 bg-muted/30 rounded-md">
-             <PieChart className="w-16 h-16 text-muted-foreground" />
-             <p className="text-muted-foreground ml-4">Coming Soon</p>
-          </CardContent>
-        </Card>
-        <Card className="glassmorphic">
-          <CardHeader>
-            <CardTitle>Habit Audit</CardTitle>
-            <CardDescription>Analyze streaks, missed days, and routine impact.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex justify-center items-center h-48 bg-muted/30 rounded-md">
-            <LineChart className="w-16 h-16 text-muted-foreground" />
-             <p className="text-muted-foreground ml-4">Coming Soon</p>
-          </CardContent>
-        </Card>
-         <Card className="glassmorphic md:col-span-2">
-          <CardHeader>
-            <CardTitle>Custom KPI Reports</CardTitle>
-            <CardDescription>Define and track your own metrics like leads/day or conversions.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex justify-center items-center h-48 bg-muted/30 rounded-md">
-             <p className="text-muted-foreground">Define your custom reports here.</p>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
+  return <div className="text-sm font-medium text-muted-foreground">{time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>;
 }
+
+
+export function AppShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+
+  return (
+    <SidebarProvider>
+      <Sidebar collapsible="icon">
+        <SidebarHeader className="flex items-center gap-2">
+            <Icons.logo className="w-8 h-8 text-white group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10 transition-all group-data-[state=expanded]:hidden"/>
+            <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">Nexaris Media</span>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarGroup className="mt-4">
+             <SidebarGroupLabel>Favourites</SidebarGroupLabel>
+            <SidebarMenu>
+              {favouritesNavItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <Link href={item.href}>
+                    <SidebarMenuButton
+                      isActive={pathname === item.href}
+                      tooltip={item.label}
+                    >
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+          <SidebarGroup className="mt-4">
+            <SidebarGroupLabel>Main</SidebarGroupLabel>
+            <SidebarMenu>
+              {mainNavItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <Link href={item.href}>
+                    <SidebarMenuButton
+                      isActive={pathname === item.href}
+                      tooltip={item.label}
+                    >
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+          <SidebarGroup className="mt-4">
+             <SidebarGroupLabel>Business Builder</SidebarGroupLabel>
+            <SidebarMenu>
+              {businessBuilderNavItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <Link href={item.href}>
+                    <SidebarMenuButton
+                      isActive={pathname === item.href}
+                      tooltip={item.label}
+                    >
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+          <SidebarGroup className="mt-4">
+             <SidebarGroupLabel>AI Advantage</SidebarGroupLabel>
+            <SidebarMenu>
+              {aiAdvantageNavItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  {item.external ? (
+                     <a href={item.href} target="_blank" rel="noopener noreferrer" className="flex items-center w-full">
+                       <SidebarMenuButton
+                          isActive={false}
+                          tooltip={item.label}
+                          className="w-full"
+                       >
+                         <item.icon />
+                         <span className="flex items-center justify-between w-full">
+                            {item.label}
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <HelpCircle className="h-4 w-4 text-muted-foreground"/>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>This opens Miro in a new tab.</p>
+                                </TooltipContent>
+                            </Tooltip>
+                         </span>
+                       </SidebarMenuButton>
+                     </a>
+                  ) : (
+                    <Link href={item.href}>
+                      <SidebarMenuButton
+                        isActive={pathname === item.href}
+                        tooltip={item.label}
+                      >
+                        <item.icon />
+                        <span>{item.label}</span>
+                      </SidebarMenuButton>
+                    </Link>
+                  )}
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+           <SidebarGroup className="mt-4">
+             <SidebarGroupLabel>Utility / Automation</SidebarGroupLabel>
+            <SidebarMenu>
+              {utilityNavItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  {item.external ? (
+                     <a href={item.href} target="_blank" rel="noopener noreferrer" className="flex items-center w-full">
+                       <SidebarMenuButton
+                          isActive={false}
+                          tooltip={item.label}
+                          className="w-full"
+                       >
+                         <item.icon />
+                         <span className="flex items-center justify-between w-full">
+                            {item.label}
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <HelpCircle className="h-4 w-4 text-muted-foreground"/>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>It opens Make.com</p>
+                                </TooltipContent>
+                            </Tooltip>
+                         </span>
+                       </SidebarMenuButton>
+                     </a>
+                  ) : (
+                    <Link href={item.href}>
+                        <SidebarMenuButton
+                        isActive={pathname === item.href}
+                        tooltip={item.label}
+                        >
+                        <item.icon />
+                        <span>{item.label}</span>
+                        </SidebarMenuButton>
+                    </Link>
+                  )}
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+          <SidebarGroup className="mt-4">
+            <SidebarGroupLabel>Content Creation</SidebarGroupLabel>
+            <SidebarMenu>
+              {contentCreationNavItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                  <Link href={item.href}>
+                    <SidebarMenuButton
+                      isActive={pathname === item.href}
+                      tooltip={item.label}
+                    >
+                      <item.icon />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                  </Link>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarFooter>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="justify-start w-full h-auto p-2">
+                 <div className="flex items-center gap-3">
+                   <Avatar className="h-8 w-8">
+                    <AvatarImage src="https://placehold.co/40x40.png" alt="@fozan" data-ai-hint="man portrait" />
+                    <AvatarFallback>FS</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-col items-start group-data-[collapsible=icon]:hidden">
+                      <span className="text-sm font-medium text-foreground">Fozan Shazad</span>
+                      <span className="text-xs text-muted-foreground">Entrepreneur</span>
+                  </div>
+                </div>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56 mb-2" side="top" align="start">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Settings</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Log out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </SidebarFooter>
+      </Sidebar>
+      <SidebarInset>
+        <header className="sticky top-0 z-10 flex h-14 items-center gap-4 bg-sidebar/80 backdrop-blur-md px-4 sm:px-6">
+            <SidebarTrigger />
+             <div className="relative flex-1 md:grow-0">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input type="search" placeholder="Search..." className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]" />
+            </div>
+            <div className="flex-1" />
+            <LiveClock />
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <Bell />
+                  <span className="sr-only">Toggle notifications</span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80">
+                <div className="grid gap-4">
+                  <div className="space-y-2">
+                    <h4 className="font-medium leading-none">Notifications</h4>
+                    <p className="text-sm text-muted-foreground">
+                      You have no new notifications.
+                    </p>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </header>
+        {children}
+      </SidebarInset>
+    </SidebarProvider>
+  )
+}
+
+    

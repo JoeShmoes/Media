@@ -9,7 +9,7 @@ import { Xwrapper } from "react-xarrows";
 interface MindMapCanvasProps {
   nodes: MindMapNode[];
   onUpdateNode: (id: string, data: Partial<Omit<MindMapNode, "id">>) => void;
-  onAddNode: (node: MindMapNode) => void;
+  onAddNode: (node: Omit<MindMapNode, 'id'>) => void;
   onRemoveNode: (id: string) => void;
 }
 
@@ -22,11 +22,10 @@ export function MindMapCanvas({
   const canvasRef = React.useRef<HTMLDivElement>(null);
 
   const handleDoubleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target !== canvasRef.current) return;
+    if (e.target !== canvasRef.current || !canvasRef.current) return;
 
     const canvasRect = canvasRef.current.getBoundingClientRect();
-    const newNode: MindMapNode = {
-      id: `node-${Date.now()}`,
+    const newNode: Omit<MindMapNode, 'id'> = {
       type: 'idea',
       content: "New Idea",
       position: {

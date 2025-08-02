@@ -240,7 +240,7 @@ export function YoutubeScriptForm() {
              <Card className="glassmorphic">
                 <CardHeader>
                     <CardTitle>Generate Media</CardTitle>
-                    <CardDescription>Generate images and voiceover for your script.</CardDescription>
+                    <CardDescription>Note: Image generation is rate-limited. You can generate a limited number of images per day.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <Button onClick={handleGenerateImages} disabled={isImagesLoading} className="w-full">
@@ -382,5 +382,3 @@ export function YoutubeScriptForm() {
     </div>
   )
 }
-
-    

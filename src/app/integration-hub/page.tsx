@@ -25,7 +25,6 @@ const defaultIntegrations: { [key in IntegrationCategory]: Integration[] } = {
     "Custom Automations": [
         { name: "Zapier / Webhooks", icon: <Zap/>, href: "https://zapier.com" },
         { name: "Make.com", icon: <Zap/>, href: "https://make.com" },
-        { name: "API Playground", icon: <Code/>, href: "#" },
     ]
 };
 

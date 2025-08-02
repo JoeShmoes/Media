@@ -84,8 +84,6 @@ export default function ClientPortalPage() {
         toast({ title: "Access updated", description: "Client access permissions have been saved." });
     }
 
-    const activeClients = clients.filter(c => c.status === 'Active');
-
     if (!isMounted) return null;
 
   return (
@@ -109,13 +107,13 @@ export default function ClientPortalPage() {
 
       <Card className="glassmorphic">
         <CardHeader>
-            <CardTitle>Active Client Portals</CardTitle>
+            <CardTitle>Client Portals</CardTitle>
             <CardDescription>Give clients access to their own information and project status.</CardDescription>
         </CardHeader>
         <CardContent>
-            {activeClients.length > 0 ? (
+            {clients.length > 0 ? (
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {activeClients.map(client => (
+                    {clients.map(client => (
                         <Card key={client.id}>
                             <CardHeader className="flex flex-row items-center gap-4">
                                 <Avatar>
@@ -137,8 +135,8 @@ export default function ClientPortalPage() {
                 </div>
             ) : (
                 <div className="text-center py-12">
-                    <p className="text-muted-foreground">You currently have no active clients.</p>
-                    <p className="text-xs text-muted-foreground mt-1 mb-4">Change a client's status to "Active" in the Client Command Center to see their portal here.</p>
+                    <p className="text-muted-foreground">You currently have no clients.</p>
+                    <p className="text-xs text-muted-foreground mt-1 mb-4">Go to the Client Command Center to add your first client.</p>
                      <Button asChild>
                         <Link href="/clients"><Users className="mr-2"/>Go to Client Command Center</Link>
                     </Button>

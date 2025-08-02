@@ -103,7 +103,7 @@ export default function Dashboard() {
             console.error("Failed to generate dashboard insights", error);
             // Set some default state on error
             setInsights({
-                suggestions: ["Could not load AI suggestions."],
+                suggestions: [{ text: "Could not load AI suggestions.", href: "#" }],
                 notifications: [{ text: "Error fetching AI insights.", level: "critical" }]
             });
         } finally {
@@ -215,7 +215,9 @@ export default function Dashboard() {
                     ) : (
                         <div className="space-y-4 text-sm text-muted-foreground">
                             {insights?.suggestions.map((suggestion, index) => (
-                                <p key={index}>{index + 1}. <a href="#" className="text-primary hover:underline">{suggestion}</a></p>
+                                <p key={index}>
+                                   {index + 1}. <Link href={suggestion.href} className="text-primary hover:underline">{suggestion.text}</Link>
+                                </p>
                             ))}
                         </div>
                     )}

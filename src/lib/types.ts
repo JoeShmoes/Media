@@ -1,5 +1,6 @@
 
 
+
 export type CompareVersionsOutput = {
     summary: string;
     diff: {
@@ -121,6 +122,7 @@ export type Task = {
   notifications: boolean;
   completed: boolean;
   groupId?: string;
+  dueDate?: string;
 };
 
 export type TaskGroup = {
@@ -308,3 +310,11 @@ export type ProjectTemplate = {
 
 
 export type TemplateType = 'Task' | 'Note' | 'Offer' | 'Outreach' | 'Project';
+
+export type GenerateDashboardInsightsOutput = {
+  suggestions: { text: string; href: string }[];
+  notifications: {
+    text: string;
+    level: "info" | "warning" | "critical";
+  }[];
+};

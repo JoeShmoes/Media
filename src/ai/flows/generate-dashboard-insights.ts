@@ -43,7 +43,10 @@ const GenerateDashboardInsightsInputSchema = z.object({
 export type GenerateDashboardInsightsInput = z.infer<typeof GenerateDashboardInsightsInputSchema>;
 
 const GenerateDashboardInsightsOutputSchema = z.object({
-  suggestions: z.array(z.string()).describe("A list of 3 actionable growth suggestions for the user this week."),
+  suggestions: z.array(z.object({
+    text: z.string().describe("The actionable growth suggestion for the user."),
+    href: z.string().describe("The relevant application path for the suggestion (e.g., '/offer-builder', '/youtube-studio')."),
+  })).describe("A list of 3 actionable growth suggestions for the user this week."),
   notifications: z.array(z.object({
       text: z.string().describe("The notification message."),
       level: z.enum(['info', 'warning', 'critical']).describe("The severity level of the notification."),
@@ -67,7 +70,10 @@ Analyze the following data:
 - Tasks: {{{json tasks}}}
 
 Based on this data, generate:
-1.  **Suggestions**: 3 high-impact, actionable growth suggestions for the user to focus on this week. These should be strategic and forward-looking. Examples: "Launch a new ad campaign for the '[Offer Title]' offer." or "Create a follow-up YouTube video about '[Relevant Topic]'."
+1.  **Suggestions**: 3 high-impact, actionable growth suggestions for the user to focus on this week. These should be strategic and forward-looking. For each suggestion, provide a relevant 'href' to the most appropriate room in the application. Examples:
+    - Text: "Launch a new ad campaign for the '[Offer Title]' offer.", href: "/offer-builder"
+    - Text: "Create a follow-up YouTube video about '[Relevant Topic]'.", href: "/youtube-studio"
+    - Text: "Email uncontacted leads from the last 7 days.", href: "/outreach"
 2.  **Notifications**: Up to 4 critical or warning-level notifications about the current state of their business. Focus on urgent issues, risks, and deadlines. Examples: "Project '[Project Title]' is nearing its deadline." or "You haven't contacted new lead '[Lead Name]' for 3 days."
 
 Your tone should be concise, helpful, and direct.
@@ -85,9 +91,9 @@ const generateDashboardInsightsFlow = ai.defineFlow(
     if (input.projects.length === 0 && input.deals.length === 0 && input.tasks.length === 0) {
         return {
             suggestions: [
-                "Define your first business goal in the Cortex Room.",
-                "Create a new offer in the Offer Builder.",
-                "Add your first client to start tracking your work."
+                { text: "Define your first business goal in the Cortex Room.", href: "/cortex-room" },
+                { text: "Create a new offer in the Offer Builder.", href: "/offer-builder" },
+                { text: "Add your first client to start tracking your work.", href: "/clients" }
             ],
             notifications: [
                 { text: "Welcome to your new command center! Add some data to get started.", level: "info" }

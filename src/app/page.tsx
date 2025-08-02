@@ -1,23 +1,18 @@
 
 "use client"
 
+import * as React from "react";
 import Link from "next/link"
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Tooltip, LineChart, Line } from "recharts"
 import { Briefcase, Lightbulb, ListTodo, TrendingUp, Users, DollarSign, Bell, Plus, PenSquare, Film, BarChart2, Zap, CheckCircle, ExternalLink, Activity, ServerCrash } from "lucide-react"
 
+import type { Deal, Project, Task, Transaction, TaskGroup } from "@/lib/types"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { cn } from "@/lib/utils"
 import { useSettings } from "@/hooks/use-settings"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-
-const kpiData = [
-  { metric: "Revenue", value: "$31,389", change: "+20.1%", icon: <DollarSign/> },
-  { metric: "Active Projects", value: "+8", change: "+5 since last week", icon: <Briefcase/> },
-  { metric: "Leads This Week", value: "17", change: "+12%", icon: <Users/> },
-  { metric: "Tasks Due", value: "21", change: "3 urgent", icon: <ListTodo/> },
-]
 
 const quickAccessItems = [
     { label: "New Task", icon: <Plus/>, href: "/tasks" },
@@ -53,6 +48,63 @@ const chartConfig = {
 export default function Dashboard() {
   const { settings } = useSettings();
   const cardClassName = settings.roomBackground === 'blur' ? "glassmorphic" : "";
+  const [isMounted, setIsMounted] = React.useState(false);
+  
+  // State for dashboard data
+  const [totalRevenue, setTotalRevenue] = React.useState(0);
+  const [activeProjects, setActiveProjects] = React.useState(0);
+  const [leadsThisWeek, setLeadsThisWeek] = React.useState(0);
+  const [tasksDue, setTasksDue] = React.useState(0);
+
+
+  React.useEffect(() => {
+      setIsMounted(true);
+      try {
+        const savedTransactions = localStorage.getItem("transactions");
+        if(savedTransactions) {
+            const transactions: Transaction[] = JSON.parse(savedTransactions);
+            const income = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+            setTotalRevenue(income);
+        }
+
+        const savedProjects = localStorage.getItem("projects");
+        if (savedProjects) {
+            const projects: Project[] = Object.values(JSON.parse(savedProjects)).flat() as Project[];
+            const active = projects.filter(p => p.status !== 'launch');
+            setActiveProjects(active.length);
+        }
+        
+        const savedDeals = localStorage.getItem("deals");
+        if (savedDeals) {
+            const deals: Deal[] = JSON.parse(savedDeals);
+            const leads = deals.filter(d => d.status === 'leads');
+            setLeadsThisWeek(leads.length);
+        }
+        
+        const savedTasks = localStorage.getItem("tasks");
+        if (savedTasks) {
+            const taskBoard: {groups: TaskGroup[]} = JSON.parse(savedTasks);
+            const allTasks = taskBoard.groups.flatMap(g => g.tasks);
+            const dueTasks = allTasks.filter(t => !t.completed);
+            setTasksDue(dueTasks.length);
+        }
+
+      } catch (error) {
+          console.error("Failed to load dashboard data from local storage", error);
+      }
+  }, []);
+
+  const kpiData = [
+    { metric: "Revenue", value: `$${totalRevenue.toLocaleString()}`, change: "+20.1%", icon: <DollarSign/> },
+    { metric: "Active Projects", value: `+${activeProjects}`, change: "+5 since last week", icon: <Briefcase/> },
+    { metric: "Leads This Week", value: `${leadsThisWeek}`, change: "+12%", icon: <Users/> },
+    { metric: "Tasks Due", value: `${tasksDue}`, change: "3 urgent", icon: <ListTodo/> },
+  ]
+  
+  if (!isMounted) {
+    return null; // or a loading skeleton
+  }
+
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">

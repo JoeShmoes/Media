@@ -56,9 +56,9 @@ export default function Dashboard() {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-        <div className="grid gap-6 lg:grid-cols-3">
-            {/* Left Column */}
-            <div className="lg:col-span-2 space-y-6">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+            {/* Left & Center Columns */}
+            <div className="lg:col-span-3 xl:col-span-4 space-y-6">
                 <Card className={cn("col-span-4", cardClassName)}>
                     <CardHeader>
                         <CardTitle>Today's Command Center</CardTitle>
@@ -97,7 +97,7 @@ export default function Dashboard() {
                     <CardHeader>
                         <CardTitle>Quick Access Launcher</CardTitle>
                     </CardHeader>
-                    <CardContent className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <CardContent className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                         {quickAccessItems.map(item => (
                             <Link href={item.href} key={item.label} passHref>
                                 <Button variant="outline" className="flex-col h-20 w-full">
@@ -131,7 +131,7 @@ export default function Dashboard() {
             </div>
 
             {/* Right Column */}
-            <div className="lg:col-span-1 space-y-6">
+            <div className="lg:col-span-2 xl:col-span-1 space-y-6">
                 <Card className={cn("col-span-4 lg:col-span-3", cardClassName)}>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2"><Lightbulb className="h-5 w-5 text-yellow-400" /> Assistant Suggestions</CardTitle>

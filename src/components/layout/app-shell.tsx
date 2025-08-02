@@ -97,7 +97,6 @@ const businessBuilderNavItems = [
 const aiAdvantageNavItems = [
     { href: "https://miro.com/app/dashboard/", icon: Network, label: "Miro", external: true },
     { href: "/cortex-room", icon: Target, label: "Cortex Room" },
-    { href: "/writing-lab", icon: FlaskConical, label: "Writing Lab" },
 ]
 
 const utilityNavItems = [

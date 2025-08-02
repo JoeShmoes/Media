@@ -3,7 +3,7 @@
 
 import * as React from "react"
 import { z } from "zod"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { ChevronDown } from "lucide-react"
 
@@ -62,7 +62,11 @@ interface GoalDialogProps {
 
 function MultiSelectDropdown({ control, name, label, items }: { control: any, name: "linkedProjectIds" | "linkedTaskIds", label: string, items: {id: string, title: string}[]}) {
     const [isOpen, setIsOpen] = React.useState(false);
-    const selectedCount = control.getValues(name)?.length || 0;
+    const selectedValues = useWatch({
+      control,
+      name,
+    });
+    const selectedCount = selectedValues?.length || 0;
 
     return (
         <Collapsible open={isOpen} onOpenChange={setIsOpen}>

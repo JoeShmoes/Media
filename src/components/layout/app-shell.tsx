@@ -104,6 +104,7 @@ const utilityNavItems = [
   { href: "/template-builder", icon: LayoutTemplate, label: "Template Builder" },
   { href: "/integration-hub", icon: Blocks, label: "Integration Hub" },
   { href: "/audit-room", icon: GanttChartSquare, label: "Audit Room" },
+  { href: "https://make.com", icon: Workflow, label: "Make.com", external: true },
 ]
 
 const contentCreationNavItems = [
@@ -241,15 +242,38 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <SidebarMenu>
               {utilityNavItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <Link href={item.href}>
-                    <SidebarMenuButton
-                      isActive={pathname === item.href}
-                      tooltip={item.label}
-                    >
-                      <item.icon />
-                      <span>{item.label}</span>
-                    </SidebarMenuButton>
-                  </Link>
+                  {item.external ? (
+                     <a href={item.href} target="_blank" rel="noopener noreferrer" className="flex items-center w-full">
+                       <SidebarMenuButton
+                          isActive={false}
+                          tooltip={item.label}
+                          className="w-full"
+                       >
+                         <item.icon />
+                         <span className="flex items-center justify-between w-full">
+                            {item.label}
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <HelpCircle className="h-4 w-4 text-muted-foreground"/>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>It opens Make.com</p>
+                                </TooltipContent>
+                            </Tooltip>
+                         </span>
+                       </SidebarMenuButton>
+                     </a>
+                  ) : (
+                    <Link href={item.href}>
+                        <SidebarMenuButton
+                        isActive={pathname === item.href}
+                        tooltip={item.label}
+                        >
+                        <item.icon />
+                        <span>{item.label}</span>
+                        </SidebarMenuButton>
+                    </Link>
+                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>

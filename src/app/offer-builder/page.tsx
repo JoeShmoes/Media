@@ -61,7 +61,10 @@ export default function OfferBuilderPage() {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader title="Offer Builder">
+      <PageHeader 
+        title="Offer Builder"
+        description="Visually develop and test new products or services."
+      >
         <Button onClick={handleAddOffer}>
           <PlusCircle className="mr-2"/> New Offer
         </Button>
@@ -80,10 +83,6 @@ export default function OfferBuilderPage() {
         offer={viewingOffer}
       />
 
-
-      <p className="text-muted-foreground">
-        Visually develop and test new products or services.
-      </p>
 
       {offers.length === 0 ? (
          <div className="flex flex-col items-center justify-center text-center py-24 border-2 border-dashed rounded-lg">

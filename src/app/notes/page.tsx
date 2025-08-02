@@ -75,14 +75,14 @@ export default function NotesPage() {
   return (
     <div className="flex flex-col h-full">
        <div className="p-4 md:p-8 md:pb-4 pt-6">
-            <PageHeader title="Notes">
+            <PageHeader 
+                title="Notes"
+                description="Create and manage your notes. They are saved automatically."
+            >
                 <Button onClick={addNote}>
                     <Plus className="mr-2" /> New Note
                 </Button>
             </PageHeader>
-            <p className="text-muted-foreground -mt-4">
-                Create and manage your notes. They are saved automatically.
-            </p>
         </div>
       <div className="flex-1 grid md:grid-cols-[300px_1fr] gap-6 p-4 md:p-8 pt-0">
         <div className="h-full overflow-y-auto">

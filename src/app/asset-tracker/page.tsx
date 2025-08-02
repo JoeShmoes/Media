@@ -182,10 +182,10 @@ export default function AssetTrackerPage() {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader title="Asset Tracker" />
-      <p className="text-muted-foreground">
-        A central vault for all your digital and brand assets.
-      </p>
+      <PageHeader
+        title="Asset Tracker"
+        description="A central vault for all your digital and brand assets."
+      />
       
       <DomainDialog open={isDomainDialogOpen} onOpenChange={setIsDomainDialogOpen} domain={editingDomain} onSave={handleSaveDomain} />
       <DesignAssetDialog open={isDesignAssetDialogOpen} onOpenChange={setIsDesignAssetDialogOpen} asset={editingDesignAsset} onSave={handleSaveDesignAsset} />

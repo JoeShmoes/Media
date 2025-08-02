@@ -102,12 +102,12 @@ export default function CortexRoomPage() {
         projects={projects}
         tasks={allTasks}
       />
-      <PageHeader title="Cortex Room">
+      <PageHeader 
+        title="Cortex Room"
+        description="The interface for linking your goals to your strategy and tasks."
+      >
         <Button onClick={handleAddGoal}><PlusCircle className="mr-2"/> Add New Goal</Button>
       </PageHeader>
-      <p className="text-muted-foreground">
-        The interface for linking your goals to your strategy and tasks.
-      </p>
       <div className="grid gap-8 md:grid-cols-3">
         
         <Card className="glassmorphic md:col-span-2">

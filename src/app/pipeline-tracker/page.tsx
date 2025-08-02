@@ -110,7 +110,10 @@ export default function PipelineTrackerPage() {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader title="Sales Pipeline Tracker">
+      <PageHeader 
+        title="Sales Pipeline Tracker"
+        description="Visual status boards for your sales deals."
+      >
         <div className="flex items-center gap-2">
             <Button onClick={handleAddDeal}>
               <PlusCircle className="mr-2" /> Add New Deal
@@ -140,10 +143,6 @@ export default function PipelineTrackerPage() {
         onOpenChange={setIsDetailsDialogOpen}
         deal={viewingDeal}
       />
-
-      <p className="text-muted-foreground">
-        Visual status boards for your sales deals.
-      </p>
 
       {deals.length === 0 ? (
         <div className="text-center text-muted-foreground py-24 border-2 border-dashed rounded-lg">

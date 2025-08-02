@@ -59,10 +59,10 @@ export default function BrandRoomPage() {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader title="Brand Room" />
-      <p className="text-muted-foreground">
-        Codify and expand your brand's identity. All data is saved automatically.
-      </p>
+      <PageHeader 
+        title="Brand Room" 
+        description="Codify and expand your brand's identity. All data is saved automatically."
+      />
       <div className="grid gap-8 lg:grid-cols-3 items-start">
         <div className="lg:col-span-1 space-y-8">
             <BrandVoiceForm value={brandVoice} onChange={setBrandVoice} />

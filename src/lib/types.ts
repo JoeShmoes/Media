@@ -299,5 +299,12 @@ export type OutreachTemplate = {
   outreachBody: string;
 }
 
+export type ProjectTemplate = {
+    id: string;
+    templateName: string;
+    projectTitle: string;
+    projectService: string;
+}
 
-export type TemplateType = 'Task' | 'Note' | 'Offer' | 'Outreach';
+
+export type TemplateType = 'Task' | 'Note' | 'Offer' | 'Outreach' | 'Project';

@@ -10,6 +10,7 @@ import { TaskTemplatesView } from "./_components/task-templates-view";
 import { NoteTemplatesView } from "./_components/note-templates-view";
 import { OfferTemplatesView } from "./_components/offer-templates-view";
 import { OutreachTemplatesView } from "./_components/outreach-templates-view";
+import { ProjectTemplatesView } from "./_components/project-templates-view";
 
 
 export default function TemplateBuilderPage() {
@@ -31,6 +32,8 @@ export default function TemplateBuilderPage() {
         return <OfferTemplatesView />;
       case "Outreach":
         return <OutreachTemplatesView />;
+      case "Project":
+        return <ProjectTemplatesView />;
       default:
         return <p>Select a template type to begin.</p>;
     }

@@ -248,3 +248,13 @@ export type SummarizeTranscriptOutput = {
   actionItems: string[];
   concerns: string[];
 };
+
+export type DocumentType = 'Content Brief' | 'Call Note' | 'Meeting Summary' | 'SOP' | 'Version Comparison';
+
+export type SavedDocument = {
+  id: string;
+  type: DocumentType;
+  title: string;
+  createdAt: string;
+  content: GenerateContentBriefOutput | GenerateCallNoteOutput | SummarizeTranscriptOutput | GenerateSopOutput | CompareVersionsOutput;
+};

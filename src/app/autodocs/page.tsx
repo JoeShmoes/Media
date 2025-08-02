@@ -1,167 +1,167 @@
-
 "use client"
 import * as React from "react";
 import { PageHeader } from "@/components/page-header";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { FileText, Upload } from "lucide-react";
 import { ContentBriefDialog } from "./_components/content-brief-dialog";
-import type { GenerateContentBriefOutput } from "@/ai/flows/generate-content-brief";
-import { ContentBriefDisplay } from "./_components/content-brief-display";
+import type { GenerateContentBriefOutput, DocumentType, SavedDocument, GenerateCallNoteOutput, SummarizeTranscriptOutput, GenerateSopOutput, CompareVersionsOutput } from "@/lib/types";
 import { CallNoteDialog } from "./_components/call-note-dialog";
-import type { GenerateCallNoteOutput } from "@/ai/flows/generate-call-note";
-import { CallNoteDisplay } from "./_components/call-note-display";
 import { MeetingSummaryDialog } from "./_components/meeting-summary-dialog";
-import type { SummarizeTranscriptOutput } from "@/ai/flows/summarize-transcript";
-import { MeetingSummaryDisplay } from "./_components/meeting-summary-display";
 import { SopDialog } from "./_components/sop-dialog";
-import type { GenerateSopOutput } from "@/ai/flows/generate-sop";
-import { SopDisplay } from "./_components/sop-display";
 import { VersionComparisonDialog } from "./_components/version-comparison-dialog";
-import type { CompareVersionsOutput } from "@/ai/flows/compare-versions";
-import { VersionComparisonDisplay } from "./_components/version-comparison-display";
+import { AutoDocsSidebar } from "./_components/autodocs-sidebar";
+import { DocumentViewer } from "./_components/document-viewer";
+import { PanelLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export default function AutoDocsPage() {
-  const [isBriefDialogOpen, setIsBriefDialogOpen] = React.useState(false);
-  const [generatedBrief, setGeneratedBrief] = React.useState<GenerateContentBriefOutput | null>(null);
-
-  const [isCallNoteDialogOpen, setIsCallNoteDialogOpen] = React.useState(false);
-  const [generatedCallNote, setGeneratedCallNote] = React.useState<GenerateCallNoteOutput | null>(null);
-
-  const [isSummaryDialogOpen, setIsSummaryDialogOpen] = React.useState(false);
-  const [generatedSummary, setGeneratedSummary] = React.useState<SummarizeTranscriptOutput | null>(null);
-
-  const [isSopDialogOpen, setIsSopDialogOpen] = React.useState(false);
-  const [generatedSop, setGeneratedSop] = React.useState<GenerateSopOutput | null>(null);
+  const [documents, setDocuments] = React.useState<SavedDocument[]>([]);
+  const [activeDocumentId, setActiveDocumentId] = React.useState<string | null>(null);
+  const [isMounted, setIsMounted] = React.useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
   
-  const [isComparisonDialogOpen, setIsComparisonDialogOpen] = React.useState(false);
-  const [comparisonResult, setComparisonResult] = React.useState<CompareVersionsOutput | null>(null);
+  // Dialog states
+  const [dialogState, setDialogState] = React.useState<{[key in DocumentType]?: boolean}>({});
 
-  const clearAllOutputs = () => {
-    setGeneratedBrief(null);
-    setGeneratedCallNote(null);
-    setGeneratedSummary(null);
-    setGeneratedSop(null);
-    setComparisonResult(null);
-  }
+  React.useEffect(() => {
+    setIsMounted(true);
+    try {
+      const savedDocs = localStorage.getItem("autodocs-documents");
+      if (savedDocs) {
+        const parsedDocs = JSON.parse(savedDocs);
+        setDocuments(parsedDocs);
+        if(parsedDocs.length > 0) {
+            setActiveDocumentId(parsedDocs[0].id);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load documents from local storage", error);
+    }
+  }, []);
 
+  React.useEffect(() => {
+    if (isMounted) {
+      try {
+        localStorage.setItem("autodocs-documents", JSON.stringify(documents));
+      } catch (error) {
+        console.error("Failed to save documents to local storage", error);
+      }
+    }
+  }, [documents, isMounted]);
+
+  const openDialog = (type: DocumentType) => setDialogState({ ...dialogState, [type]: true });
+  const closeDialog = (type: DocumentType) => setDialogState({ ...dialogState, [type]: false });
+
+
+  const handleSaveDocument = (type: DocumentType, title: string, content: any) => {
+    const newDoc: SavedDocument = {
+      id: `doc-${Date.now()}`,
+      type,
+      title,
+      createdAt: new Date().toISOString(),
+      content,
+    };
+    const newDocuments = [newDoc, ...documents];
+    setDocuments(newDocuments);
+    setActiveDocumentId(newDoc.id);
+    closeDialog(type);
+  };
+  
   const handleBriefGenerated = (brief: GenerateContentBriefOutput) => {
-    clearAllOutputs();
-    setGeneratedBrief(brief);
+    const title = brief.hook.substring(0, 30) + "...";
+    handleSaveDocument("Content Brief", title, brief);
   }
 
   const handleNoteGenerated = (note: GenerateCallNoteOutput) => {
-    clearAllOutputs();
-    setGeneratedCallNote(note);
+    const title = "Call Note: " + note.summary.substring(0, 30) + "...";
+    handleSaveDocument("Call Note", title, note);
   }
   
   const handleSummaryGenerated = (summary: SummarizeTranscriptOutput) => {
-    clearAllOutputs();
-    setGeneratedSummary(summary);
+    handleSaveDocument("Meeting Summary", summary.title, summary);
   }
 
   const handleSopGenerated = (sop: GenerateSopOutput) => {
-    clearAllOutputs();
-    setGeneratedSop(sop);
+    handleSaveDocument("SOP", sop.title, sop);
   }
   
   const handleComparisonGenerated = (result: CompareVersionsOutput) => {
-    clearAllOutputs();
-    setComparisonResult(result);
+    const title = "Comparison: " + result.summary.substring(0, 30) + "...";
+    handleSaveDocument("Version Comparison", title, result);
   }
 
+  const handleDeleteDocument = (id: string) => {
+    const newDocs = documents.filter(doc => doc.id !== id);
+    setDocuments(newDocs);
+    if (activeDocumentId === id) {
+      setActiveDocumentId(newDocs.length > 0 ? newDocs[0].id : null);
+    }
+  }
+
+  const activeDocument = documents.find(doc => doc.id === activeDocumentId) || null;
+
+  if (!isMounted) return null;
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <ContentBriefDialog 
-        open={isBriefDialogOpen}
-        onOpenChange={setIsBriefDialogOpen}
+    <div className="flex h-full">
+       <ContentBriefDialog 
+        open={!!dialogState["Content Brief"]}
+        onOpenChange={(open) => !open && closeDialog("Content Brief")}
         onBriefGenerated={handleBriefGenerated}
       />
-      
       <CallNoteDialog
-        open={isCallNoteDialogOpen}
-        onOpenChange={setIsCallNoteDialogOpen}
+        open={!!dialogState["Call Note"]}
+        onOpenChange={(open) => !open && closeDialog("Call Note")}
         onNoteGenerated={handleNoteGenerated}
       />
-      
       <MeetingSummaryDialog
-        open={isSummaryDialogOpen}
-        onOpenChange={setIsSummaryDialogOpen}
+        open={!!dialogState["Meeting Summary"]}
+        onOpenChange={(open) => !open && closeDialog("Meeting Summary")}
         onSummaryGenerated={handleSummaryGenerated}
       />
-
       <SopDialog
-        open={isSopDialogOpen}
-        onOpenChange={setIsSopDialogOpen}
+        open={!!dialogState["SOP"]}
+        onOpenChange={(open) => !open && closeDialog("SOP")}
         onSopGenerated={handleSopGenerated}
       />
-      
        <VersionComparisonDialog
-        open={isComparisonDialogOpen}
-        onOpenChange={setIsComparisonDialogOpen}
+        open={!!dialogState["Version Comparison"]}
+        onOpenChange={(open) => !open && closeDialog("Version Comparison")}
         onComparisonGenerated={handleComparisonGenerated}
       />
 
-      <PageHeader title="AutoDocs" />
-      <p className="text-muted-foreground">
-        Generate summaries, transcripts, briefs, or documentation automatically.
-      </p>
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="glassmorphic">
-          <CardHeader>
-            <CardTitle>Meeting Recorder + AI Summary</CardTitle>
-            <CardDescription>Paste a transcript to auto-summarize the conversation.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button className="w-full" onClick={() => setIsSummaryDialogOpen(true)}>
-              <Upload className="mr-2 h-4 w-4" /> Summarize Transcript
-            </Button>
-          </CardContent>
-        </Card>
-        <Card className="glassmorphic">
-          <CardHeader>
-            <CardTitle>Call Note Generator</CardTitle>
-            <CardDescription>Quickly enter post-call notes and let AI enhance them.</CardDescription>
-          </CardHeader>
-          <CardContent>
-             <Button className="w-full" onClick={() => setIsCallNoteDialogOpen(true)}>Create Call Note</Button>
-          </CardContent>
-        </Card>
-        <Card className="glassmorphic">
-          <CardHeader>
-            <CardTitle>Content Brief Creator</CardTitle>
-            <CardDescription>Outline blog or video briefs with AI assistance.</CardDescription>
-          </CardHeader>
-          <CardContent>
-             <Button className="w-full" onClick={() => setIsBriefDialogOpen(true)}>Create Content Brief</Button>
-          </CardContent>
-        </Card>
-        <Card className="glassmorphic">
-          <CardHeader>
-            <CardTitle>AutoDoc Templates</CardTitle>
-            <CardDescription>Generate SOPs, policies, or training guides.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button className="w-full" onClick={() => setIsSopDialogOpen(true)}>Generate SOP</Button>
-          </CardContent>
-        </Card>
-        <Card className="glassmorphic">
-          <CardHeader>
-            <CardTitle>Version Comparison</CardTitle>
-            <CardDescription>Compare two summaries or notes with diff highlights.</CardDescription>
-          </CardHeader>
-          <CardContent>
-             <Button className="w-full" onClick={() => setIsComparisonDialogOpen(true)}>Compare Documents</Button>
-          </CardContent>
-        </Card>
+      <div
+        className={cn(
+          "transition-all duration-300 ease-in-out",
+          isSidebarOpen ? "w-72" : "w-0"
+        )}
+      >
+        <div className={cn("h-full", isSidebarOpen ? "w-72" : "w-0 overflow-hidden")}>
+           <AutoDocsSidebar
+            documents={documents}
+            activeDocumentId={activeDocumentId}
+            onSelectDocument={setActiveDocumentId}
+            onDeleteDocument={handleDeleteDocument}
+            onNewDocument={openDialog}
+          />
+        </div>
       </div>
-      
-      {generatedBrief && <ContentBriefDisplay brief={generatedBrief} />}
-      {generatedCallNote && <CallNoteDisplay note={generatedCallNote} />}
-      {generatedSummary && <MeetingSummaryDisplay summary={generatedSummary} />}
-      {generatedSop && <SopDisplay sop={generatedSop} />}
-      {comparisonResult && <VersionComparisonDisplay result={comparisonResult} />}
+      <div className="flex-1 flex flex-col">
+          <header className="flex items-center gap-4 p-4 border-b">
+             <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                >
+                <PanelLeft />
+                <span className="sr-only">Toggle sidebar</span>
+             </Button>
+             <div>
+              <h1 className="text-xl font-semibold">AutoDocs</h1>
+              <p className="text-sm text-muted-foreground">Generate summaries, briefs, or documentation automatically.</p>
+             </div>
+          </header>
+          <DocumentViewer document={activeDocument} />
+      </div>
     </div>
   );
 }

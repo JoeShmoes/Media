@@ -1,7 +1,6 @@
 
 "use client"
 import * as React from "react"
-import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import type { Offer } from "@/lib/types";
@@ -61,14 +60,11 @@ export default function OfferBuilderPage() {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader 
-        title="Offer Builder"
-        description="Visually develop and test new products or services."
-      >
+       <div className="flex justify-end mb-4">
         <Button onClick={handleAddOffer}>
           <PlusCircle className="mr-2"/> New Offer
         </Button>
-      </PageHeader>
+      </div>
       
       <OfferDialog
         open={isDialogOpen}

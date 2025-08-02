@@ -3,7 +3,6 @@
 
 import * as React from "react"
 import { CSVLink } from "react-csv"
-import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Download } from "lucide-react";
 import type { Deal, DealStatus } from "@/lib/types";
@@ -110,26 +109,21 @@ export default function PipelineTrackerPage() {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader 
-        title="Sales Pipeline Tracker"
-        description="Visual status boards for your sales deals."
-      >
-        <div className="flex items-center gap-2">
-            <Button onClick={handleAddDeal}>
-              <PlusCircle className="mr-2" /> Add New Deal
-            </Button>
-            <Button variant="outline" onClick={handleExport}>
-                <Download className="mr-2"/> Export CSV
-            </Button>
-            <CSVLink 
-                data={deals} 
-                filename={"deals.csv"}
-                className="hidden"
-                ref={csvLinkRef}
-                target="_blank"
-            />
-        </div>
-      </PageHeader>
+      <div className="flex items-center justify-end gap-2 mb-4">
+          <Button onClick={handleAddDeal}>
+            <PlusCircle className="mr-2" /> Add New Deal
+          </Button>
+          <Button variant="outline" onClick={handleExport}>
+              <Download className="mr-2"/> Export CSV
+          </Button>
+          <CSVLink 
+              data={deals} 
+              filename={"deals.csv"}
+              className="hidden"
+              ref={csvLinkRef}
+              target="_blank"
+          />
+      </div>
       
       <DealDialog
         open={isDealDialogOpen}

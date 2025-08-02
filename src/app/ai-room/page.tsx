@@ -4,7 +4,6 @@
 import * as React from "react"
 import { PanelLeft } from "lucide-react"
 
-import { PageHeader } from "@/components/page-header"
 import { AiRoomChat } from "./_components/ai-room-chat"
 import { ChatSidebar } from "./_components/chat-sidebar"
 import type { ChatMessage, ChatSession } from "@/lib/types"
@@ -159,17 +158,6 @@ export default function AiRoomPage() {
         </div>
       </div>
       <div className="flex-1 flex flex-col">
-          <header className="flex items-center gap-4 p-4 border-b">
-             <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                >
-                <PanelLeft />
-                <span className="sr-only">Toggle sidebar</span>
-             </Button>
-             <h1 className="text-xl font-semibold">AI Room</h1>
-          </header>
           <AiRoomChat
             session={activeSession ?? null}
             onUpdateSession={handleUpdateSession}

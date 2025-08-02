@@ -1,7 +1,6 @@
 
 "use client"
 import * as React from "react"
-import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Target, Gauge } from "lucide-react";
@@ -102,12 +101,9 @@ export default function CortexRoomPage() {
         projects={projects}
         tasks={allTasks}
       />
-      <PageHeader 
-        title="Cortex Room"
-        description="The interface for linking your goals to your strategy and tasks."
-      >
+      <div className="flex justify-end mb-4">
         <Button onClick={handleAddGoal}><PlusCircle className="mr-2"/> Add New Goal</Button>
-      </PageHeader>
+      </div>
       <div className="grid gap-8 md:grid-cols-3">
         
         <Card className="glassmorphic md:col-span-2">

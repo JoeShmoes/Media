@@ -1,3 +1,4 @@
+
 "use client"
 import * as React from "react";
 import { PanelLeft } from "lucide-react";
@@ -66,10 +67,6 @@ export default function TemplateBuilderPage() {
                 <PanelLeft />
                 <span className="sr-only">Toggle sidebar</span>
              </Button>
-             <div>
-              <h1 className="text-xl font-semibold">Template Builder</h1>
-              <p className="text-sm text-muted-foreground">Create, customize, and reuse templates across all rooms.</p>
-             </div>
           </header>
           <div key={activeTemplateType} className="flex-1 h-full overflow-y-auto p-4 md:p-6">
             {renderContent()}

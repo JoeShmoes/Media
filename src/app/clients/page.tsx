@@ -16,7 +16,6 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { PageHeader } from "@/components/page-header"
 import type { Client } from "@/lib/types"
 import { ClientDialog } from "./_components/client-dialog"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -84,24 +83,22 @@ export default function ClientsPage() {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader title="Client Command Center">
-        <div className="flex items-center gap-2">
-            <Button onClick={handleAddClient}>
-                <PlusCircle />
-                Add Client
-            </Button>
-            <Button variant="outline" onClick={handleExport}>
-                <Download className="mr-2"/> Export CSV
-            </Button>
-            <CSVLink 
-                data={clients} 
-                filename={"clients.csv"}
-                className="hidden"
-                ref={csvLinkRef}
-                target="_blank"
-            />
-        </div>
-      </PageHeader>
+      <div className="flex items-center justify-end gap-2 mb-4">
+          <Button onClick={handleAddClient}>
+              <PlusCircle />
+              Add Client
+          </Button>
+          <Button variant="outline" onClick={handleExport}>
+              <Download className="mr-2"/> Export CSV
+          </Button>
+          <CSVLink 
+              data={clients} 
+              filename={"clients.csv"}
+              className="hidden"
+              ref={csvLinkRef}
+              target="_blank"
+          />
+      </div>
       <ClientDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}

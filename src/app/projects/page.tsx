@@ -3,7 +3,6 @@
 
 import * as React from "react"
 import { CSVLink } from "react-csv"
-import { PageHeader } from "@/components/page-header"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Clock, FileText, Framer, MoreHorizontal, PlusCircle, ExternalLink, Download } from "lucide-react"
@@ -108,23 +107,21 @@ export default function ProjectsPage() {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader title="Website/SEO Project Board">
-        <div className="flex items-center gap-2">
-            <Button onClick={handleAddProject}>
-              <PlusCircle className="mr-2" /> New Project
-            </Button>
-             <Button variant="outline" onClick={handleExport}>
-                <Download className="mr-2"/> Export CSV
-            </Button>
-            <CSVLink 
-                data={allProjects} 
-                filename={"projects.csv"}
-                className="hidden"
-                ref={csvLinkRef}
-                target="_blank"
-            />
-        </div>
-      </PageHeader>
+      <div className="flex items-center justify-end gap-2 mb-4">
+          <Button onClick={handleAddProject}>
+            <PlusCircle className="mr-2" /> New Project
+          </Button>
+           <Button variant="outline" onClick={handleExport}>
+              <Download className="mr-2"/> Export CSV
+          </Button>
+          <CSVLink 
+              data={allProjects} 
+              filename={"projects.csv"}
+              className="hidden"
+              ref={csvLinkRef}
+              target="_blank"
+          />
+      </div>
       
       <ProjectDialog
         open={isDialogOpen}

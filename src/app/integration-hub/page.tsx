@@ -2,7 +2,6 @@
 "use client"
 
 import * as React from "react"
-import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Code, Zap, Calendar, Mail, KanbanSquare, GanttChartSquare, Book, Plus, Link as LinkIcon } from "lucide-react";
@@ -75,9 +74,9 @@ export default function IntegrationHubPage() {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader title="Integration Hub">
-          <Button onClick={() => setIsDialogOpen(true)}><Plus className="mr-2"/> Add Integration</Button>
-      </PageHeader>
+      <div className="flex justify-end mb-4">
+        <Button onClick={() => setIsDialogOpen(true)}><Plus className="mr-2"/> Add Integration</Button>
+      </div>
       
       <AddIntegrationDialog
         open={isDialogOpen}

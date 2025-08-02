@@ -1,7 +1,6 @@
 
 "use client"
 import * as React from "react";
-import { AutoDocsSidebar } from "./_components/autodocs-sidebar";
 import { PanelLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -57,20 +56,6 @@ export default function AutoDocsPage() {
         </div>
       </div>
       <div className="flex-1 flex flex-col">
-          <header className="flex items-center gap-4 p-4 border-b">
-             <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                >
-                <PanelLeft />
-                <span className="sr-only">Toggle sidebar</span>
-             </Button>
-             <div>
-              <h1 className="text-xl font-semibold">AutoDocs</h1>
-              <p className="text-sm text-muted-foreground">Generate summaries, briefs, or documentation automatically.</p>
-             </div>
-          </header>
           <div key={activeService} className="flex-1 h-full overflow-y-auto p-4 md:p-6">
             {renderContent()}
           </div>

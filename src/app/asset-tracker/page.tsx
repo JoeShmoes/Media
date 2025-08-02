@@ -3,7 +3,6 @@
 
 import * as React from "react";
 import { useDebounce } from "use-debounce";
-import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Bot, PlusCircle, Search as SearchIcon, Loader2 } from "lucide-react";
@@ -182,11 +181,6 @@ export default function AssetTrackerPage() {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader
-        title="Asset Tracker"
-        description="A central vault for all your digital and brand assets."
-      />
-      
       <DomainDialog open={isDomainDialogOpen} onOpenChange={setIsDomainDialogOpen} domain={editingDomain} onSave={handleSaveDomain} />
       <DesignAssetDialog open={isDesignAssetDialogOpen} onOpenChange={setIsDesignAssetDialogOpen} asset={editingDesignAsset} onSave={handleSaveDesignAsset} />
       <LegalDocDialog open={isLegalDocDialogOpen} onOpenChange={setIsLegalDocDialogOpen} doc={editingLegalDoc} onSave={handleSaveLegalDoc} />

@@ -6,7 +6,6 @@ import { format, parseISO } from "date-fns"
 import { PlusCircle, TrendingDown, TrendingUp, DollarSign, Download } from "lucide-react"
 import { CSVLink } from "react-csv";
 
-import { PageHeader } from "@/components/page-header"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Button } from "@/components/ui/button"
@@ -144,23 +143,21 @@ export default function FinancePage() {
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader title="Finance">
-        <div className="flex gap-2">
-            <Button onClick={() => setIsDialogOpen(true)}>
-                <PlusCircle className="mr-2"/> Add Transaction
-            </Button>
-            <Button variant="outline" onClick={handleExport}>
-                <Download className="mr-2"/> Export CSV
-            </Button>
-            <CSVLink 
-                data={transactions} 
-                filename={"transactions.csv"}
-                className="hidden"
-                ref={csvLinkRef}
-                target="_blank"
-            />
-        </div>
-      </PageHeader>
+      <div className="flex justify-end gap-2">
+          <Button onClick={() => setIsDialogOpen(true)}>
+              <PlusCircle className="mr-2"/> Add Transaction
+          </Button>
+          <Button variant="outline" onClick={handleExport}>
+              <Download className="mr-2"/> Export CSV
+          </Button>
+          <CSVLink 
+              data={transactions} 
+              filename={"transactions.csv"}
+              className="hidden"
+              ref={csvLinkRef}
+              target="_blank"
+          />
+      </div>
       
        <TransactionDialog
         open={isDialogOpen}

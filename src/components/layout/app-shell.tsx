@@ -74,6 +74,31 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { Icons } from "../icons"
 import { SettingsDialog } from "./settings-dialog"
 import { useSettings } from "@/hooks/use-settings"
+import { PageHeader } from "../page-header"
+
+const navLinks = [
+    { href: "/", icon: LayoutDashboard, label: "Dashboard", description: "A high-level overview of your business." },
+    { href: "/ai-room", icon: BrainCircuit, label: "AI Room", description: "Your custom-trained AI business advisor." },
+    { href: "/tasks", icon: ListTodo, label: "Tasks", description: "Create and manage your tasks and to-do lists." },
+    { href: "/notes", icon: Notebook, label: "Notes", description: "Create and manage your notes. They are saved automatically." },
+    { href: "/gm", icon: MessageSquare, label: "GM Room", description: "Say GM to the community. Your message will be visible to all users." },
+    { href: "/clients", icon: Users, label: "Client Command Center", description: "A mini-CRM to manage your clients and their status." },
+    { href: "/projects", icon: KanbanSquare, label: "Project Board", description: "Kanban-style task management for your projects." },
+    { href: "/outreach", icon: SendHorizonal, label: "AI Outreach Engine", description: "Generate high-converting cold outreach copy." },
+    { href: "/finance", icon: CircleDollarSign, label: "Finance Room", description: "Track your revenue, expenses, and profitability." },
+    { href: "/offer-builder", icon: Package, label: "Offer Builder", description: "Visually develop and test new products or services." },
+    { href: "/asset-tracker", icon: Archive, label: "Asset Tracker", description: "A central vault for all your digital and brand assets." },
+    { href: "/brand-room", icon: Palette, label: "Brand Room", description: "Codify and expand your brand's identity." },
+    { href: "/pipeline-tracker", icon: View, label: "Pipeline Tracker", description: "Visual status boards for your sales deals." },
+    { href: "/research", icon: Search, label: "Research Assistant", description: "Leverage AI and Wikipedia to get comprehensive answers." },
+    { href: "/cortex-room", icon: Target, label: "Cortex Room", description: "The interface for linking your goals to your strategy and tasks." },
+    { href: "/autodocs", icon: FileText, label: "AutoDocs", description: "Generate summaries, briefs, or documentation automatically." },
+    { href: "/template-builder", icon: LayoutTemplate, label: "Template Builder", description: "Create, customize, and reuse templates across all rooms." },
+    { href: "/integration-hub", icon: Blocks, label: "Integration Hub", description: "Connect and sync with external tools for real-time updates." },
+    { href: "/content", icon: PenSquare, label: "Content Scheduler", description: "Plan and auto-generate social media content." },
+    { href: "/youtube-studio", icon: Youtube, label: "YouTube Studio", description: "A full creative suite to generate video scripts and media." },
+];
+
 
 const favouritesNavItems = [
   { href: "/ai-room", icon: BrainCircuit, label: "Crifohay" },
@@ -152,13 +177,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       setSetting('sidebarLayout', isOpen ? 'expanded' : 'minimal');
   }
 
+  const currentPage = navLinks.find(link => link.href === pathname);
+
   return (
     <SidebarProvider open={sidebarOpen} onOpenChange={setSidebarOpen}>
       <Sidebar collapsible={settings.sidebarLayout === 'hidden' ? 'offcanvas' : 'icon'}>
         <SidebarHeader className="flex flex-col items-stretch gap-2">
             <div className="flex items-center gap-2">
                 <Icons.logo className="w-8 h-8 text-white group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:h-10 transition-all group-data-[state=expanded]:hidden"/>
-                <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">Nexaris Media</span>
+                <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">BizMaster AI</span>
             </div>
              <div className="relative group-data-[collapsible=icon]:hidden">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -354,26 +381,35 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <SettingsDialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 bg-sidebar/80 backdrop-blur-md px-4 sm:px-6">
             <SidebarTrigger />
-            <div className="flex-1" />
-            <LiveClock />
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full">
-                  <Bell />
-                  <span className="sr-only">Toggle notifications</span>
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-80">
-                <div className="grid gap-4">
-                  <div className="space-y-2">
-                    <h4 className="font-medium leading-none">Notifications</h4>
-                    <p className="text-sm text-muted-foreground">
-                      You have no new notifications.
-                    </p>
+            <div className="flex-1 text-center">
+                {currentPage && (
+                    <>
+                        <h1 className="text-lg font-semibold">{currentPage.label}</h1>
+                        {currentPage.description && <p className="text-xs text-muted-foreground">{currentPage.description}</p>}
+                    </>
+                )}
+            </div>
+            <div className="flex items-center gap-2">
+              <LiveClock />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="ghost" size="icon" className="rounded-full">
+                    <Bell />
+                    <span className="sr-only">Toggle notifications</span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80">
+                  <div className="grid gap-4">
+                    <div className="space-y-2">
+                      <h4 className="font-medium leading-none">Notifications</h4>
+                      <p className="text-sm text-muted-foreground">
+                        You have no new notifications.
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </PopoverContent>
-            </Popover>
+                </PopoverContent>
+              </Popover>
+            </div>
           </header>
         {children}
       </SidebarInset>

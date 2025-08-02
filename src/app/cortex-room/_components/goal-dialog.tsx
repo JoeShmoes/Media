@@ -151,7 +151,7 @@ export function GoalDialog({ open, onOpenChange, goal, onSave, projects, tasks }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>{goal ? "Edit Goal" : "Add New Goal"}</DialogTitle>
           <DialogDescription>
@@ -159,9 +159,9 @@ export function GoalDialog({ open, onOpenChange, goal, onSave, projects, tasks }
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-             <ScrollArea className="max-h-[70vh] p-1">
-              <div className="space-y-4 pr-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 min-h-0 flex flex-col">
+            <ScrollArea className="flex-1 pr-6 -mr-6">
+              <div className="space-y-4 ">
                  <FormField
                   control={form.control}
                   name="title"
@@ -227,7 +227,7 @@ export function GoalDialog({ open, onOpenChange, goal, onSave, projects, tasks }
 
               </div>
             </ScrollArea>
-            <DialogFooter className="pr-6 pt-4">
+            <DialogFooter className="mt-4">
               <Button type="submit">Save Goal</Button>
             </DialogFooter>
           </form>

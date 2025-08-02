@@ -1,8 +1,10 @@
+
 "use client"
 import * as React from "react"
 import { Line, LineChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts"
 import { format, parseISO } from "date-fns"
-import { PlusCircle, TrendingDown, TrendingUp, DollarSign } from "lucide-react"
+import { PlusCircle, TrendingDown, TrendingUp, DollarSign, Download } from "lucide-react"
+import { CSVLink } from "react-csv";
 
 import { PageHeader } from "@/components/page-header"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -41,6 +43,7 @@ export default function FinancePage() {
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
     const [isInitialBalanceDialogOpen, setIsInitialBalanceDialogOpen] = React.useState(false);
     const [isMounted, setIsMounted] = React.useState(false);
+    const csvLinkRef = React.useRef<any>(null);
 
     React.useEffect(() => {
         setIsMounted(true);
@@ -94,6 +97,12 @@ export default function FinancePage() {
         }
         setIsInitialBalanceDialogOpen(false);
     }
+    
+    const handleExport = () => {
+        if (csvLinkRef.current) {
+            csvLinkRef.current.link.click();
+        }
+    }
 
     const { totalIncome, totalExpenses, totalProfit, monthlyProfit, chartData } = React.useMemo(() => {
         const income = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
@@ -136,9 +145,21 @@ export default function FinancePage() {
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <PageHeader title="Finance">
-        <Button onClick={() => setIsDialogOpen(true)}>
-            <PlusCircle className="mr-2"/> Add Transaction
-        </Button>
+        <div className="flex gap-2">
+            <Button onClick={() => setIsDialogOpen(true)}>
+                <PlusCircle className="mr-2"/> Add Transaction
+            </Button>
+            <Button variant="outline" onClick={handleExport}>
+                <Download className="mr-2"/> Export CSV
+            </Button>
+            <CSVLink 
+                data={transactions} 
+                filename={"transactions.csv"}
+                className="hidden"
+                ref={csvLinkRef}
+                target="_blank"
+            />
+        </div>
       </PageHeader>
       
        <TransactionDialog

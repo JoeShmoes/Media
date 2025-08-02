@@ -1,11 +1,29 @@
+"use client"
+import * as React from "react";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
+import { ContentBriefDialog } from "./_components/content-brief-dialog";
+import type { GenerateContentBriefOutput } from "@/ai/flows/generate-content-brief";
+import { ContentBriefDisplay } from "./_components/content-brief-display";
 
 export default function AutoDocsPage() {
+  const [isBriefDialogOpen, setIsBriefDialogOpen] = React.useState(false);
+  const [generatedBrief, setGeneratedBrief] = React.useState<GenerateContentBriefOutput | null>(null);
+
+  const handleBriefGenerated = (brief: GenerateContentBriefOutput) => {
+    setGeneratedBrief(brief);
+  }
+
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <ContentBriefDialog 
+        open={isBriefDialogOpen}
+        onOpenChange={setIsBriefDialogOpen}
+        onBriefGenerated={handleBriefGenerated}
+      />
+
       <PageHeader title="AutoDocs" />
       <p className="text-muted-foreground">
         Generate summaries, transcripts, briefs, or documentation automatically.
@@ -17,7 +35,7 @@ export default function AutoDocsPage() {
             <CardDescription>Upload recordings to auto-transcribe and summarize.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full">
+            <Button variant="outline" className="w-full" disabled>
               <Upload className="mr-2 h-4 w-4" /> Upload Recording
             </Button>
           </CardContent>
@@ -28,7 +46,7 @@ export default function AutoDocsPage() {
             <CardDescription>Quickly enter post-call notes and let AI enhance them.</CardDescription>
           </CardHeader>
           <CardContent>
-             <Button className="w-full">Create Call Note</Button>
+             <Button className="w-full" disabled>Create Call Note</Button>
           </CardContent>
         </Card>
         <Card className="glassmorphic">
@@ -37,7 +55,7 @@ export default function AutoDocsPage() {
             <CardDescription>Outline blog or video briefs with AI assistance.</CardDescription>
           </CardHeader>
           <CardContent>
-             <Button className="w-full">Create Content Brief</Button>
+             <Button className="w-full" onClick={() => setIsBriefDialogOpen(true)}>Create Content Brief</Button>
           </CardContent>
         </Card>
         <Card className="glassmorphic">
@@ -46,7 +64,7 @@ export default function AutoDocsPage() {
             <CardDescription>Generate SOPs, policies, or training guides.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button className="w-full">New from Template</Button>
+            <Button className="w-full" disabled>New from Template</Button>
           </CardContent>
         </Card>
         <Card className="glassmorphic">
@@ -55,10 +73,12 @@ export default function AutoDocsPage() {
             <CardDescription>Compare two summaries or notes with diff highlights.</CardDescription>
           </CardHeader>
           <CardContent>
-             <Button variant="outline" className="w-full">Compare Documents</Button>
+             <Button variant="outline" className="w-full" disabled>Compare Documents</Button>
           </CardContent>
         </Card>
       </div>
+      
+      {generatedBrief && <ContentBriefDisplay brief={generatedBrief} />}
     </div>
   );
 }

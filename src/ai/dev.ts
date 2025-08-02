@@ -12,3 +12,4 @@ import '@/ai/flows/generate-offer.ts';
 import '@/ai/flows/search-assets.ts';
 import '@/ai/flows/generate-persona.ts';
 import '@/ai/flows/generate-brand-voice.ts';
+import '@/ai/flows/generate-content-brief.ts';

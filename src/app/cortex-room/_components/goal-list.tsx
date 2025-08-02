@@ -43,14 +43,16 @@ export function GoalList({ goals, onEdit, onDelete }: GoalListProps) {
     <Table>
       <TableHeader>
         <TableRow>
+          <TableHead className="w-[50px]">#</TableHead>
           <TableHead>Goal</TableHead>
           <TableHead>Status</TableHead>
           <TableHead><span className="sr-only">Actions</span></TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {goals.map((goal) => (
-            <TableRow key={goal.id}>
+        {goals.map((goal, index) => (
+            <TableRow key={goal.id} onClick={() => onEdit(goal)} className="cursor-pointer">
+              <TableCell className="font-medium">{index + 1}.</TableCell>
               <TableCell>
                 <p className="font-medium">{goal.title}</p>
                 {goal.description && <p className="text-sm text-muted-foreground">{goal.description}</p>}
@@ -59,18 +61,18 @@ export function GoalList({ goals, onEdit, onDelete }: GoalListProps) {
               <TableCell className="text-right">
                  <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
+                        <Button variant="ghost" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
                             <span className="sr-only">Open menu</span>
                             <MoreHorizontal className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => onEdit(goal)}>
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); onEdit(goal);}}>
                             <Edit className="mr-2 h-4 w-4" /> Edit
                         </DropdownMenuItem>
                          <AlertDialog>
                           <AlertDialogTrigger asChild>
-                            <DropdownMenuItem onSelect={e => e.preventDefault()} className="text-destructive">
+                            <DropdownMenuItem onSelect={e => e.preventDefault()} onClick={(e) => e.stopPropagation()} className="text-destructive">
                                 <Trash2 className="mr-2 h-4 w-4" /> Delete
                             </DropdownMenuItem>
                           </AlertDialogTrigger>
@@ -96,4 +98,3 @@ export function GoalList({ goals, onEdit, onDelete }: GoalListProps) {
     </Table>
   )
 }
-

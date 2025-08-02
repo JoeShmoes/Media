@@ -2,6 +2,7 @@
 
 
 
+
 export type MindMapNode = {
   id: string;
   content: string;
@@ -47,7 +48,13 @@ export type SearchAssetsOutput = {
   legalDocIds: string[];
 };
 
-
+export type ClientResource = {
+  id: string;
+  name: string;
+  type: "file" | "link";
+  url: string; // File path or external link
+  clientIds: string[]; // List of client IDs who can access this
+};
 
 
 
@@ -58,13 +65,6 @@ export type Client = {
   status: "Prospect" | "Active" | "Completed"
   lastContact: string
 }
-
-export type ClientResource = {
-  id: string;
-  name: string;
-  fileUrl: string;
-  clientIds: string[]; // List of client IDs who can access this
-};
 
 
 export type Project = {
@@ -104,6 +104,7 @@ export type Task = {
   renew?: "Never" | "Everyday" | DayOfWeek[];
   notifications: boolean;
   completed: boolean;
+  groupId?: string;
 };
 
 export type TaskGroup = {
@@ -208,4 +209,6 @@ export type Goal = {
   title: string;
   description?: string;
   status: "Not Started" | "In Progress" | "Completed";
+  linkedProjectIds?: string[];
+  linkedTaskIds?: string[];
 };

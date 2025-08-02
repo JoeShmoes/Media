@@ -42,7 +42,7 @@ export function MindMapNodeComponent({
   onUpdate,
   onRemove,
 }: MindMapNodeProps) {
-  const [isConnecting, setIsConnecting] = React.useState(false);
+  const nodeRef = React.useRef(null);
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onUpdate(node.id, { content: e.target.value });
@@ -63,12 +63,14 @@ export function MindMapNodeComponent({
   return (
     <>
       <Draggable
+        nodeRef={nodeRef}
         position={node.position}
         onStop={(e, data) => onUpdate(node.id, { position: { x: data.x, y: data.y } })}
         handle=".drag-handle"
         bounds="parent"
       >
         <div
+          ref={nodeRef}
           id={node.id}
           className="absolute p-2 rounded-lg shadow-lg group"
           style={{ backgroundColor: node.color || "hsl(var(--primary))" }}

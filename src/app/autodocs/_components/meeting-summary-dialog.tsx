@@ -5,7 +5,7 @@ import * as React from "react"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Bot, Loader2 } from "lucide-react"
+import { Bot, Loader2, Upload } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -46,6 +46,8 @@ interface MeetingSummaryDialogProps {
 export function MeetingSummaryDialog({ open, onOpenChange, onSummaryGenerated }: MeetingSummaryDialogProps) {
   const [isGenerating, setIsGenerating] = React.useState(false)
   const { toast } = useToast()
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
 
   const form = useForm<FormValues>({
     resolver: zodResolver(summarySchema),
@@ -54,6 +56,18 @@ export function MeetingSummaryDialog({ open, onOpenChange, onSummaryGenerated }:
       transcript: "",
     },
   })
+  
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        form.setValue("transcript", text);
+      };
+      reader.readAsText(file);
+    }
+  }
 
   const onSubmit = async (data: FormValues) => {
     setIsGenerating(true)
@@ -79,7 +93,7 @@ export function MeetingSummaryDialog({ open, onOpenChange, onSummaryGenerated }:
         <DialogHeader>
           <DialogTitle>AI Meeting Summary</DialogTitle>
           <DialogDescription>
-            Paste the full transcript of your meeting below, and the AI will extract the key points.
+            Paste the full transcript of your meeting below, or upload a text file.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -102,7 +116,20 @@ export function MeetingSummaryDialog({ open, onOpenChange, onSummaryGenerated }:
               name="transcript"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Meeting Transcript</FormLabel>
+                  <div className="flex justify-between items-center">
+                    <FormLabel>Meeting Transcript</FormLabel>
+                    <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+                      <Upload className="mr-2 h-4 w-4" />
+                      Upload Transcript
+                    </Button>
+                    <Input 
+                      type="file" 
+                      ref={fileInputRef} 
+                      className="hidden" 
+                      onChange={handleFileChange}
+                      accept=".txt"
+                    />
+                  </div>
                    <FormControl>
                     <Textarea 
                         placeholder="Paste the full meeting transcript here..." 

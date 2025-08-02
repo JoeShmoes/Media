@@ -4,7 +4,7 @@ import * as React from "react";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText } from "lucide-react";
+import { FileText, Upload } from "lucide-react";
 import { ContentBriefDialog } from "./_components/content-brief-dialog";
 import type { GenerateContentBriefOutput } from "@/ai/flows/generate-content-brief";
 import { ContentBriefDisplay } from "./_components/content-brief-display";
@@ -115,7 +115,7 @@ export default function AutoDocsPage() {
           </CardHeader>
           <CardContent>
             <Button className="w-full" onClick={() => setIsSummaryDialogOpen(true)}>
-              <FileText className="mr-2 h-4 w-4" /> Summarize Transcript
+              <Upload className="mr-2 h-4 w-4" /> Summarize Transcript
             </Button>
           </CardContent>
         </Card>

@@ -1,9 +1,10 @@
+
 "use client"
 import * as React from "react"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Bot, Copy, Image as ImageIcon, Volume2, Loader2, PlayCircle, Video, Download, CheckCircle, Circle, Pencil } from "lucide-react"
+import { Bot, Copy, Image as ImageIcon, Volume2, Loader2, PlayCircle, Video, Download, CheckCircle, Circle, Pencil, RefreshCw } from "lucide-react"
 
 import {
   generateYouTubeScript,
@@ -11,7 +12,6 @@ import {
 } from "@/ai/flows/generate-youtube-script"
 import { generateYoutubeImages } from "@/ai/flows/generate-youtube-images"
 import { generateYoutubeAudio } from "@/ai/flows/generate-youtube-audio"
-import { generateYoutubeVideo } from "@/ai/flows/generate-youtube-video"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -50,68 +50,19 @@ type FormValues = z.infer<typeof formSchema>
 
 type GeneratedImages = { [paragraphIndex: number]: string[] };
 type CustomPrompts = { [paragraphIndex: number]: string };
-
-type GenerationState = "idle" | "script" | "images" | "audio" | "video" | "done" | "error";
-type GenerationStatus = {
-    script: GenerationState;
-    images: GenerationState;
-    audio: GenerationState;
-    video: GenerationState;
-}
-
-const GenerationTracker = ({ status }: { status: GenerationStatus }) => {
-    const steps = [
-        { key: "script" as keyof GenerationStatus, label: "Script" },
-        { key: "images" as keyof GenerationStatus, label: "Images" },
-        { key: "audio" as keyof GenerationStatus, label: "Voiceover" },
-        { key: "video" as keyof GenerationStatus, label: "Video" },
-    ]
-
-    const getIcon = (stepStatus: GenerationState) => {
-        switch (stepStatus) {
-            case "idle":
-                return <Circle className="h-5 w-5 text-muted-foreground" />;
-            case "script":
-            case "images":
-            case "audio":
-            case "video":
-                return <Loader2 className="h-5 w-5 animate-spin" />;
-            case "done":
-                return <CheckCircle className="h-5 w-5 text-green-500" />;
-            case "error":
-                return <Circle className="h-5 w-5 text-destructive" />; // Replace with a more suitable error icon if available
-            default:
-                return <Circle className="h-5 w-5 text-muted-foreground" />;
-        }
-    }
-
-    return (
-        <div className="space-y-4">
-            {steps.map((step, index) => (
-                <div key={step.key} className="flex items-center gap-4">
-                    {getIcon(status[step.key])}
-                    <span className="font-medium">{step.label}</span>
-                </div>
-            ))}
-        </div>
-    )
-}
+type ImageGenStatus = { [paragraphIndex: number]: 'idle' | 'loading' | 'done' | 'error' };
 
 
 export function YoutubeScriptForm() {
   const [generatedScript, setGeneratedScript] = React.useState<GenerateYouTubeScriptOutput | null>(null)
   const [generatedImages, setGeneratedImages] = React.useState<GeneratedImages>({})
   const [generatedAudio, setGeneratedAudio] = React.useState<string | null>(null)
-  const [generatedVideo, setGeneratedVideo] = React.useState<string | null>(null)
   const [customPrompts, setCustomPrompts] = React.useState<CustomPrompts>({});
 
-  const [isGenerating, setIsGenerating] = React.useState(false);
-  const [generationStatus, setGenerationStatus] = React.useState<GenerationStatus>({
-      script: 'idle',
-      images: 'idle',
-      audio: 'idle',
-      video: 'idle',
-  });
+  const [isScriptLoading, setIsScriptLoading] = React.useState(false);
+  const [isImagesLoading, setIsImagesLoading] = React.useState(false);
+  const [isAudioLoading, setIsAudioLoading] = React.useState(false);
+  const [imageGenStatus, setImageGenStatus] = React.useState<ImageGenStatus>({});
   
   const { toast } = useToast()
 
@@ -158,64 +109,96 @@ export function YoutubeScriptForm() {
   const handleCustomPromptChange = (index: number, value: string) => {
     setCustomPrompts(prev => ({...prev, [index]: value}));
   }
-  
-  const handleGenerateAll = async (data: FormValues) => {
-    setIsGenerating(true);
+
+  const handleGenerateScript = async (data: FormValues) => {
+    setIsScriptLoading(true);
     setGeneratedScript(null);
     setGeneratedImages({});
     setGeneratedAudio(null);
-    setGeneratedVideo(null);
     setCustomPrompts({});
-    setGenerationStatus({ script: 'script', images: 'idle', audio: 'idle', video: 'idle' });
-
+    setImageGenStatus({});
+    
     try {
-        // 1. Generate Script
         const scriptResult = await generateYouTubeScript(data);
         setGeneratedScript(scriptResult);
-        setGenerationStatus(prev => ({ ...prev, script: 'done', images: 'images' }));
-        const paragraphs = scriptResult.script.split('\n').filter(p => p.trim().length > 0);
-
-        // 2. Generate Images
-        const imagePromises = paragraphs.map((p, index) => generateYoutubeImages({ paragraph: p, prompt: customPrompts[index] || undefined }));
-        const imageResults = await Promise.all(imagePromises);
-        const newImages = imageResults.reduce((acc, result, index) => {
-            if (result) {
-                acc[index] = result.images;
-            }
-            return acc;
-        }, {} as GeneratedImages);
-        setGeneratedImages(newImages);
-        setGenerationStatus(prev => ({ ...prev, images: 'done', audio: 'audio' }));
-
-        // 3. Generate Audio
-        const audioResult = await generateYoutubeAudio({ script: scriptResult.script });
-        setGeneratedAudio(audioResult.audio);
-        setGenerationStatus(prev => ({ ...prev, audio: 'done', video: 'video' }));
-
-        // 4. Generate Video
-        const allImages = Object.values(newImages).flat();
-        if (allImages.length === 0) {
-            throw new Error("No images were generated, cannot create video.");
-        }
-        const videoResult = await generateYoutubeVideo({
-            script: scriptResult.script,
-            audio: audioResult.audio,
-            images: allImages,
-        });
-        setGeneratedVideo(videoResult.video);
-        setGenerationStatus(prev => ({ ...prev, video: 'done' }));
-
-    } catch (error) {
-        console.error(error);
-        const currentStep = Object.keys(generationStatus).find(k => generationStatus[k as keyof GenerationStatus] === 'images' || generationStatus[k as keyof GenerationStatus] === 'audio' || generationStatus[k as keyof GenerationStatus] === 'video' || generationStatus[k as keyof GenerationStatus] === 'script' )
-        setGenerationStatus(prev => ({ ...prev, [currentStep || 'script']: 'error' }));
-        toast({
+    } catch(error) {
+         toast({
             variant: "destructive",
-            title: `Error During ${currentStep || 'Generation'}`,
-            description: (error as Error).message || "There was an issue generating media. Please try again.",
+            title: "Error Generating Script",
+            description: (error as Error).message || "There was an issue generating the script.",
         });
     } finally {
-        setIsGenerating(false);
+        setIsScriptLoading(false);
+    }
+  }
+
+  const handleGenerateImages = async () => {
+    if (!scriptParagraphs.length) return;
+    setIsImagesLoading(true);
+    
+    const initialStatus: ImageGenStatus = scriptParagraphs.reduce((acc, _, index) => {
+        acc[index] = 'loading';
+        return acc;
+    }, {} as ImageGenStatus);
+    setImageGenStatus(initialStatus);
+
+    try {
+        const imagePromises = scriptParagraphs.map((p, index) => 
+            generateYoutubeImages({ paragraph: p, prompt: customPrompts[index] || undefined })
+                .then(result => ({ index, result, status: 'fulfilled' as const }))
+                .catch(error => ({ index, error, status: 'rejected' as const }))
+        );
+
+        for (const promise of imagePromises) {
+            const res = await promise;
+            if (res.status === 'fulfilled') {
+                setGeneratedImages(prev => ({...prev, [res.index]: res.result.images}));
+                setImageGenStatus(prev => ({...prev, [res.index]: 'done'}));
+            } else {
+                 setImageGenStatus(prev => ({...prev, [res.index]: 'error'}));
+                 toast({ variant: "destructive", title: `Error Generating Images for Scene ${res.index + 1}`});
+            }
+        }
+
+    } catch (error) {
+        toast({ variant: "destructive", title: "Error Generating Images", description: (error as Error).message });
+    } finally {
+        setIsImagesLoading(false);
+    }
+  }
+
+  const handleRegenerateSceneImages = async (index: number) => {
+    if (!scriptParagraphs[index]) return;
+    
+    setImageGenStatus(prev => ({...prev, [index]: 'loading'}));
+    setGeneratedImages(prev => {
+        const newImages = {...prev};
+        delete newImages[index];
+        return newImages;
+    });
+
+    try {
+        const result = await generateYoutubeImages({ paragraph: scriptParagraphs[index], prompt: customPrompts[index] || undefined });
+        setGeneratedImages(prev => ({...prev, [index]: result.images}));
+        setImageGenStatus(prev => ({...prev, [index]: 'done'}));
+    } catch (error) {
+        setImageGenStatus(prev => ({...prev, [index]: 'error'}));
+        toast({ variant: "destructive", title: `Error Regenerating Images for Scene ${index + 1}`});
+    }
+  }
+
+  const handleGenerateAudio = async () => {
+    if (!generatedScript) return;
+    setIsAudioLoading(true);
+    setGeneratedAudio(null);
+
+    try {
+        const audioResult = await generateYoutubeAudio({ script: generatedScript.script });
+        setGeneratedAudio(audioResult.audio);
+    } catch(error) {
+        toast({ variant: "destructive", title: "Error Generating Audio", description: (error as Error).message });
+    } finally {
+        setIsAudioLoading(false);
     }
   }
 
@@ -225,11 +208,11 @@ export function YoutubeScriptForm() {
       <div className="space-y-8">
         <Card className="glassmorphic">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleGenerateAll)}>
+            <form onSubmit={form.handleSubmit(handleGenerateScript)}>
               <CardHeader>
                 <CardTitle>Video Idea</CardTitle>
                 <CardDescription>
-                  Enter your video topic to generate a full script and all media assets.
+                  Enter your video topic to generate a full script.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -237,65 +220,56 @@ export function YoutubeScriptForm() {
                   <FormItem>
                     <FormLabel>Video Topic</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., A day in the life of a solo entrepreneur" {...field} disabled={isGenerating} />
+                      <Input placeholder="e.g., A day in the life of a solo entrepreneur" {...field} disabled={isScriptLoading} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
               </CardContent>
               <CardFooter>
-                <Button type="submit" disabled={isGenerating} className="w-full">
-                  {isGenerating ? <Loader2 className="animate-spin" /> : <Bot />}
-                  {isGenerating ? "Generating Media..." : "Generate Media Assets"}
+                <Button type="submit" disabled={isScriptLoading} className="w-full">
+                  {isScriptLoading ? <Loader2 className="animate-spin" /> : <Bot />}
+                  {isScriptLoading ? "Generating Script..." : "Generate Script"}
                 </Button>
               </CardFooter>
             </form>
           </Form>
         </Card>
         
-        {isGenerating && (
+        {generatedScript && (
              <Card className="glassmorphic">
                 <CardHeader>
-                    <CardTitle>Generation Progress</CardTitle>
-                    <CardDescription>The AI is creating your assets. Please wait.</CardDescription>
+                    <CardTitle>Generate Media</CardTitle>
+                    <CardDescription>Generate images and voiceover for your script.</CardDescription>
                 </CardHeader>
-                <CardContent>
-                   <GenerationTracker status={generationStatus} />
+                <CardContent className="space-y-4">
+                    <Button onClick={handleGenerateImages} disabled={isImagesLoading} className="w-full">
+                         {isImagesLoading ? <Loader2 className="animate-spin" /> : <ImageIcon />}
+                        Generate All Images
+                    </Button>
+                    <Button onClick={handleGenerateAudio} disabled={isAudioLoading} className="w-full">
+                        {isAudioLoading ? <Loader2 className="animate-spin" /> : <Volume2 />}
+                        Generate Voiceover
+                    </Button>
                 </CardContent>
              </Card>
         )}
 
-        {(generatedAudio || generatedVideo) && (
+        {generatedAudio && (
             <Card className="glassmorphic">
                 <CardHeader>
-                    <CardTitle>Generated Media</CardTitle>
+                    <CardTitle>Generated Voiceover</CardTitle>
                 </CardHeader>
-                 {generatedAudio && (
-                     <CardContent>
-                        <div className="w-full space-y-2">
-                            <h4 className="font-medium flex items-center"><PlayCircle className="mr-2"/> Generated Voiceover</h4>
-                            <audio controls src={generatedAudio} className="w-full">
-                                Your browser does not support the audio element.
-                            </audio>
-                             <Button onClick={() => downloadDataUri(generatedAudio, 'voiceover.wav')} variant="outline" className="w-full">
-                                <Download className="mr-2" /> Download Voiceover
-                            </Button>
-                        </div>
-                    </CardContent>
-                )}
-                 {generatedVideo && (
-                    <CardContent>
-                         <div className="w-full space-y-2">
-                            <h4 className="font-medium flex items-center"><Video className="mr-2"/> Final Video</h4>
-                            <video controls src={generatedVideo} className="w-full rounded-md" />
-                             <Button asChild className="mt-2 w-full">
-                                <a href={generatedVideo} download="youtube-video.mp4">
-                                    <Download className="mr-2" /> Download Video
-                                </a>
-                            </Button>
-                        </div>
-                    </CardContent>
-                 )}
+                <CardContent>
+                    <div className="w-full space-y-2">
+                        <audio controls src={generatedAudio} className="w-full">
+                            Your browser does not support the audio element.
+                        </audio>
+                         <Button onClick={() => downloadDataUri(generatedAudio, 'voiceover.wav')} variant="outline" className="w-full">
+                            <Download className="mr-2" /> Download Voiceover
+                        </Button>
+                    </div>
+                </CardContent>
             </Card>
         )}
       </div>
@@ -307,7 +281,7 @@ export function YoutubeScriptForm() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {generationStatus.script === 'script' && !generatedScript ? (
+          {isScriptLoading && !generatedScript ? (
             <div className="space-y-4">
               <Skeleton className="h-10 w-full" />
               <Skeleton className="h-40 w-full" />
@@ -356,17 +330,24 @@ export function YoutubeScriptForm() {
                               </div>
                         </div>
                         <div className="mt-2 space-y-2">
-                           <div className="relative">
-                                <Pencil className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                           <div className="flex gap-2">
                                 <Textarea
                                   placeholder="Enter a custom prompt for image generation, or leave blank to use the paragraph above."
                                   value={customPrompts[index] || ""}
                                   onChange={(e) => handleCustomPromptChange(index, e.target.value)}
-                                  className="pl-8"
-                                  disabled={isGenerating && generationStatus.images === 'images'}
+                                  className=""
+                                  disabled={isImagesLoading}
                                 />
+                                 <Button 
+                                    variant="outline"
+                                    size="icon" 
+                                    onClick={() => handleRegenerateSceneImages(index)} 
+                                    disabled={isImagesLoading || imageGenStatus[index] === 'loading'}
+                                >
+                                    <RefreshCw className="h-4 w-4"/>
+                                </Button>
                             </div>
-                           {generationStatus.images === 'images' && !generatedImages[index] ? (
+                           {imageGenStatus[index] === 'loading' ? (
                              <div className="flex justify-center items-center h-32">
                                 <Loader2 className="animate-spin text-primary" />
                              </div>
@@ -383,7 +364,9 @@ export function YoutubeScriptForm() {
                                 </>
                            ) : (
                                 <div className="flex justify-center items-center h-32 bg-muted/50 rounded-md">
-                                    <p className="text-muted-foreground text-sm">Waiting for images...</p>
+                                    <p className="text-muted-foreground text-sm">
+                                        {imageGenStatus[index] === 'error' ? 'Image generation failed.' : 'Waiting to generate images...'}
+                                    </p>
                                 </div>
                            )}
                         </div>

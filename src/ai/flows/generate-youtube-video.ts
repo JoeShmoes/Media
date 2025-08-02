@@ -36,7 +36,7 @@ const generateYoutubeVideoFlow = ai.defineFlow(
   async ({ script, images, audio }) => {
     
     const promptParts = [
-        { text: `Generate a video based on the following script, using the provided images as visual inspiration for the scenes. The provided audio is the voiceover for the entire video. The video's duration should match the audio's duration. Script: ${script}` },
+        { text: `Generate a dynamic video based on the following script. The provided audio is the voiceover for the entire video. The video's duration should match the audio's duration. Use the provided images as visual inspiration for the scenes, creating motion and transitions between them.` },
         ...images.map(url => ({ media: { url, contentType: 'image/png' } })),
         { media: { url: audio, contentType: 'audio/wav' } }
     ];

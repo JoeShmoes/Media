@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A Genkit flow for generating images for a YouTube script.
@@ -34,30 +35,26 @@ const generateYoutubeImagesFlow = ai.defineFlow(
   async ({ paragraph, prompt }) => {
     const imageGenerationPrompt = prompt || `Generate a realistic and cinematic image for the following scene: ${paragraph}`;
     
-    const images: string[] = [];
-    for (let i = 0; i < 3; i++) {
-        try {
-            // eslint-disable-next-line no-await-in-loop
-            const { media } = await ai.generate({
-                model: 'googleai/gemini-2.0-flash-preview-image-generation',
-                prompt: imageGenerationPrompt,
-                config: {
-                    responseModalities: ['TEXT', 'IMAGE'],
-                },
-            });
-            if (media?.url) {
-                images.push(media.url);
-            }
-        } catch (error) {
-            console.error(`Image generation for a paragraph failed on attempt ${i + 1}:`, error);
-            // Allow for some failures, but don't add nulls to the array
-        }
-    }
+    // Generate 3 images in parallel
+    const imagePromises = Array(3).fill(null).map(() => 
+      ai.generate({
+          model: 'googleai/gemini-2.0-flash-preview-image-generation',
+          prompt: imageGenerationPrompt,
+          config: {
+              responseModalities: ['TEXT', 'IMAGE'],
+          },
+      })
+    );
+
+    const results = await Promise.allSettled(imagePromises);
+    
+    const images = results
+      .filter(result => result.status === 'fulfilled' && result.value.media?.url)
+      // @ts-ignore - we've already filtered for fulfilled promises
+      .map(result => result.value.media!.url);
     
     if (images.length === 0) {
-        // If all image generations failed, we can either throw an error or return an empty array.
-        // Let's throw an error to make it clear that the step failed completely.
-        throw new Error('All image generation attempts failed for a paragraph.');
+        throw new Error('All image generation attempts failed for the paragraph.');
     }
 
     return { images };

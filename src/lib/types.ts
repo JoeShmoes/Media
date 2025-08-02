@@ -1,6 +1,7 @@
 
 
 
+
 export type MindMapNode = {
   id: string;
   content: string;
@@ -202,3 +203,9 @@ export type Deal = {
   notes?: string;
 };
 
+export type Goal = {
+  id: string;
+  title: string;
+  description?: string;
+  status: "Not Started" | "In Progress" | "Completed";
+};

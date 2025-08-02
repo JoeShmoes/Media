@@ -71,6 +71,7 @@ import {
 } from "@/components/ui/popover"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Icons } from "../icons"
+import { SettingsDialog } from "./settings-dialog"
 
 const favouritesNavItems = [
   { href: "/ai-room", icon: BrainCircuit, label: "Crifohay" },
@@ -133,6 +134,7 @@ function LiveClock() {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
 
   return (
     <SidebarProvider>
@@ -314,7 +316,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <DropdownMenuContent className="w-56 mb-2" side="top" align="start">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => setIsSettingsOpen(true)}>
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Settings</span>
               </DropdownMenuItem>
@@ -327,6 +329,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
+        <SettingsDialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
         <header className="sticky top-0 z-10 flex h-14 items-center gap-4 bg-sidebar/80 backdrop-blur-md px-4 sm:px-6">
             <SidebarTrigger />
              <div className="relative flex-1 md:grow-0">

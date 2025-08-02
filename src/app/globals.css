@@ -4,24 +4,24 @@
 
 @layer base {
   :root {
-    --background: 224 14% 13%;
-    --foreground: 0 0% 98%;
-    --card: 224 14% 13%;
-    --card-foreground: 0 0% 98%;
-    --popover: 224 14% 13%;
-    --popover-foreground: 0 0% 98%;
+    --background: 0 0% 100%;
+    --foreground: 224 14% 13%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 14% 13%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 14% 13%;
     --primary: 221 44% 41%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 240 4% 26%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 4% 26%;
-    --muted-foreground: 240 5% 65%;
+    --secondary: 240 4% 96%;
+    --secondary-foreground: 240 4% 16%;
+    --muted: 240 4% 96%;
+    --muted-foreground: 240 5% 45%;
     --accent: 175 43% 50%;
     --accent-foreground: 224 14% 13%;
-    --destructive: 0 63% 31%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 4% 26%;
-    --input: 240 4% 26%;
+    --border: 240 4% 86%;
+    --input: 240 4% 86%;
     --ring: 221 44% 41%;
     --chart-1: 221 44% 41%;
     --chart-2: 175 43% 50%;
@@ -31,13 +31,13 @@
     --radius: 0.5rem;
 
     /* macOS-inspired theme */
-    --sidebar-background: 226 13% 9%;
-    --sidebar-foreground: 0 0% 95%;
+    --sidebar-background: 226 13% 97%;
+    --sidebar-foreground: 224 14% 13%;
     --sidebar-primary: 221 44% 41%;
     --sidebar-primary-foreground: 0 0% 98%;
     --sidebar-accent: 175 43% 50%;
     --sidebar-accent-foreground: 224 14% 13%;
-    --sidebar-border: 240 4% 26%;
+    --sidebar-border: 240 4% 86%;
     --sidebar-ring: 221 44% 41%;
   }
 

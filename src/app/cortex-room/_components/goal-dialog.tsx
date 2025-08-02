@@ -227,7 +227,7 @@ export function GoalDialog({ open, onOpenChange, goal, onSave, projects, tasks }
 
               </div>
             </ScrollArea>
-            <DialogFooter className="mt-4">
+            <DialogFooter className="mt-4 pt-4 border-t">
               <Button type="submit">Save Goal</Button>
             </DialogFooter>
           </form>

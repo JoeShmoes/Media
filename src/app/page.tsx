@@ -216,28 +216,8 @@ export default function Dashboard() {
                         <div className="text-sm text-center text-muted-foreground py-8">Pin anything here</div>
                     </CardContent>
                 </Card>
-                
-                 <Card className={cardClassName}>
-                    <CardHeader><CardTitle>System Health</CardTitle></CardHeader>
-                     <CardContent className="space-y-2 text-sm">
-                        <div className="flex items-center justify-between">
-                            <span className="flex items-center gap-2 text-muted-foreground"><Activity/> Automations</span>
-                            <Badge variant="secondary" className="bg-green-500/20 text-green-500">Normal</Badge>
-                        </div>
-                         <div className="flex items-center justify-between">
-                            <span className="flex items-center gap-2 text-muted-foreground"><ExternalLink/> Integrations</span>
-                            <Badge variant="secondary" className="bg-green-500/20 text-green-500">Connected</Badge>
-                        </div>
-                          <div className="flex items-center justify-between">
-                            <span className="flex items-center gap-2 text-muted-foreground"><ServerCrash/> Data Sync</span>
-                            <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-500">Delayed</Badge>
-                        </div>
-                    </CardContent>
-                </Card>
             </div>
         </div>
     </div>
   )
 }
-
-    

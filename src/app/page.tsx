@@ -6,13 +6,14 @@ import Link from "next/link"
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Tooltip, LineChart, Line } from "recharts"
 import { Briefcase, Lightbulb, ListTodo, TrendingUp, Users, DollarSign, Bell, Plus, PenSquare, Film, BarChart2, Zap, CheckCircle, ExternalLink, Activity, ServerCrash } from "lucide-react"
 
-import type { Deal, Project, Task, Transaction, TaskGroup } from "@/lib/types"
+import type { Deal, Project, Task, Transaction, TaskGroup, Note } from "@/lib/types"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { cn } from "@/lib/utils"
 import { useSettings } from "@/hooks/use-settings"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { generateDashboardInsights, type GenerateDashboardInsightsOutput } from "@/ai/flows/generate-dashboard-insights"
 
 const quickAccessItems = [
     { label: "New Task", icon: <Plus/>, href: "/tasks" },
@@ -21,13 +22,6 @@ const quickAccessItems = [
     { label: "Add Client", icon: <Users/>, href: "/clients" },
     { label: "Generate Report", icon: <BarChart2/>, href: "/audit-room" },
     { label: "Trigger Automation", icon: <Zap/>, href: "/integration-hub" },
-]
-
-const notifications = [
-    { text: "Project 'Synergy Website' is nearing its deadline.", level: "warning" },
-    { text: "You haven't contacted new lead 'Innovate Inc.' for 3 days.", level: "critical" },
-    { text: "Monthly expense report for June is ready for review.", level: "info" },
-    { text: "Stripe integration synced successfully.", level: "success" },
 ]
 
 const chartData = [
@@ -52,9 +46,12 @@ export default function Dashboard() {
   
   // State for dashboard data
   const [totalRevenue, setTotalRevenue] = React.useState(0);
-  const [activeProjects, setActiveProjects] = React.useState(0);
-  const [leadsThisWeek, setLeadsThisWeek] = React.useState(0);
-  const [tasksDue, setTasksDue] = React.useState(0);
+  const [activeProjects, setActiveProjects] = React.useState<Project[]>([]);
+  const [deals, setDeals] = React.useState<Deal[]>([]);
+  const [tasks, setTasks] = React.useState<Task[]>([]);
+  
+  const [insights, setInsights] = React.useState<GenerateDashboardInsightsOutput | null>(null);
+  const [isLoadingInsights, setIsLoadingInsights] = React.useState(true);
 
 
   React.useEffect(() => {
@@ -70,35 +67,58 @@ export default function Dashboard() {
         const savedProjects = localStorage.getItem("projects");
         if (savedProjects) {
             const projects: Project[] = Object.values(JSON.parse(savedProjects)).flat() as Project[];
-            const active = projects.filter(p => p.status !== 'launch');
-            setActiveProjects(active.length);
+            setActiveProjects(projects.filter(p => p.status !== 'launch'));
         }
         
         const savedDeals = localStorage.getItem("deals");
         if (savedDeals) {
-            const deals: Deal[] = JSON.parse(savedDeals);
-            const leads = deals.filter(d => d.status === 'leads');
-            setLeadsThisWeek(leads.length);
+            setDeals(JSON.parse(savedDeals));
         }
         
         const savedTasks = localStorage.getItem("tasks");
         if (savedTasks) {
             const taskBoard: {groups: TaskGroup[]} = JSON.parse(savedTasks);
             const allTasks = taskBoard.groups.flatMap(g => g.tasks);
-            const dueTasks = allTasks.filter(t => !t.completed);
-            setTasksDue(dueTasks.length);
+            setTasks(allTasks.filter(t => !t.completed));
         }
 
       } catch (error) {
           console.error("Failed to load dashboard data from local storage", error);
       }
   }, []);
+  
+  React.useEffect(() => {
+    if (!isMounted) return;
+
+    const fetchInsights = async () => {
+        setIsLoadingInsights(true);
+        try {
+            const result = await generateDashboardInsights({
+                projects: activeProjects.map(p => ({id: p.id, title: p.title, status: p.status, deadline: p.deadline})),
+                deals: deals.map(d => ({id: d.id, title: d.title, status: d.status, value: d.value, clientName: d.clientName})),
+                tasks: tasks.map(t => ({id: t.id, name: t.name, completed: t.completed})),
+            });
+            setInsights(result);
+        } catch (error) {
+            console.error("Failed to generate dashboard insights", error);
+            // Set some default state on error
+            setInsights({
+                suggestions: ["Could not load AI suggestions."],
+                notifications: [{ text: "Error fetching AI insights.", level: "critical" }]
+            });
+        } finally {
+            setIsLoadingInsights(false);
+        }
+    }
+    fetchInsights();
+
+  }, [isMounted, activeProjects, deals, tasks]);
 
   const kpiData = [
     { metric: "Revenue", value: `$${totalRevenue.toLocaleString()}`, change: "+20.1%", icon: <DollarSign/> },
-    { metric: "Active Projects", value: `+${activeProjects}`, change: "+5 since last week", icon: <Briefcase/> },
-    { metric: "Leads This Week", value: `${leadsThisWeek}`, change: "+12%", icon: <Users/> },
-    { metric: "Tasks Due", value: `${tasksDue}`, change: "3 urgent", icon: <ListTodo/> },
+    { metric: "Active Projects", value: `+${activeProjects.length}`, change: "+5 since last week", icon: <Briefcase/> },
+    { metric: "Leads This Week", value: `${deals.filter(d => d.status === 'leads').length}`, change: "+12%", icon: <Users/> },
+    { metric: "Tasks Due", value: `${tasks.length}`, change: "3 urgent", icon: <ListTodo/> },
   ]
   
   if (!isMounted) {
@@ -190,23 +210,31 @@ export default function Dashboard() {
                     <CardDescription>Your top 3 growth moves this week</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4 text-sm text-muted-foreground">
-                      <p>1. <a href="#" className="text-primary hover:underline">Launch a new ad campaign</a> for the "Ultimate SEO Package" offer.</p>
-                      <p>2. <a href="#" className="text-primary hover:underline">Email uncontacted leads</a> from the last 7 days.</p>
-                      <p>3. Create a follow-up <a href="#" className="text-primary hover:underline">YouTube video</a> about "Advanced SEO hacks for 2024".</p>
-                    </div>
+                    {isLoadingInsights ? (
+                        <p className="text-sm text-muted-foreground">Generating suggestions...</p>
+                    ) : (
+                        <div className="space-y-4 text-sm text-muted-foreground">
+                            {insights?.suggestions.map((suggestion, index) => (
+                                <p key={index}>{index + 1}. <a href="#" className="text-primary hover:underline">{suggestion}</a></p>
+                            ))}
+                        </div>
+                    )}
                   </CardContent>
                 </Card>
                 
                 <Card className={cardClassName}>
                     <CardHeader><CardTitle className="flex items-center gap-2"><Bell/> Notifications & Alerts</CardTitle></CardHeader>
                     <CardContent className="space-y-3">
-                        {notifications.map((n, i) => (
-                            <div key={i} className="flex items-start gap-3">
-                                <div className={cn("h-2 w-2 rounded-full mt-1.5", n.level === 'critical' ? 'bg-red-500' : n.level === 'warning' ? 'bg-yellow-500' : 'bg-green-500')} />
-                                <p className="text-sm text-muted-foreground">{n.text}</p>
-                            </div>
-                        ))}
+                         {isLoadingInsights ? (
+                            <p className="text-sm text-muted-foreground">Loading alerts...</p>
+                         ) : (
+                             insights?.notifications.map((n, i) => (
+                                <div key={i} className="flex items-start gap-3">
+                                    <div className={cn("h-2 w-2 rounded-full mt-1.5", n.level === 'critical' ? 'bg-red-500' : n.level === 'warning' ? 'bg-yellow-500' : 'bg-green-500')} />
+                                    <p className="text-sm text-muted-foreground">{n.text}</p>
+                                </div>
+                            ))
+                         )}
                     </CardContent>
                 </Card>
 

@@ -4,13 +4,16 @@ import * as React from "react";
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Upload } from "lucide-react";
+import { FileText } from "lucide-react";
 import { ContentBriefDialog } from "./_components/content-brief-dialog";
 import type { GenerateContentBriefOutput } from "@/ai/flows/generate-content-brief";
 import { ContentBriefDisplay } from "./_components/content-brief-display";
 import { CallNoteDialog } from "./_components/call-note-dialog";
 import type { GenerateCallNoteOutput } from "@/ai/flows/generate-call-note";
 import { CallNoteDisplay } from "./_components/call-note-display";
+import { MeetingSummaryDialog } from "./_components/meeting-summary-dialog";
+import type { SummarizeTranscriptOutput } from "@/ai/flows/summarize-transcript";
+import { MeetingSummaryDisplay } from "./_components/meeting-summary-display";
 
 export default function AutoDocsPage() {
   const [isBriefDialogOpen, setIsBriefDialogOpen] = React.useState(false);
@@ -19,14 +22,26 @@ export default function AutoDocsPage() {
   const [isCallNoteDialogOpen, setIsCallNoteDialogOpen] = React.useState(false);
   const [generatedCallNote, setGeneratedCallNote] = React.useState<GenerateCallNoteOutput | null>(null);
 
+  const [isSummaryDialogOpen, setIsSummaryDialogOpen] = React.useState(false);
+  const [generatedSummary, setGeneratedSummary] = React.useState<SummarizeTranscriptOutput | null>(null);
+
+
   const handleBriefGenerated = (brief: GenerateContentBriefOutput) => {
     setGeneratedBrief(brief);
     setGeneratedCallNote(null);
+    setGeneratedSummary(null);
   }
 
   const handleNoteGenerated = (note: GenerateCallNoteOutput) => {
     setGeneratedCallNote(note);
     setGeneratedBrief(null);
+    setGeneratedSummary(null);
+  }
+  
+  const handleSummaryGenerated = (summary: SummarizeTranscriptOutput) => {
+    setGeneratedSummary(summary);
+    setGeneratedBrief(null);
+    setGeneratedCallNote(null);
   }
 
   return (
@@ -42,6 +57,12 @@ export default function AutoDocsPage() {
         onOpenChange={setIsCallNoteDialogOpen}
         onNoteGenerated={handleNoteGenerated}
       />
+      
+      <MeetingSummaryDialog
+        open={isSummaryDialogOpen}
+        onOpenChange={setIsSummaryDialogOpen}
+        onSummaryGenerated={handleSummaryGenerated}
+      />
 
       <PageHeader title="AutoDocs" />
       <p className="text-muted-foreground">
@@ -51,11 +72,11 @@ export default function AutoDocsPage() {
         <Card className="glassmorphic">
           <CardHeader>
             <CardTitle>Meeting Recorder + AI Summary</CardTitle>
-            <CardDescription>Upload recordings to auto-transcribe and summarize.</CardDescription>
+            <CardDescription>Paste a transcript to auto-summarize the conversation.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="w-full" disabled>
-              <Upload className="mr-2 h-4 w-4" /> Upload Recording
+            <Button className="w-full" onClick={() => setIsSummaryDialogOpen(true)}>
+              <FileText className="mr-2 h-4 w-4" /> Summarize Transcript
             </Button>
           </CardContent>
         </Card>
@@ -99,6 +120,7 @@ export default function AutoDocsPage() {
       
       {generatedBrief && <ContentBriefDisplay brief={generatedBrief} />}
       {generatedCallNote && <CallNoteDisplay note={generatedCallNote} />}
+      {generatedSummary && <MeetingSummaryDisplay summary={generatedSummary} />}
     </div>
   );
 }

@@ -3,6 +3,7 @@
 
 
 
+
 export type MindMapNode = {
   id: string;
   content: string;
@@ -211,4 +212,24 @@ export type Goal = {
   status: "Not Started" | "In Progress" | "Completed";
   linkedProjectIds?: string[];
   linkedTaskIds?: string[];
+};
+
+export type GenerateContentBriefOutput = {
+    hook: string;
+    talkingPoints: string[];
+    keywords: string;
+    visuals: string;
+}
+
+export type GenerateCallNoteOutput = {
+    summary: string;
+    nextActions: string[];
+    emailDraft: string;
+};
+
+export type SummarizeTranscriptOutput = {
+  title: string;
+  keyDecisions: string[];
+  actionItems: string[];
+  concerns: string[];
 };

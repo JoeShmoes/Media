@@ -2,10 +2,11 @@
 "use client"
 
 import * as React from "react"
+import { CSVLink } from "react-csv"
 import { PageHeader } from "@/components/page-header"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Clock, FileText, Framer, MoreHorizontal, PlusCircle, ExternalLink } from "lucide-react"
+import { Clock, FileText, Framer, MoreHorizontal, PlusCircle, ExternalLink, Download } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { Project, ProjectBoard, ProjectBoardColumn } from "@/lib/types"
 import { ProjectDialog } from "./_components/project-dialog"
@@ -48,6 +49,7 @@ export default function ProjectsPage() {
   const [isDetailsOpen, setIsDetailsOpen] = React.useState(false)
   const [editingProject, setEditingProject] = React.useState<Project | null>(null)
   const [viewingProject, setViewingProject] = React.useState<Project | null>(null)
+  const csvLinkRef = React.useRef<any>(null);
 
   const handleAddProject = () => {
     setEditingProject(null)
@@ -93,13 +95,35 @@ export default function ProjectsPage() {
 
     setBoardData(newBoard);
   }
+  
+  const allProjects = React.useMemo(() => {
+    return Object.values(boardData).flat();
+  }, [boardData]);
+  
+  const handleExport = () => {
+    if (csvLinkRef.current) {
+        csvLinkRef.current.link.click();
+    }
+  }
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <PageHeader title="Website/SEO Project Board">
-        <Button onClick={handleAddProject}>
-          <PlusCircle className="mr-2" /> New Project
-        </Button>
+        <div className="flex items-center gap-2">
+            <Button onClick={handleAddProject}>
+              <PlusCircle className="mr-2" /> New Project
+            </Button>
+             <Button variant="outline" onClick={handleExport}>
+                <Download className="mr-2"/> Export CSV
+            </Button>
+            <CSVLink 
+                data={allProjects} 
+                filename={"projects.csv"}
+                className="hidden"
+                ref={csvLinkRef}
+                target="_blank"
+            />
+        </div>
       </PageHeader>
       
       <ProjectDialog

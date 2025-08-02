@@ -2,9 +2,10 @@
 "use client"
 
 import * as React from "react"
+import { CSVLink } from "react-csv"
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Download } from "lucide-react";
 import type { Deal, DealStatus } from "@/lib/types";
 import { DealCard } from "./_components/deal-card";
 import { DealDialog } from "./_components/deal-dialog";
@@ -30,6 +31,8 @@ export default function PipelineTrackerPage() {
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = React.useState(false);
   const [editingDeal, setEditingDeal] = React.useState<Deal | null>(null);
   const [viewingDeal, setViewingDeal] = React.useState<Deal | null>(null);
+  const csvLinkRef = React.useRef<any>(null);
+
 
   React.useEffect(() => {
     setIsMounted(true);
@@ -71,6 +74,12 @@ export default function PipelineTrackerPage() {
   const handleDeleteDeal = (dealId: string) => {
     setDeals(deals.filter(d => d.id !== dealId));
   };
+  
+  const handleExport = () => {
+    if (csvLinkRef.current) {
+        csvLinkRef.current.link.click();
+    }
+  }
 
   const handleSaveDeal = (dealData: Omit<Deal, "id"> & { id?: string }) => {
     if (dealData.id) {
@@ -102,9 +111,21 @@ export default function PipelineTrackerPage() {
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <PageHeader title="Sales Pipeline Tracker">
-        <Button onClick={handleAddDeal}>
-          <PlusCircle className="mr-2" /> Add New Deal
-        </Button>
+        <div className="flex items-center gap-2">
+            <Button onClick={handleAddDeal}>
+              <PlusCircle className="mr-2" /> Add New Deal
+            </Button>
+            <Button variant="outline" onClick={handleExport}>
+                <Download className="mr-2"/> Export CSV
+            </Button>
+            <CSVLink 
+                data={deals} 
+                filename={"deals.csv"}
+                className="hidden"
+                ref={csvLinkRef}
+                target="_blank"
+            />
+        </div>
       </PageHeader>
       
       <DealDialog

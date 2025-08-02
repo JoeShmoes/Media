@@ -2,7 +2,8 @@
 "use client"
 
 import * as React from "react"
-import { MoreHorizontal, PlusCircle } from "lucide-react"
+import { MoreHorizontal, PlusCircle, Download } from "lucide-react"
+import { CSVLink } from "react-csv"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -43,6 +44,8 @@ export default function ClientsPage() {
   const [clients, setClients] = React.useState<Client[]>(initialClients)
   const [isDialogOpen, setIsDialogOpen] = React.useState(false)
   const [editingClient, setEditingClient] = React.useState<Client | null>(null)
+  const csvLinkRef = React.useRef<any>(null);
+
 
   const handleAddClient = () => {
     setEditingClient(null)
@@ -56,6 +59,12 @@ export default function ClientsPage() {
 
   const handleDeleteClient = (clientId: string) => {
     setClients(clients.filter(client => client.id !== clientId))
+  }
+  
+  const handleExport = () => {
+    if (csvLinkRef.current) {
+        csvLinkRef.current.link.click();
+    }
   }
 
   const handleSaveClient = (clientData: Omit<Client, 'id' | 'lastContact'> & {id?: string}) => {
@@ -76,10 +85,22 @@ export default function ClientsPage() {
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <PageHeader title="Client Command Center">
-        <Button onClick={handleAddClient}>
-          <PlusCircle />
-          Add Client
-        </Button>
+        <div className="flex items-center gap-2">
+            <Button onClick={handleAddClient}>
+                <PlusCircle />
+                Add Client
+            </Button>
+            <Button variant="outline" onClick={handleExport}>
+                <Download className="mr-2"/> Export CSV
+            </Button>
+            <CSVLink 
+                data={clients} 
+                filename={"clients.csv"}
+                className="hidden"
+                ref={csvLinkRef}
+                target="_blank"
+            />
+        </div>
       </PageHeader>
       <ClientDialog
         open={isDialogOpen}

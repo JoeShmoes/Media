@@ -5,6 +5,7 @@ import * as React from "react"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { ChevronDown } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -35,6 +36,9 @@ import {
 import { Checkbox } from "@/components/ui/checkbox"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import type { Goal, Project, Task } from "@/lib/types"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { cn } from "@/lib/utils"
+
 
 const goalSchema = z.object({
   id: z.string().optional(),
@@ -54,6 +58,58 @@ interface GoalDialogProps {
   onSave: (goalData: FormValues) => void
   projects: Project[]
   tasks: Task[]
+}
+
+function MultiSelectDropdown({ control, name, label, items }: { control: any, name: "linkedProjectIds" | "linkedTaskIds", label: string, items: {id: string, title: string}[]}) {
+    const [isOpen, setIsOpen] = React.useState(false);
+    const selectedCount = control.getValues(name)?.length || 0;
+
+    return (
+        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+            <FormLabel>{label}</FormLabel>
+            <CollapsibleTrigger asChild>
+                <Button variant="outline" className="w-full justify-between mt-2">
+                    <span>{selectedCount > 0 ? `${selectedCount} selected` : `Select ${label.toLowerCase()}...`}</span>
+                    <ChevronDown className={cn("h-4 w-4 transition-transform", isOpen && "rotate-180")} />
+                </Button>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+                <FormField
+                  control={control}
+                  name={name}
+                  render={() => (
+                    <FormItem className="mt-2">
+                       <ScrollArea className="h-32 rounded-md border p-4">
+                         {items.map((item) => (
+                            <FormField
+                                key={item.id}
+                                control={control}
+                                name={name}
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 mb-2">
+                                        <FormControl>
+                                            <Checkbox
+                                                checked={field.value?.includes(item.id)}
+                                                onCheckedChange={(checked) => {
+                                                    return checked
+                                                    ? field.onChange([...(field.value || []), item.id])
+                                                    : field.onChange(field.value?.filter((value) => value !== item.id))
+                                                }}
+                                            />
+                                        </FormControl>
+                                        <FormLabel className="font-normal">{item.title}</FormLabel>
+                                    </FormItem>
+                                )}
+                            />
+                         ))}
+                         {items.length === 0 && <p className="text-sm text-muted-foreground">No {label.toLowerCase()} available to link.</p>}
+                       </ScrollArea>
+                    </FormItem>
+                  )}
+                />
+            </CollapsibleContent>
+        </Collapsible>
+    )
 }
 
 export function GoalDialog({ open, onOpenChange, goal, onSave, projects, tasks }: GoalDialogProps) {
@@ -91,7 +147,7 @@ export function GoalDialog({ open, onOpenChange, goal, onSave, projects, tasks }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh]">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{goal ? "Edit Goal" : "Add New Goal"}</DialogTitle>
           <DialogDescription>
@@ -151,77 +207,20 @@ export function GoalDialog({ open, onOpenChange, goal, onSave, projects, tasks }
                   )}
                 />
 
-                {/* Linked Projects */}
-                <FormField
-                  control={form.control}
-                  name="linkedProjectIds"
-                  render={() => (
-                    <FormItem>
-                      <FormLabel>Linked Projects</FormLabel>
-                       <ScrollArea className="h-32 rounded-md border p-4">
-                         {projects.map((project) => (
-                            <FormField
-                                key={project.id}
-                                control={form.control}
-                                name="linkedProjectIds"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 mb-2">
-                                        <FormControl>
-                                            <Checkbox
-                                                checked={field.value?.includes(project.id)}
-                                                onCheckedChange={(checked) => {
-                                                    return checked
-                                                    ? field.onChange([...(field.value || []), project.id])
-                                                    : field.onChange(field.value?.filter((value) => value !== project.id))
-                                                }}
-                                            />
-                                        </FormControl>
-                                        <FormLabel className="font-normal">{project.title}</FormLabel>
-                                    </FormItem>
-                                )}
-                            />
-                         ))}
-                         {projects.length === 0 && <p className="text-sm text-muted-foreground">No projects available to link.</p>}
-                       </ScrollArea>
-                    </FormItem>
-                  )}
+                <MultiSelectDropdown 
+                    control={form.control}
+                    name="linkedProjectIds"
+                    label="Projects"
+                    items={projects.map(p => ({id: p.id, title: p.title}))}
+                />
+                
+                 <MultiSelectDropdown 
+                    control={form.control}
+                    name="linkedTaskIds"
+                    label="Tasks"
+                    items={tasks.map(t => ({id: t.id, title: t.name}))}
                 />
 
-                {/* Linked Tasks */}
-                <FormField
-                  control={form.control}
-                  name="linkedTaskIds"
-                  render={() => (
-                    <FormItem>
-                      <FormLabel>Linked Tasks</FormLabel>
-                       <ScrollArea className="h-32 rounded-md border p-4">
-                         {tasks.map((task) => (
-                             <FormField
-                                key={task.id}
-                                control={form.control}
-                                name="linkedTaskIds"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 mb-2">
-                                        <FormControl>
-                                            <Checkbox
-                                                checked={field.value?.includes(task.id)}
-                                                onCheckedChange={(checked) => {
-                                                    return checked
-                                                    ? field.onChange([...(field.value || []), task.id])
-                                                    : field.onChange(field.value?.filter((value) => value !== task.id))
-                                                }}
-                                            />
-                                        </FormControl>
-                                        <FormLabel className="font-normal">{task.name}</FormLabel>
-                                    </FormItem>
-                                )}
-                            />
-                         ))}
-                         {tasks.length === 0 && <p className="text-sm text-muted-foreground">No tasks available to link.</p>}
-                       </ScrollArea>
-                    </FormItem>
-                  )}
-                />
               </div>
             </ScrollArea>
             <DialogFooter className="pr-6 pt-4">

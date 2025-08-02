@@ -2,10 +2,11 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Settings, PlusCircle, UserCog, ExternalLink, Trash2 } from "lucide-react";
+import { Settings, PlusCircle, UserCog, ExternalLink, Trash2, Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Client, ClientResource } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
@@ -135,7 +136,10 @@ export default function ClientPortalPage() {
             ) : (
                 <div className="text-center py-12">
                     <p className="text-muted-foreground">You currently have no active clients.</p>
-                    <p className="text-xs text-muted-foreground mt-1">Change a client's status to "Active" in the Client Command Center to see their portal here.</p>
+                    <p className="text-xs text-muted-foreground mt-1 mb-4">Change a client's status to "Active" in the Client Command Center to see their portal here.</p>
+                     <Button asChild>
+                        <Link href="/clients"><Users className="mr-2"/>Go to Client Command Center</Link>
+                    </Button>
                 </div>
             )}
         </CardContent>

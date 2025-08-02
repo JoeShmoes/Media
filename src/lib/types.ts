@@ -274,3 +274,5 @@ export type TaskTemplate = {
     taskName: string;
     taskDescription?: string;
 }
+
+export type TemplateType = 'Task' | 'Note';

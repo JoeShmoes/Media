@@ -1,12 +1,10 @@
-
 "use client"
 import * as React from "react"
-import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import type { TaskTemplate } from "@/lib/types";
-import { TaskTemplateDialog } from "./_components/task-template-dialog";
-import { TaskTemplateCard } from "./_components/task-template-card";
+import { TaskTemplateDialog } from "./task-template-dialog";
+import { TaskTemplateCard } from "./task-template-card";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,7 +16,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
-export default function TaskTemplatesPage() {
+export function TaskTemplatesView() {
   const [templates, setTemplates] = React.useState<TaskTemplate[]>([]);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [editingTemplate, setEditingTemplate] = React.useState<TaskTemplate | null>(null);
@@ -73,12 +71,20 @@ export default function TaskTemplatesPage() {
   if (!isMounted) return null;
 
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader title="Task Templates">
-        <Button onClick={handleAddTemplate}>
-          <PlusCircle className="mr-2"/> New Template
-        </Button>
-      </PageHeader>
+    <div className="space-y-4">
+       <div className="flex items-center justify-between">
+            <div className="flex-1">
+                 <h2 className="text-2xl font-semibold tracking-tight">Task Templates</h2>
+                 <p className="text-muted-foreground">
+                    Create and manage reusable templates for your common tasks.
+                </p>
+            </div>
+            <div className="flex items-center gap-2">
+                 <Button onClick={handleAddTemplate}>
+                    <PlusCircle className="mr-2" /> New Template
+                </Button>
+            </div>
+       </div>
       
       <TaskTemplateDialog
         open={isDialogOpen}
@@ -101,10 +107,6 @@ export default function TaskTemplatesPage() {
               </AlertDialogFooter>
           </AlertDialogContent>
       </AlertDialog>
-
-      <p className="text-muted-foreground">
-        Create and manage reusable templates for your common tasks.
-      </p>
 
       {templates.length === 0 ? (
          <div className="flex flex-col items-center justify-center text-center py-24 border-2 border-dashed rounded-lg">

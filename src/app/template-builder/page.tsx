@@ -1,62 +1,71 @@
 
 "use client"
+import * as React from "react";
+import { PanelLeft } from "lucide-react";
 
-import Link from "next/link";
-import { PageHeader } from "@/components/page-header";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, FileText, LayoutTemplate, Share2, Variable } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { TemplateType } from "@/lib/types";
+import { TemplateBuilderSidebar } from "./_components/template-builder-sidebar";
+import { TaskTemplatesView } from "./_components/task-templates-view";
+import { NoteTemplatesView } from "./_components/note-templates-view";
+
 
 export default function TemplateBuilderPage() {
+  const [activeTemplateType, setActiveTemplateType] = React.useState<TemplateType>("Task");
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const renderContent = () => {
+    switch (activeTemplateType) {
+      case "Task":
+        return <TaskTemplatesView />;
+      case "Note":
+        return <NoteTemplatesView />;
+      default:
+        return <p>Select a template type to begin.</p>;
+    }
+  };
+  
+  if (!isMounted) return null;
+
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-      <PageHeader title="Template Builder">
-        {/* This button could eventually open a dialog to choose which template type to create */}
-      </PageHeader>
-      <p className="text-muted-foreground">
-        Create, customize, and reuse templates across all rooms.
-      </p>
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="glassmorphic">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><LayoutTemplate /> Task Templates</CardTitle>
-            <CardDescription>Reusable project formats (e.g., launch sequence, outreach SOP).</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button variant="secondary" className="w-full" asChild>
-              <Link href="/template-builder/tasks">Manage Task Templates</Link>
-            </Button>
-          </CardContent>
-        </Card>
-        <Card className="glassmorphic">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><FileText /> Note Templates</CardTitle>
-            <CardDescription>Formats for call notes, reflection journaling, or research.</CardDescription>
-          </CardHeader>
-          <CardContent>
-             <Button variant="secondary" className="w-full" asChild>
-                <Link href="/template-builder/notes">Manage Note Templates</Link>
-            </Button>
-          </CardContent>
-        </Card>
-         <Card className="glassmorphic">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Variable/> Smart Variables</CardTitle>
-            <CardDescription>Use placeholders like [Client Name] or [Due Date].</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button variant="outline" className="w-full" disabled>Configure Variables</Button>
-          </CardContent>
-        </Card>
-        <Card className="glassmorphic">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Share2 /> Template Library</CardTitle>
-            <CardDescription>Browse personal or community-contributed templates.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button className="w-full" disabled>Explore Library</Button>
-          </CardContent>
-        </Card>
+    <div className="flex h-full">
+      <div
+        className={cn(
+          "transition-all duration-300 ease-in-out",
+          isSidebarOpen ? "w-72" : "w-0"
+        )}
+      >
+        <div className={cn("h-full", isSidebarOpen ? "w-72" : "w-0 overflow-hidden")}>
+           <TemplateBuilderSidebar
+            activeTemplateType={activeTemplateType}
+            onSelectTemplateType={setActiveTemplateType}
+          />
+        </div>
+      </div>
+      <div className="flex-1 flex flex-col">
+          <header className="flex items-center gap-4 p-4 border-b">
+             <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                >
+                <PanelLeft />
+                <span className="sr-only">Toggle sidebar</span>
+             </Button>
+             <div>
+              <h1 className="text-xl font-semibold">Template Builder</h1>
+              <p className="text-sm text-muted-foreground">Create, customize, and reuse templates across all rooms.</p>
+             </div>
+          </header>
+          <div key={activeTemplateType} className="flex-1 h-full overflow-y-auto p-4 md:p-6">
+            {renderContent()}
+          </div>
       </div>
     </div>
   );

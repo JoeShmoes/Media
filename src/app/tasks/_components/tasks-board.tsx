@@ -3,7 +3,7 @@
 "use client";
 
 import * as React from "react";
-import { Plus, Edit, Trash2, CheckCircle, Circle, MoreVertical, ChevronDown } from "lucide-react";
+import { Plus, Edit, Trash2, CheckCircle, Circle, MoreVertical, ChevronDown, Save } from "lucide-react";
 import { z } from "zod";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -62,6 +62,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 
 const daysOfWeek: DayOfWeek[] = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -90,17 +91,16 @@ type FormValues = z.infer<typeof boardSchema>;
 
 export function TasksBoard() {
   const [isMounted, setIsMounted] = React.useState(false);
+  const { toast } = useToast();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(boardSchema),
     defaultValues: {
-      groups: [
-        { id: "default", name: "Default", tasks: [] },
-      ],
+      groups: [],
     },
   });
 
-  const boardData = useWatch({ control: form.control, name: "groups" });
+  const boardData = useWatch({ control: form.control });
   
   React.useEffect(() => {
     setIsMounted(true);
@@ -108,25 +108,38 @@ export function TasksBoard() {
       const savedTasks = localStorage.getItem("tasks");
       if (savedTasks) {
         const board = JSON.parse(savedTasks);
-        if (board && board.groups) {
+        if (board && board.groups && board.groups.length > 0) {
           form.reset(board);
+        } else {
+            // Initialize with default if local storage is empty or malformed
+            form.reset({ groups: [{ id: "default", name: "Default", tasks: [] }]});
         }
+      } else {
+        form.reset({ groups: [{ id: "default", name: "Default", tasks: [] }]});
       }
     } catch (error) {
       console.error("Failed to load tasks from local storage", error);
+      form.reset({ groups: [{ id: "default", name: "Default", tasks: [] }]});
     }
   }, [form]);
-
-  React.useEffect(() => {
-    if (isMounted) {
-      try {
-        const dataToSave = { groups: boardData };
-        localStorage.setItem("tasks", JSON.stringify(dataToSave));
+  
+  const saveTasks = () => {
+     try {
+        localStorage.setItem("tasks", JSON.stringify(boardData));
+        toast({
+            title: "Tasks Saved!",
+            description: "Your task board has been successfully saved.",
+        })
       } catch (error) {
          console.error("Failed to save tasks to local storage", error);
+          toast({
+            variant: "destructive",
+            title: "Error Saving Tasks",
+            description: "There was an issue saving your tasks.",
+        })
       }
-    }
-  }, [boardData, isMounted]);
+  }
+
 
   const { fields: groups, append: appendGroup, update: updateGroup, remove: removeGroup } = useFieldArray({
     control: form.control,
@@ -193,6 +206,7 @@ export function TasksBoard() {
       <div className="flex justify-end gap-2">
         <AddTaskDialog onAddTask={handleAddTask} groups={groups} />
         <AddGroupDialog onAddGroup={(name) => appendGroup({ id: `group-${Date.now()}`, name, tasks: [] })} />
+         <Button onClick={saveTasks}><Save className="mr-2"/> Save Changes</Button>
       </div>
 
       <div className="space-y-6">

@@ -314,7 +314,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
                             <View className="mr-2 h-4 w-4" />
                             Overview of Deals
                         </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => handleActionSelect("What are my most urgent tasks ")}>
+                        <DropdownMenuItem onSelect={() => handleActionSelect("What are my most urgent tasks? ")}>
                             <ListTodo className="mr-2 h-4 w-4" />
                             Urgent Tasks
                         </DropdownMenuItem>

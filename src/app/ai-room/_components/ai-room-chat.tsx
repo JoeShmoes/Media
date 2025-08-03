@@ -191,6 +191,11 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
       setIsLoading(false);
     }
   }
+  
+  const handleActionSelect = (prompt: string) => {
+    form.setValue('question', prompt);
+    form.setFocus('question');
+  }
 
   if (!session) {
     return (
@@ -301,15 +306,15 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
                     <DropdownMenuContent align="start">
                         <DropdownMenuLabel>AI Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onSelect={() => sendQuery("Summarize all my current projects")}>
+                        <DropdownMenuItem onSelect={() => handleActionSelect("Summarize my projects ")}>
                             <Briefcase className="mr-2 h-4 w-4" />
                             Summarize Projects
                         </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => sendQuery("Give me an overview of my sales pipeline")}>
+                        <DropdownMenuItem onSelect={() => handleActionSelect("Give me an overview of my deals ")}>
                             <View className="mr-2 h-4 w-4" />
                             Overview of Deals
                         </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => sendQuery("What are my most urgent tasks right now?")}>
+                        <DropdownMenuItem onSelect={() => handleActionSelect("What are my most urgent tasks ")}>
                             <ListTodo className="mr-2 h-4 w-4" />
                             Urgent Tasks
                         </DropdownMenuItem>

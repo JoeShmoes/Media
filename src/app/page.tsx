@@ -4,6 +4,7 @@
 import * as React from "react";
 import Link from "next/link"
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Tooltip, LineChart, Line } from "recharts"
+import { format, subDays, eachDayOfInterval } from "date-fns"
 import { Briefcase, Lightbulb, ListTodo, TrendingUp, Users, DollarSign, Bell, Plus, PenSquare, Film, BarChart2, Zap, CheckCircle, ExternalLink, Activity, ServerCrash } from "lucide-react"
 
 import type { Deal, Project, Task, Transaction, TaskGroup, Note } from "@/lib/types"
@@ -23,13 +24,6 @@ const quickAccessItems = [
     { label: "Generate Report", icon: <BarChart2/>, href: "/audit-room" },
     { label: "Trigger Automation", icon: <Zap/>, href: "/integration-hub" },
 ]
-
-const chartData = [
-  { date: "2024-05-01", tasks: 22 }, { date: "2024-05-02", tasks: 25 },
-  { date: "2024-05-03", tasks: 18 }, { date: "2024-05-04", tasks: 30 },
-  { date: "2024-05-05", tasks: 27 }, { date: "2024-05-06", tasks: 32 },
-  { date: "2024-05-07", tasks: 29 },
-];
 
 const chartConfig = {
   tasks: {
@@ -79,7 +73,7 @@ export default function Dashboard() {
         if (savedTasks) {
             const taskBoard: {groups: TaskGroup[]} = JSON.parse(savedTasks);
             const allTasks = taskBoard.groups.flatMap(g => g.tasks);
-            setTasks(allTasks.filter(t => !t.completed));
+            setTasks(allTasks);
         }
 
       } catch (error) {
@@ -96,7 +90,7 @@ export default function Dashboard() {
             const result = await generateDashboardInsights({
                 projects: activeProjects.map(p => ({id: p.id, title: p.title, status: p.status, deadline: p.deadline})),
                 deals: deals.map(d => ({id: d.id, title: d.title, status: d.status, value: d.value, clientName: d.clientName})),
-                tasks: tasks.map(t => ({id: t.id, name: t.name, completed: t.completed})),
+                tasks: tasks.filter(t => !t.completed).map(t => ({id: t.id, name: t.name, completed: t.completed})),
             });
             setInsights(result);
         } catch (error) {
@@ -118,8 +112,36 @@ export default function Dashboard() {
     { metric: "Revenue", value: `$${totalRevenue.toLocaleString()}`, change: "+20.1%", icon: <DollarSign/> },
     { metric: "Active Projects", value: `+${activeProjects.length}`, change: "+5 since last week", icon: <Briefcase/> },
     { metric: "Leads This Week", value: `${deals.filter(d => d.status === 'leads').length}`, change: "+12%", icon: <Users/> },
-    { metric: "Tasks Due", value: `${tasks.length}`, change: "3 urgent", icon: <ListTodo/> },
+    { metric: "Tasks Due", value: `${tasks.filter(t => !t.completed).length}`, change: "3 urgent", icon: <ListTodo/> },
   ]
+  
+  const performanceChartData = React.useMemo(() => {
+    const last30Days = eachDayOfInterval({
+        start: subDays(new Date(), 29),
+        end: new Date()
+    });
+
+    const completedTasksByDate = tasks
+        .filter(task => task.completed && task.dueDate)
+        .reduce((acc, task) => {
+            try {
+                const completedDate = format(new Date(task.dueDate!), 'yyyy-MM-dd');
+                acc[completedDate] = (acc[completedDate] || 0) + 1;
+            } catch (e) {
+                // Ignore tasks with invalid dates
+            }
+            return acc;
+        }, {} as Record<string, number>);
+
+    return last30Days.map(date => {
+        const formattedDate = format(date, 'yyyy-MM-dd');
+        return {
+            date: formattedDate,
+            tasks: completedTasksByDate[formattedDate] || 0
+        };
+    });
+  }, [tasks]);
+
   
   if (!isMounted) {
     return null; // or a loading skeleton
@@ -184,16 +206,16 @@ export default function Dashboard() {
                  <Card className={cn("col-span-4", cardClassName)}>
                     <CardHeader>
                         <CardTitle>Performance Tracker</CardTitle>
-                         <CardDescription>Tasks completed over the last 30 days</CardDescription>
+                         <CardDescription>Tasks completed over the last 30 days based on your input.</CardDescription>
                     </CardHeader>
                     <CardContent className="pl-2 h-64">
                        <ChartContainer config={chartConfig} className="h-full w-full">
                             <ResponsiveContainer>
-                                <LineChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 0 }}>
+                                <LineChart data={performanceChartData} margin={{ top: 5, right: 20, left: -10, bottom: 0 }}>
                                     <CartesianGrid vertical={false} />
                                     <XAxis dataKey="date" tickFormatter={(val) => new Date(val).toLocaleDateString('en-US', {day: 'numeric'})} tickLine={false} axisLine={false}/>
                                     <YAxis tickLine={false} axisLine={false} />
-                                    <Tooltip content={<ChartTooltipContent />} cursor={false}/>
+                                    <Tooltip content={<ChartTooltipContent indicator="dot" />} cursor={false}/>
                                     <Line type="monotone" dataKey="tasks" stroke="var(--color-tasks)" strokeWidth={2} dot={false}/>
                                 </LineChart>
                             </ResponsiveContainer>

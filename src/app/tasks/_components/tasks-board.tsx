@@ -196,16 +196,18 @@ function TaskBoardForm({ initialData }: { initialData: FormValues }) {
     const updatedTasks = [...group.tasks];
     const task = updatedTasks[taskIdx];
     
+    // Toggle completion status
     task.completed = !task.completed;
+    
     if (task.completed) {
         task.dueDate = new Date().toISOString();
     } else {
         delete task.dueDate;
     }
 
-    // This sort ensures the checked item visually moves, forcing a re-render
-    updatedTasks.sort((a, b) => (a.completed ? 1 : -1) - (b.completed ? 1 : -1) || 0);
-
+    // Sort to move completed tasks to the bottom
+    updatedTasks.sort((a, b) => (a.completed ? 1 : -1) - (b.completed ? 1 : -1));
+    
     form.setValue(`groups.${groupIdx}.tasks`, updatedTasks, { shouldDirty: true });
   }
   
@@ -228,29 +230,33 @@ function TaskBoardForm({ initialData }: { initialData: FormValues }) {
 
       <div className="space-y-6">
         {groups.map((group, groupIdx) => {
-          const sortedTasks = [...group.tasks].sort((a, b) => (a.completed ? 1 : -1) - (b.completed ? 1 : -1) || 0);
+          // Re-sorting inside the render function ensures the UI is always up-to-date
+          const sortedTasks = [...group.tasks].sort((a, b) => {
+              if (a.completed && !b.completed) return 1;
+              if (!a.completed && b.completed) return -1;
+              return 0;
+          });
           return (
             <Collapsible key={group.id} defaultOpen className="group/collapsible">
               <Card className="glassmorphic">
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <CollapsibleTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                                <ChevronRight className="h-5 w-5 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"/>
-                            </Button>
-                        </CollapsibleTrigger>
-                        <CardTitle>{group.name}</CardTitle>
-                    </div>
+                <div className="flex items-center pr-4">
+                    <CollapsibleTrigger asChild>
+                        <div className="flex flex-1 items-center gap-2 p-4 cursor-pointer">
+                            <ChevronRight className="h-5 w-5 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"/>
+                            <CardTitle>{group.name}</CardTitle>
+                        </div>
+                    </CollapsibleTrigger>
                   {group.id !== "default" && (
                      <GroupActions 
                         onRename={(newName) => handleRenameGroup(groupIdx, newName)} 
                         onDelete={() => removeGroup(groupIdx)} 
                     />
                   )}
-                </CardHeader>
+                </div>
                 <CollapsibleContent>
                     <CardContent className="space-y-3">
-                        {sortedTasks.map((task) => {
+                        {sortedTasks.map((task, taskIdx) => {
+                            // Find original index to update the correct task
                             const originalIndex = group.tasks.findIndex(t => t.id === task.id);
                             return (
                                 <div key={task.id} className="flex items-center p-2 rounded-lg hover:bg-muted/50 transition-colors group/task">

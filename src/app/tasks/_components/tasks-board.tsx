@@ -7,6 +7,7 @@ import { z } from "zod";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDebounce } from "use-debounce";
+import { format } from "date-fns"
 
 import { Button } from "@/components/ui/button";
 import {
@@ -74,6 +75,7 @@ const taskSchema = z.object({
   renew: z.union([z.literal("Never"), z.literal("Everyday"), z.array(z.string())]).default("Never"),
   notifications: z.boolean().default(false),
   completed: z.boolean().default(false),
+  dueDate: z.string().optional(),
 });
 
 const groupSchema = z.object({
@@ -187,8 +189,15 @@ function TaskBoardForm({ initialData }: { initialData: FormValues }) {
   }
 
   const handleToggleTask = (groupIdx: number, taskIdx: number) => {
-    const fieldName = `groups.${groupIdx}.tasks.${taskIdx}.completed` as const;
-    form.setValue(fieldName, !form.getValues(fieldName));
+    const completedFieldName = `groups.${groupIdx}.tasks.${taskIdx}.completed` as const;
+    const dueDateFieldName = `groups.${groupIdx}.tasks.${taskIdx}.dueDate` as const;
+    const isCompleted = !form.getValues(completedFieldName);
+    form.setValue(completedFieldName, isCompleted);
+    if (isCompleted) {
+        form.setValue(dueDateFieldName, new Date().toISOString());
+    } else {
+        form.setValue(dueDateFieldName, undefined);
+    }
   }
   
   const handleRemoveTask = (groupIdx: number, taskIdx: number) => {
@@ -723,5 +732,3 @@ function EditTaskDialog({ task, groups, currentGroupId, onUpdateTask, trigger }:
     </Dialog>
   );
 }
-
-    

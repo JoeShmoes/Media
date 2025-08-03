@@ -2,6 +2,7 @@
 
 
 
+
 export type CompareVersionsOutput = {
     summary: string;
     diff: {

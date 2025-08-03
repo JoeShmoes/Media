@@ -107,12 +107,12 @@ export function TasksBoard() {
     setIsMounted(true);
     try {
       const savedTasks = localStorage.getItem("tasks");
-      if (savedTasks) {
+      console.log("Saved tasks from localStorage:", savedTasks);
+      if (savedTasks) { 
         const board = JSON.parse(savedTasks);
         if (board && board.groups && Array.isArray(board.groups)) {
           form.reset(board);
-        } else {
-            form.reset({ groups: [{ id: "default", name: "Default", tasks: [] }]});
+ console.log("Groups after reset:", board.groups); // Log groups after reset
         }
       } else {
         form.reset({ groups: [{ id: "default", name: "Default", tasks: [] }]});

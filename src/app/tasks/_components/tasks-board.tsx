@@ -232,7 +232,7 @@ function TaskBoardForm({ initialData }: { initialData: FormValues }) {
                   <div className="flex items-center gap-2">
                      <CollapsibleTrigger asChild>
                         <Button variant="ghost" size="icon">
-                            <ChevronRight className="h-5 w-5 transition-transform duration-200 [&[data-state=open]]:rotate-90"/>
+                            <ChevronRight className="h-5 w-5 transition-transform duration-200 group-data-[state=open]:rotate-90"/>
                         </Button>
                      </CollapsibleTrigger>
                      <CardTitle>{group.name}</CardTitle>

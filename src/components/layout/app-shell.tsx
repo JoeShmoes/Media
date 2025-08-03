@@ -476,7 +476,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 </CommandGroup>
             </CommandList>
         </CommandDialog>
-        <header className="sticky top-0 z-10 flex h-14 items-center gap-4 bg-sidebar/80 backdrop-blur-md px-4 sm:px-6">
+        <header className="sticky top-0 z-10 flex h-14 items-center gap-4 bg-background/80 backdrop-blur-md px-4 sm:px-6">
             <SidebarTrigger />
             <div className="flex-1 text-center">
                 {currentPage && (

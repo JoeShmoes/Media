@@ -265,7 +265,7 @@ export function YoutubeScriptForm() {
                         <audio controls src={generatedAudio} className="w-full">
                             Your browser does not support the audio element.
                         </audio>
-                         <Button onClick={() => downloadDataUri(generatedAudio, 'voiceover.mp3')} variant="outline" className="w-full">
+                         <Button onClick={() => downloadDataUri(generatedAudio, 'voiceover.wav')} variant="outline" className="w-full">
                             <Download className="mr-2" /> Download Voiceover
                         </Button>
                     </div>

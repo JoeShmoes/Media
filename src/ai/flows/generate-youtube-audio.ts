@@ -10,7 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-
+import wav from 'wav';
 
 const GenerateYoutubeAudioInputSchema = z.object({
   script: z.string().describe('The script to convert to audio.'),
@@ -18,12 +18,39 @@ const GenerateYoutubeAudioInputSchema = z.object({
 export type GenerateYoutubeAudioInput = z.infer<typeof GenerateYoutubeAudioInputSchema>;
 
 const GenerateYoutubeAudioOutputSchema = z.object({
-  audio: z.string().describe("The generated audio as a data URI. Expected format: 'data:audio/mp3;base64,<encoded_data>'."),
+  audio: z.string().describe("The generated audio as a data URI. Expected format: 'data:audio/wav;base64,<encoded_data>'."),
 });
 export type GenerateYoutubeAudioOutput = z.infer<typeof GenerateYoutubeAudioOutputSchema>;
 
 export async function generateYoutubeAudio(input: GenerateYoutubeAudioInput): Promise<GenerateYoutubeAudioOutput> {
   return generateYoutubeAudioFlow(input);
+}
+
+async function toWav(
+  pcmData: Buffer,
+  channels = 1,
+  rate = 24000,
+  sampleWidth = 2
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const writer = new wav.Writer({
+      channels,
+      sampleRate: rate,
+      bitDepth: sampleWidth * 8,
+    });
+
+    let bufs = [] as any[];
+    writer.on('error', reject);
+    writer.on('data', function (d) {
+      bufs.push(d);
+    });
+    writer.on('end', function () {
+      resolve(Buffer.concat(bufs).toString('base64'));
+    });
+
+    writer.write(pcmData);
+    writer.end();
+  });
 }
 
 
@@ -35,11 +62,10 @@ const generateYoutubeAudioFlow = ai.defineFlow(
   },
   async ({script}) => {
     const { media } = await ai.generate({
-        model: 'googleai/tts-1',
+        model: 'googleai/gemini-2.5-flash-preview-tts',
         prompt: script,
         config: {
-          voice: 'alloy',
-          responseFormat: 'mp3',
+          responseModalities: ['AUDIO'],
         },
     });
 
@@ -47,12 +73,14 @@ const generateYoutubeAudioFlow = ai.defineFlow(
       throw new Error('No audio media returned from the model.');
     }
     
-    // The model returns a data URI with base64 encoded MP3 data.
-    // We just need to ensure the mime type is correct.
-    const base64Audio = media.url.split(',')[1];
+    // The model returns a data URI with base64 encoded PCM data.
+    const audioBuffer = Buffer.from(
+      media.url.substring(media.url.indexOf(',') + 1),
+      'base64'
+    );
 
     return {
-      audio: `data:audio/mp3;base64,${base64Audio}`,
+      audio: `data:audio/wav;base64,${await toWav(audioBuffer)}`,
     };
   }
 );

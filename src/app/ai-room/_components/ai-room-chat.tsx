@@ -5,7 +5,7 @@ import * as React from "react"
 import { z } from "zod"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Send, User, Bot, Edit, Trash2, Copy, Plus, MoreVertical, X, Save } from "lucide-react"
+import { Send, User, Bot, Edit, Trash2, Copy, Plus, MoreVertical, X, Save, Briefcase, ListTodo } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 
 import type { ChatMessage, ChatSession, Project, Deal, TaskGroup } from "@/lib/types"
@@ -44,6 +44,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { View } from "lucide-react"
 
 const formSchema = z.object({
   question: z.string().min(1, "Message is required"),
@@ -144,15 +145,20 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
       setIsLoading(false)
     }
   }
+  
+  const sendQuery = async (query: string) => {
+    if (!session || isLoading) return;
+
+    const userMessage: ChatMessage = { role: "user", content: query };
+    const newMessages = [...messages, userMessage];
+    onUpdateSession(session.id, newMessages);
+    form.reset();
+    await generateResponse(query, newMessages);
+  }
+
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
-    if (!session) return
-
-    const userMessage: ChatMessage = { role: "user", content: data.question }
-    const newMessages = [...messages, userMessage]
-    onUpdateSession(session.id, newMessages)
-    form.reset()
-    await generateResponse(data.question, newMessages)
+    await sendQuery(data.question);
   }
 
   const handleContinue = async () => {
@@ -282,6 +288,17 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
         </div>
         </ScrollArea>
         <div className="p-4 border-t">
+            <div className="grid grid-cols-3 gap-2 mb-2">
+                <Button variant="outline" size="sm" onClick={() => sendQuery("Summarize all my current projects")} disabled={isLoading}>
+                    <Briefcase className="mr-2 h-4 w-4" /> Projects
+                </Button>
+                 <Button variant="outline" size="sm" onClick={() => sendQuery("Give me an overview of my sales pipeline")} disabled={isLoading}>
+                    <View className="mr-2 h-4 w-4" /> Deals
+                </Button>
+                 <Button variant="outline" size="sm" onClick={() => sendQuery("What are my most urgent tasks right now?")} disabled={isLoading}>
+                    <ListTodo className="mr-2 h-4 w-4" /> Tasks
+                </Button>
+            </div>
             <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex w-full items-center space-x-2">
                 <FormField

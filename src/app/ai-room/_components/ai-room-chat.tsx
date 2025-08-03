@@ -5,7 +5,7 @@ import * as React from "react"
 import { z } from "zod"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Send, User, Bot, Edit, Trash2, Copy, Plus, MoreVertical, X, Save, Briefcase, ListTodo } from "lucide-react"
+import { Send, User, Bot, Edit, Trash2, Copy, Plus, MoreVertical, X, Save, Briefcase, ListTodo, Sparkles } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 
 import type { ChatMessage, ChatSession, Project, Deal, TaskGroup } from "@/lib/types"
@@ -32,6 +32,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu"
 import {
   AlertDialog,
@@ -288,19 +290,31 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
         </div>
         </ScrollArea>
         <div className="p-4 border-t">
-            <div className="grid grid-cols-3 gap-2 mb-2">
-                <Button variant="outline" size="sm" onClick={() => sendQuery("Summarize all my current projects")} disabled={isLoading}>
-                    <Briefcase className="mr-2 h-4 w-4" /> Projects
-                </Button>
-                 <Button variant="outline" size="sm" onClick={() => sendQuery("Give me an overview of my sales pipeline")} disabled={isLoading}>
-                    <View className="mr-2 h-4 w-4" /> Deals
-                </Button>
-                 <Button variant="outline" size="sm" onClick={() => sendQuery("What are my most urgent tasks right now?")} disabled={isLoading}>
-                    <ListTodo className="mr-2 h-4 w-4" /> Tasks
-                </Button>
-            </div>
             <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex w-full items-center space-x-2">
+                 <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" disabled={isLoading}>
+                            <Sparkles className="h-5 w-5" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                        <DropdownMenuLabel>AI Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onSelect={() => sendQuery("Summarize all my current projects")}>
+                            <Briefcase className="mr-2 h-4 w-4" />
+                            Summarize Projects
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => sendQuery("Give me an overview of my sales pipeline")}>
+                            <View className="mr-2 h-4 w-4" />
+                            Overview of Deals
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => sendQuery("What are my most urgent tasks right now?")}>
+                            <ListTodo className="mr-2 h-4 w-4" />
+                            Urgent Tasks
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
                 <FormField
                 control={form.control}
                 name="question"

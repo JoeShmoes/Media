@@ -123,6 +123,10 @@ const getOffersTool = ai.defineTool(
     { name: 'getOffers', description: 'Get a list of all created offers.', outputSchema: z.array(OfferSchema), },
      async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.offers || []
 );
+const getBrandVoiceTool = ai.defineTool(
+    { name: 'getBrandVoice', description: 'Get the defined brand voice.', outputSchema: BrandVoiceSchema.optional(), },
+    async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.brandVoice
+);
 const getPersonasTool = ai.defineTool(
     { name: 'getPersonas', description: 'Get a list of all customer personas.', outputSchema: z.array(PersonaSchema), },
      async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.personas || []
@@ -153,10 +157,19 @@ const prompt = ai.definePrompt({
   name: 'getBusinessAdvicePrompt',
   input: {schema: GetBusinessAdviceInputSchema},
   output: {schema: GetBusinessAdviceOutputSchema},
-  tools: [getProjectsTool, getDealsTool, getTasksTool, getOffersTool, getPersonasTool, getGoalsTool, getNotesTool, getClientsTool, getFinanceTool],
+  tools: [getProjectsTool, getDealsTool, getTasksTool, getOffersTool, getBrandVoiceTool, getPersonasTool, getGoalsTool, getNotesTool, getClientsTool, getFinanceTool],
   prompt: `You are a business advisor providing real-time, custom-trained advice based on the business context and stored conversations.
-  The user's question might contain an @-mention (like @Projects, @Deals, @Tasks, @Offers, @Clients, @Finance, @Notes, @Personas, or @Goals) to specify a data context.
-  If the user asks a question that requires information about their business data (e.g., "Summarize my @Projects" or "What are my most valuable @Deals?"), use the provided tools to get the most up-to-date information before answering.
+  The user's question might contain an @-mention to specify a data context. Use the corresponding tool to get the most up-to-date information before answering.
+  - @Projects: Use getProjectsTool
+  - @Deals: Use getDealsTool
+  - @Tasks: Use getTasksTool
+  - @Offers: Use getOffersTool
+  - @Brand: Use getBrandVoiceTool
+  - @Personas: Use getPersonasTool
+  - @Goals: Use getGoalsTool
+  - @Notes: Use getNotesTool
+  - @Clients: Use getClientsTool
+  - @Finance: Use getFinanceTool
   If the user just asks a general question, answer it based on the business context and conversation history.
 
   Business Context: {{{businessContext}}}

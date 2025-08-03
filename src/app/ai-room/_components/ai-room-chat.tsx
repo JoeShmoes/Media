@@ -58,7 +58,6 @@ interface AiRoomChatProps {
 
 const mentionableRooms = [
     { name: "Dashboard", icon: <LayoutDashboard className="mr-2 h-4 w-4" /> },
-    { name: "AI Room", icon: <BrainCircuit className="mr-2 h-4 w-4" /> },
     { name: "Tasks", icon: <ListTodo className="mr-2 h-4 w-4" /> },
     { name: "Notes", icon: <Notebook className="mr-2 h-4 w-4" /> },
     { name: "GM", icon: <MessageSquare className="mr-2 h-4 w-4" /> },
@@ -411,7 +410,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
                         {/* This is a dummy trigger; the popover is controlled programmatically */}
                         <div className="w-0 h-0" />
                     </PopoverTrigger>
-                    <PopoverContent className="w-60 p-1 mb-2 max-h-72" align="start">
+                    <PopoverContent className="w-60 p-1 mb-2 max-h-72 overflow-y-auto" align="start">
                         <ScrollArea className="h-full">
                            {mentionableRooms.map(room => (
                                 <Button
@@ -448,5 +447,3 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
     </div>
   )
 }
-
-    

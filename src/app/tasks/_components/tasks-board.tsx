@@ -90,53 +90,57 @@ const boardSchema = z.object({
 type FormValues = z.infer<typeof boardSchema>;
 
 export function TasksBoard() {
-  const [isMounted, setIsMounted] = React.useState(false);
+    const [initialData, setInitialData] = React.useState<FormValues | null>(null);
+
+    React.useEffect(() => {
+        try {
+            const savedTasks = localStorage.getItem("tasks");
+            if (savedTasks) {
+                const board = JSON.parse(savedTasks);
+                if (board && board.groups && Array.isArray(board.groups)) {
+                    setInitialData(board);
+                    return;
+                }
+            }
+        } catch (error) {
+            console.error("Failed to load tasks from local storage", error);
+        }
+        setInitialData({ groups: [{ id: "default", name: "Default", tasks: [] }] });
+    }, []);
+
+    if (!initialData) {
+        return null; // Or a loading spinner
+    }
+
+    return <TaskBoardForm key={JSON.stringify(initialData)} initialData={initialData} />;
+}
+
+
+function TaskBoardForm({ initialData }: { initialData: FormValues }) {
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(boardSchema),
-    defaultValues: {
-      groups: [],
-    },
+    defaultValues: initialData,
   });
 
   const boardData = useWatch({ control: form.control });
   const [debouncedBoardData] = useDebounce(boardData, 500);
-  
+
   React.useEffect(() => {
-    setIsMounted(true);
     try {
-      const savedTasks = localStorage.getItem("tasks");
-      console.log("Saved tasks from localStorage:", savedTasks);
-      if (savedTasks) { 
-        const board = JSON.parse(savedTasks);
-        if (board && board.groups && Array.isArray(board.groups)) {
-          form.reset(board);
- console.log("Groups after reset:", board.groups); // Log groups after reset
+        if(debouncedBoardData?.groups) {
+            localStorage.setItem("tasks", JSON.stringify(debouncedBoardData));
         }
-      } else {
-        form.reset({ groups: [{ id: "default", name: "Default", tasks: [] }]});
-      }
     } catch (error) {
-      console.error("Failed to load tasks from local storage", error);
-      form.reset({ groups: [{ id: "default", name: "Default", tasks: [] }]});
+        console.error("Failed to save tasks to local storage", error);
+        toast({
+            variant: "destructive",
+            title: "Error Saving Tasks",
+            description: "There was an issue auto-saving your tasks.",
+        })
     }
-  }, [form]);
-  
-  React.useEffect(() => {
-      if (isMounted && boardData.groups.length > 0) {
-          try {
-              localStorage.setItem("tasks", JSON.stringify(boardData));
-          } catch (error) {
-              console.error("Failed to save tasks to local storage", error);
-              toast({
-                  variant: "destructive",
-                  title: "Error Saving Tasks",
-                  description: "There was an issue auto-saving your tasks.",
-              })
-          }
-      }
-  }, [boardData, isMounted, toast]);
+  }, [debouncedBoardData, toast]);
 
 
   const { fields: groups, append: appendGroup, update: updateGroup, remove: removeGroup } = useFieldArray({
@@ -196,8 +200,6 @@ export function TasksBoard() {
   const handleRenameGroup = (groupIdx: number, newName: string) => {
     updateGroup(groupIdx, { ...groups[groupIdx], name: newName });
   }
-
-  if (!isMounted) return null;
 
   return (
     <div className="space-y-4">
@@ -721,11 +723,5 @@ function EditTaskDialog({ task, groups, currentGroupId, onUpdateTask, trigger }:
     </Dialog>
   );
 }
-
-    
-
-    
-
-
 
     

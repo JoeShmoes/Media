@@ -42,7 +42,7 @@ const roomSettingCategories: { id: SettingCategory, label: string, icon: React.R
     { id: 'tasks', label: 'Tasks', icon: <ListTodo/> },
     { id: 'notes', label: 'Notes', icon: <Notebook/> },
     { id: 'research', label: 'Research', icon: <Search/> },
-    { id: 'gm', label: 'GM (Growth Map)', icon: <MessageSquare/> },
+    { id: 'gm', label: 'GM Room', icon: <MessageSquare/> },
     { id: 'clients', label: 'Clients', icon: <Users/> },
     { id: 'projects', label: 'Projects', icon: <KanbanSquare/> },
     { id: 'outreach', label: 'Outreach', icon: <SendHorizonal/> },
@@ -51,12 +51,10 @@ const roomSettingCategories: { id: SettingCategory, label: string, icon: React.R
     { id: 'assetTracker', label: 'Asset Tracker', icon: <Archive/> },
     { id: 'brandRoom', label: 'Brand Room', icon: <Palette/> },
     { id: 'pipelineTracker', label: 'Pipeline Tracker', icon: <View/> },
-    { id: 'aiAdvantage', label: 'AI Advantage', icon: <HelpCircle/> },
     { id: 'autoDocs', label: 'AutoDocs', icon: <FileText/> },
     { id: 'templateBuilder', label: 'Template Builder', icon: <LayoutTemplate/> },
     { id: 'integrationHub', label: 'Integration Hub', icon: <Blocks/> },
-    { id: 'make', label: 'Make.com', icon: <Workflow/> },
-    { id: 'contentStudio', label: 'Content + Studio', icon: <Youtube/> },
+    { id: 'contentStudio', label: 'Content Creation', icon: <Youtube/> },
 ]
 
 
@@ -86,14 +84,6 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                             <Label>Sidebar Layout</Label>
                              <Select value={settings.sidebarLayout} onValueChange={(v) => setSetting('sidebarLayout', v as any)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="expanded">Expanded</SelectItem><SelectItem value="minimal">Minimal Icons</SelectItem><SelectItem value="hidden">Hidden</SelectItem></SelectContent></Select>
                         </div>
-                        <div className="space-y-2">
-                            <Label>Room Background</Label>
-                             <Select value={settings.roomBackground} onValueChange={(v) => setSetting('roomBackground', v as any)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="solid">Solid Color</SelectItem><SelectItem value="blur">Blur Glass</SelectItem><SelectItem value="custom">Custom Image</SelectItem></SelectContent></Select>
-                        </div>
-                         <div className="space-y-2">
-                            <Label>Room Access Control</Label>
-                             <Select value={settings.roomAccessControl} onValueChange={(v) => setSetting('roomAccessControl', v as any)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="private">Private</SelectItem><SelectItem value="shared">Shared</SelectItem><SelectItem value="team">Team View</SelectItem></SelectContent></Select>
-                        </div>
                     </CardContent>
                 </Card>
                  <Card>
@@ -103,10 +93,6 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                         <div className="space-y-2">
                             <Label>Time Format</Label>
                             <Select value={settings.timeFormat} onValueChange={(v) => setSetting('timeFormat', v as any)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="12hr">12-hour</SelectItem><SelectItem value="24hr">24-hour</SelectItem></SelectContent></Select>
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Default Date Range</Label>
-                            <Select value={settings.dateRange} onValueChange={(v) => setSetting('dateRange', v as any)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="today">Today</SelectItem><SelectItem value="this-week">This Week</SelectItem><SelectItem value="custom">Custom</SelectItem></SelectContent></Select>
                         </div>
                     </CardContent>
                 </Card>
@@ -121,8 +107,8 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                  <Card>
                     <CardHeader><CardTitle>Data & Export</CardTitle></CardHeader>
                     <CardContent className="space-y-2">
-                        <Label>Export Options</Label>
-                        <Select value={settings.exportOptions} onValueChange={(v) => setSetting('exportOptions', v as any)}><SelectTrigger><SelectValue placeholder="Select an export format..."/></SelectTrigger><SelectContent><SelectItem value="pdf">PDF</SelectItem><SelectItem value="docx">.docx</SelectItem><SelectItem value="csv">.csv</SelectItem><SelectItem value="png">PNG Screenshot</SelectItem></SelectContent></Select>
+                        <Label>Default Export Format</Label>
+                        <Select value={settings.exportOptions} onValueChange={(v) => setSetting('exportOptions', v as any)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="pdf">PDF</SelectItem><SelectItem value="docx">.docx</SelectItem><SelectItem value="csv">.csv</SelectItem><SelectItem value="png">PNG Screenshot</SelectItem></SelectContent></Select>
                     </CardContent>
                 </Card>
             </div>
@@ -149,7 +135,12 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 </Card>
                 <Card>
                     <CardHeader><CardTitle>Access Control</CardTitle></CardHeader>
-                    <CardContent className="space-y-4"><Button variant="outline">Manage Multiple Brands</Button></CardContent>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                           <Label>Room Access Control</Label>
+                           <Select value={settings.roomAccessControl} onValueChange={(v) => setSetting('roomAccessControl', v as any)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="private">Private</SelectItem><SelectItem value="shared">Shared</SelectItem><SelectItem value="team">Team View</SelectItem></SelectContent></Select>
+                        </div>
+                    </CardContent>
                 </Card>
             </div>
         )

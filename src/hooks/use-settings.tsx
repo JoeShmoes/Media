@@ -11,17 +11,14 @@ export type SettingCategory =
   | 'cortex' | 'dashboard' | 'tasks' | 'notes' | 'research' 
   | 'gm' | 'clients' | 'projects' | 'outreach' | 'finance' 
   | 'offerBuilder' | 'assetTracker' | 'brandRoom' | 'pipelineTracker' 
-  | 'aiAdvantage' | 'autoDocs' | 'templateBuilder' | 'integrationHub' 
-  | 'make' | 'contentStudio';
+  | 'autoDocs' | 'templateBuilder' | 'integrationHub' 
+  | 'contentStudio';
 
 export type Settings = {
   // Universal
   sidebarLayout: SidebarLayout;
-  roomBackground: RoomBackground;
-  roomAccessControl: 'private' | 'shared' | 'team';
-  autosave: boolean;
   timeFormat: TimeFormat;
-  dateRange: 'today' | 'this-week' | 'custom';
+  autosave: boolean;
   aiAssistant: boolean;
   quickSync: boolean;
   exportOptions: 'pdf' | 'docx' | 'csv' | 'png';
@@ -30,7 +27,8 @@ export type Settings = {
   workspaceName: string;
   tagline: string;
   favouritesPanelVisibility: boolean;
-
+  roomAccessControl: 'private' | 'shared' | 'team';
+  
   // Cortex
   llmModel: 'gpt4o' | 'claude';
   cortexMemory: boolean;
@@ -48,11 +46,8 @@ export type Settings = {
 const defaultSettings: Settings = {
   // Universal
   sidebarLayout: "expanded",
-  roomBackground: "blur",
-  roomAccessControl: "private",
-  autosave: true,
   timeFormat: "12hr",
-  dateRange: "this-week",
+  autosave: true,
   aiAssistant: true,
   quickSync: false,
   exportOptions: "pdf",
@@ -61,6 +56,7 @@ const defaultSettings: Settings = {
   workspaceName: "Nexaris Media",
   tagline: "Your Central AI Command Hub",
   favouritesPanelVisibility: true,
+  roomAccessControl: "private",
   
   // Cortex
   llmModel: "gpt4o",

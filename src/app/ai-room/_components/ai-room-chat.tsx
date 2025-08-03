@@ -248,7 +248,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
   return (
     <div className="flex flex-col h-full">
         <ScrollArea className="flex-1" ref={scrollAreaRef}>
-        <div className="space-y-6 p-4">
+        <div className="space-y-6 p-4 max-w-4xl mx-auto w-full">
             {messages.map((message, index) => (
             <div key={index}>
                 {editingMessage?.index === index ? (
@@ -281,7 +281,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
                             "rounded-lg p-3 max-w-sm md:max-w-xl relative",
                             message.role === "user"
                             ? "bg-primary text-primary-foreground"
-                            : "bg-muted"
+                            : "bg-background"
                         )}
                         >
                         <ReactMarkdown className="prose prose-sm dark:prose-invert prose-p:my-0 break-words">
@@ -334,7 +334,8 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
             )}
         </div>
         </ScrollArea>
-        <div className="p-4 border-t">
+        <div className="px-4 pb-4">
+          <div className="max-w-4xl mx-auto">
             <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex w-full items-center space-x-2">
                 <Popover open={showMentionMenu} onOpenChange={setShowMentionMenu}>
@@ -374,6 +375,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
                 </Button>
             </form>
             </Form>
+          </div>
         </div>
     </div>
   )

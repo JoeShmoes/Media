@@ -37,7 +37,7 @@ export function ChatSidebar({
   onDeleteChat,
 }: ChatSidebarProps) {
   return (
-    <div className="h-full flex flex-col p-2 bg-background border-r">
+    <div className="h-full w-72 flex-col p-2 bg-background border-r hidden md:flex">
       <div className="flex justify-between items-center p-2">
         <h2 className="text-lg font-semibold">Chats</h2>
         <Button variant="ghost" size="icon" onClick={onNewChat}>

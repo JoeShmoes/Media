@@ -167,23 +167,14 @@ export default function AiRoomPage() {
   }
 
   return (
-    <div className="flex h-full">
-      <div
-        className={cn(
-          "transition-all duration-300 ease-in-out",
-          isSidebarOpen ? "w-72" : "w-0"
-        )}
-      >
-        <div className={cn("h-full", isSidebarOpen ? "w-72" : "w-0 overflow-hidden")}>
-          <ChatSidebar
+    <div className="flex h-full bg-muted/40">
+      <ChatSidebar
             sessions={sessions}
             activeSessionId={activeSessionId}
             onNewChat={handleNewChat}
             onSelectChat={handleSelectChat}
             onDeleteChat={handleDeleteChat}
           />
-        </div>
-      </div>
       <div className="flex-1 flex flex-col">
           <AiRoomChat
             session={activeSession ?? null}

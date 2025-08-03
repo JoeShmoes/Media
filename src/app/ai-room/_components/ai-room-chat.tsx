@@ -5,7 +5,7 @@ import * as React from "react"
 import { z } from "zod"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Send, User, Bot, Edit, Trash2, Copy, Plus, MoreVertical, X, Save, Briefcase, ListTodo, Sparkles, LayoutDashboard, Notebook, MessageSquare, Users, KanbanSquare, SendHorizonal, CircleDollarSign, Package, Archive, Palette, View, BrainCircuit, FileText, LayoutTemplate, Blocks, PenSquare, Youtube, Search } from "lucide-react"
+import { Send, User, Bot, Edit, Trash2, Copy, Plus, MoreVertical, X, Save, Briefcase, ListTodo, Sparkles, LayoutDashboard, Notebook, MessageSquare, Users, KanbanSquare, SendHorizonal, CircleDollarSign, Package, Archive, Palette, View, BrainCircuit, FileText, LayoutTemplate, Blocks, PenSquare, Youtube, Search, Zap, Lightbulb, GitMerge, UsersRound, MessageCircleCode, Library, BarChart, Mic } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 
 import type { ChatMessage, ChatSession, Project, Deal, TaskGroup } from "@/lib/types"
@@ -78,6 +78,19 @@ const mentionableRooms = [
     { name: "Content", icon: <PenSquare className="mr-2 h-4 w-4" /> },
     { name: "Studio", icon: <Youtube className="mr-2 h-4 w-4" /> },
 ];
+
+const crifohayFeatures = [
+    { name: "AI Workflow Builder", icon: <Zap className="mr-2 h-4 w-4 text-yellow-500" /> },
+    { name: "Idea Engine", icon: <Lightbulb className="mr-2 h-4 w-4 text-blue-500" /> },
+    { name: "Multi-Agent Simulator", icon: <UsersRound className="mr-2 h-4 w-4 text-purple-500" /> },
+    { name: "Script & Image Generator", icon: <Youtube className="mr-2 h-4 w-4 text-red-500" /> },
+    { name: "Task Commander", icon: <ListTodo className="mr-2 h-4 w-4 text-green-500" /> },
+    { name: "Prompt Library", icon: <Library className="mr-2 h-4 w-4 text-orange-500" /> },
+    { name: "Smart Research Agent", icon: <Search className="mr-2 h-4 w-4 text-indigo-500" /> },
+    { name: "KPI Generator & Analyzer", icon: <BarChart className="mr-2 h-4 w-4 text-pink-500" /> },
+    { name: "AI Personas", icon: <User className="mr-2 h-4 w-4 text-teal-500" /> },
+    { name: "Chat Memory & Remix", icon: <GitMerge className="mr-2 h-4 w-4 text-gray-500" /> },
+]
 
 export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMessage }: AiRoomChatProps) {
   const [isLoading, setIsLoading] = React.useState(false)
@@ -247,9 +260,9 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
 
   return (
     <div className="flex flex-col h-full">
-        <header className="p-4 border-b">
+        <header className="p-4 border-b flex items-center justify-center">
              <h1 className="text-xl font-semibold text-center">
-                {session.title || "AI Room"}
+                Crifohay
              </h1>
         </header>
         <ScrollArea className="flex-1" ref={scrollAreaRef}>
@@ -343,7 +356,21 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
           <div className="max-w-4xl mx-auto">
             <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex w-full items-center space-x-2">
-                <Popover open={showMentionMenu} onOpenChange={setShowMentionMenu}>
+                 <Popover>
+                    <PopoverTrigger asChild>
+                        <Button variant="ghost" size="icon"><Plus className="h-4 w-4"/></Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 p-2 mb-2" align="start">
+                        <ScrollArea className="h-full">
+                            {crifohayFeatures.map(feature => (
+                               <Button key={feature.name} variant="ghost" className="w-full justify-start">
+                                   {feature.icon} {feature.name}
+                               </Button>
+                            ))}
+                        </ScrollArea>
+                    </PopoverContent>
+                 </Popover>
+                 <Popover open={showMentionMenu} onOpenChange={setShowMentionMenu}>
                     <PopoverTrigger asChild>
                         {/* This is a dummy trigger; the popover is controlled programmatically */}
                         <div className="w-0 h-0" />
@@ -385,3 +412,5 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
     </div>
   )
 }
+
+    

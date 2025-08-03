@@ -42,7 +42,7 @@ const TaskSchema = z.object({
 
 
 const GetBusinessAdviceInputSchema = z.object({
-  question: z.string().describe('The question about the business.'),
+  question: z.string().describe('The question about the business. It may contain @-mentions like @Projects, @Deals, or @Tasks to specify a data context.'),
   businessContext: z.string().describe('The context of the business.'),
   storedConversations: z.string().describe('Past conversations related to the business.'),
   projects: z.array(ProjectSchema).optional().describe("List of all user's projects."),
@@ -99,8 +99,10 @@ const prompt = ai.definePrompt({
   output: {schema: GetBusinessAdviceOutputSchema},
   tools: [getProjectsTool, getDealsTool, getTasksTool],
   prompt: `You are a business advisor providing real-time, custom-trained advice based on the business context and stored conversations.
-  If the user asks about their projects, deals, or tasks, use the provided tools to get the most up-to-date information before answering.
-  
+  The user's question might contain an @-mention (like @Projects, @Deals, or @Tasks) to specify a data context.
+  If the user asks a question that requires information about their projects, deals, or tasks (e.g., "Summarize my @Projects" or "What are my most urgent @Tasks?"), use the provided tools to get the most up-to-date information before answering.
+  If the user just asks a general question, answer it based on the business context and conversation history.
+
   Business Context: {{{businessContext}}}
   Stored Conversations: {{{storedConversations}}}
   Question: {{{question}}}

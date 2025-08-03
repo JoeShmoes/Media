@@ -28,13 +28,10 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Icons } from "@/components/icons"
 import { Textarea } from "@/components/ui/textarea"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuLabel,
-  DropdownMenuSeparator
-} from "@/components/ui/dropdown-menu"
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,7 +41,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { View } from "lucide-react"
 
@@ -60,9 +56,16 @@ interface AiRoomChatProps {
   onEditMessage: (sessionId: string, messageIndex: number, newContent: string) => Promise<void>
 }
 
+const mentionableRooms = [
+    { name: "Projects", icon: <Briefcase className="mr-2 h-4 w-4" /> },
+    { name: "Deals", icon: <View className="mr-2 h-4 w-4" /> },
+    { name: "Tasks", icon: <ListTodo className="mr-2 h-4 w-4" /> }
+];
+
 export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMessage }: AiRoomChatProps) {
   const [isLoading, setIsLoading] = React.useState(false)
   const [editingMessage, setEditingMessage] = React.useState<{ index: number; content: string } | null>(null)
+  const [showMentionMenu, setShowMentionMenu] = React.useState(false);
   const { toast } = useToast()
   const scrollAreaRef = React.useRef<HTMLDivElement>(null)
   
@@ -112,6 +115,18 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
         }
     }, 100)
   }, [messages.length])
+  
+  React.useEffect(() => {
+    const subscription = form.watch((value, { name, type }) => {
+      if (name === 'question' && type === 'change') {
+        const text = value.question || '';
+        const lastChar = text.slice(-1);
+        setShowMentionMenu(lastChar === '@');
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
+
 
   const generateResponse = async (userMessageContent: string, currentMessages: ChatMessage[]) => {
     setIsLoading(true)
@@ -125,11 +140,9 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
         tasks
       })
 
-      // The AI response text needs to be formatted for better readability.
-      // Replace bullet points and add line breaks for structure.
       const formattedAdvice = result.advice
-        .replace(/\n\s*\*/g, '\n\n*') // Add space before bullet points
-        .replace(/\n\s*(\d+\.)/g, '\n\n$1'); // Add space before numbered lists
+        .replace(/\n\s*\*/g, '\n\n*') 
+        .replace(/\n\s*(\d+\.)/g, '\n\n$1'); 
 
 
       const assistantMessage: ChatMessage = { role: "assistant", content: formattedAdvice }
@@ -141,7 +154,6 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
         title: "Error Getting Advice",
         description: "There was an issue getting a response. Please try again.",
       })
-      // Remove the user's message if the AI fails to respond
       onUpdateSession(session!.id, currentMessages.slice(0, -1));
     } finally {
       setIsLoading(false)
@@ -192,8 +204,10 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
     }
   }
   
-  const handleActionSelect = (prompt: string) => {
-    form.setValue('question', prompt);
+  const handleMentionSelect = (roomName: string) => {
+    const currentQuery = form.getValues('question');
+    form.setValue('question', `${currentQuery.slice(0,-1)}@${roomName} `);
+    setShowMentionMenu(false);
     form.setFocus('question');
   }
 
@@ -297,36 +311,32 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
         <div className="p-4 border-t">
             <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex w-full items-center space-x-2">
-                 <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" disabled={isLoading}>
+                <Popover open={showMentionMenu} onOpenChange={setShowMentionMenu}>
+                    <PopoverTrigger asChild>
+                        <Button variant="ghost" size="icon" disabled={isLoading} onClick={() => form.setValue('question', `${form.getValues('question')}@`)}>
                             <Sparkles className="h-5 w-5" />
                         </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start">
-                        <DropdownMenuLabel>AI Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onSelect={() => handleActionSelect("Summarize my projects ")}>
-                            <Briefcase className="mr-2 h-4 w-4" />
-                            Summarize Projects
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => handleActionSelect("Give me an overview of my deals ")}>
-                            <View className="mr-2 h-4 w-4" />
-                            Overview of Deals
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => handleActionSelect("What are my most urgent tasks? ")}>
-                            <ListTodo className="mr-2 h-4 w-4" />
-                            Urgent Tasks
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-48 p-1" align="start">
+                       {mentionableRooms.map(room => (
+                            <Button
+                                key={room.name}
+                                variant="ghost"
+                                className="w-full justify-start"
+                                onClick={() => handleMentionSelect(room.name)}
+                            >
+                                {room.icon} {room.name}
+                            </Button>
+                       ))}
+                    </PopoverContent>
+                </Popover>
                 <FormField
                 control={form.control}
                 name="question"
                 render={({ field }) => (
                     <FormItem className="flex-1">
                     <FormControl>
-                        <Input placeholder="Ask 'How do I scale this?'..." {...field} disabled={isLoading} />
+                        <Input placeholder="Ask 'How do I scale this?' or type @..." {...field} disabled={isLoading} />
                     </FormControl>
                     <FormMessage />
                     </FormItem>

@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from "react";
-import { Plus, Edit, Trash2, CheckCircle, Circle, MoreVertical, ChevronDown, Save } from "lucide-react";
+import { Plus, Edit, Trash2, CheckCircle, Circle, MoreVertical, ChevronRight, Save } from "lucide-react";
 import { z } from "zod";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -94,6 +94,7 @@ type FormValues = z.infer<typeof boardSchema>;
 export function TasksBoard() {
     const [initialData, setInitialData] = React.useState<FormValues | null>(null);
     const [isMounted, setIsMounted] = React.useState(false);
+    const [key, setKey] = React.useState(Date.now());
 
     React.useEffect(() => {
         setIsMounted(true);
@@ -103,6 +104,7 @@ export function TasksBoard() {
                 const board = JSON.parse(savedTasks);
                 if (board && board.groups && Array.isArray(board.groups)) {
                     setInitialData(board);
+                    setKey(Date.now()); // Force re-render with new key
                     return;
                 }
             }
@@ -110,13 +112,14 @@ export function TasksBoard() {
             console.error("Failed to load tasks from local storage", error);
         }
         setInitialData({ groups: [{ id: "default", name: "Default", tasks: [] }] });
+        setKey(Date.now());
     }, []);
 
     if (!isMounted || !initialData) {
         return null; // Or a loading spinner
     }
 
-    return <TaskBoardForm key={JSON.stringify(initialData)} initialData={initialData} />;
+    return <TaskBoardForm key={key} initialData={initialData} />;
 }
 
 
@@ -229,7 +232,7 @@ function TaskBoardForm({ initialData }: { initialData: FormValues }) {
                   <div className="flex items-center gap-2">
                      <CollapsibleTrigger asChild>
                         <Button variant="ghost" size="icon">
-                            <ChevronDown className="h-5 w-5 transition-transform duration-200 [&[data-state=open]]:rotate-180"/>
+                            <ChevronRight className="h-5 w-5 transition-transform duration-200 [&[data-state=open]]:rotate-90"/>
                         </Button>
                      </CollapsibleTrigger>
                      <CardTitle>{group.name}</CardTitle>

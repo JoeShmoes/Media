@@ -385,7 +385,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
                     <PopoverTrigger asChild>
                         <Button variant="ghost" size="icon"><Plus className="h-4 w-4"/></Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-64 p-2 mb-2" align="start">
+                    <PopoverContent className="w-64 p-2 mb-2 max-h-96 overflow-y-auto" align="start">
                         <ScrollArea className="h-full">
                             {crifohayFeatures.map(feature => (
                                <Button key={feature.name} variant="ghost" className="w-full justify-start">

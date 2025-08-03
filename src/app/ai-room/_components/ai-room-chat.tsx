@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -7,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Send, User, Bot, Edit, Trash2, Copy, Plus, MoreVertical, X, Save } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 
-import type { ChatMessage, ChatSession } from "@/lib/types"
+import type { ChatMessage, ChatSession, Project, Deal, TaskGroup } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { getBusinessAdvice } from "@/ai/flows/get-business-advice"
 
@@ -61,6 +62,31 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
   const [editingMessage, setEditingMessage] = React.useState<{ index: number; content: string } | null>(null)
   const { toast } = useToast()
   const scrollAreaRef = React.useRef<HTMLDivElement>(null)
+  
+  // State to hold data from other rooms
+  const [projects, setProjects] = React.useState<Project[]>([]);
+  const [deals, setDeals] = React.useState<Deal[]>([]);
+  const [tasks, setTasks] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    // Load data from localStorage when the component mounts
+    try {
+      const savedProjects = localStorage.getItem("projects");
+      if (savedProjects) setProjects(Object.values(JSON.parse(savedProjects)).flat() as Project[]);
+
+      const savedDeals = localStorage.getItem("deals");
+      if (savedDeals) setDeals(JSON.parse(savedDeals));
+
+      const savedTasks = localStorage.getItem("tasks");
+      if (savedTasks) {
+         const taskBoard: {groups: TaskGroup[]} = JSON.parse(savedTasks);
+         setTasks(taskBoard.groups.flatMap(g => g.tasks));
+      }
+    } catch (error) {
+      console.error("Failed to load room data from local storage", error);
+    }
+  }, []);
+
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -91,6 +117,9 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
         question: userMessageContent,
         businessContext: "The user runs multiple businesses: SEO, website creation, outreach campaigns, and social content. They are a young, hungry entrepreneur.",
         storedConversations: JSON.stringify(currentMessages.slice(-5)),
+        projects,
+        deals,
+        tasks
       })
 
       // The AI response text needs to be formatted for better readability.

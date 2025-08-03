@@ -6,7 +6,7 @@ import { PanelLeft } from "lucide-react"
 
 import { AiRoomChat } from "./_components/ai-room-chat"
 import { ChatSidebar } from "./_components/chat-sidebar"
-import type { ChatMessage, ChatSession } from "@/lib/types"
+import type { ChatMessage, ChatSession, Project, Deal, TaskGroup } from "@/lib/types"
 import { getBusinessAdvice } from "@/ai/flows/get-business-advice"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
@@ -18,6 +18,30 @@ export default function AiRoomPage() {
   const [isMounted, setIsMounted] = React.useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true)
   const { toast } = useToast()
+  
+  // State to hold data from other rooms
+  const [projects, setProjects] = React.useState<Project[]>([]);
+  const [deals, setDeals] = React.useState<Deal[]>([]);
+  const [tasks, setTasks] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    // Load data from localStorage when the component mounts
+    try {
+      const savedProjects = localStorage.getItem("projects");
+      if (savedProjects) setProjects(Object.values(JSON.parse(savedProjects)).flat() as Project[]);
+
+      const savedDeals = localStorage.getItem("deals");
+      if (savedDeals) setDeals(JSON.parse(savedDeals));
+
+      const savedTasks = localStorage.getItem("tasks");
+      if (savedTasks) {
+         const taskBoard: {groups: TaskGroup[]} = JSON.parse(savedTasks);
+         setTasks(taskBoard.groups.flatMap(g => g.tasks));
+      }
+    } catch (error) {
+      console.error("Failed to load room data from local storage", error);
+    }
+  }, []);
 
   React.useEffect(() => {
     setIsMounted(true)
@@ -118,6 +142,9 @@ export default function AiRoomPage() {
             question: newContent,
             businessContext: "The user runs multiple businesses: SEO, website creation, outreach campaigns, and social content. They are a young, hungry entrepreneur.",
             storedConversations: JSON.stringify(updatedMessages.slice(-5)),
+            projects,
+            deals,
+            tasks,
         });
         const assistantMessage: ChatMessage = { role: "assistant", content: result.advice };
         handleUpdateSession(sessionId, [...updatedMessages, assistantMessage]);

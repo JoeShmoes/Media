@@ -6,7 +6,7 @@ import { PanelLeft } from "lucide-react"
 
 import { AiRoomChat } from "./_components/ai-room-chat"
 import { ChatSidebar } from "./_components/chat-sidebar"
-import type { ChatMessage, ChatSession, Project, Deal, TaskGroup } from "@/lib/types"
+import type { ChatMessage, ChatSession, Project, Deal, TaskGroup, Offer, BrandVoice, Persona, Goal, Note, Client, Transaction } from "@/lib/types"
 import { getBusinessAdvice } from "@/ai/flows/get-business-advice"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
@@ -19,10 +19,17 @@ export default function AiRoomPage() {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true)
   const { toast } = useToast()
   
-  // State to hold data from other rooms
+  // State to hold data from all rooms
   const [projects, setProjects] = React.useState<Project[]>([]);
   const [deals, setDeals] = React.useState<Deal[]>([]);
   const [tasks, setTasks] = React.useState<any[]>([]);
+  const [offers, setOffers] = React.useState<Offer[]>([]);
+  const [brandVoice, setBrandVoice] = React.useState<BrandVoice | null>(null);
+  const [personas, setPersonas] = React.useState<Persona[]>([]);
+  const [goals, setGoals] = React.useState<Goal[]>([]);
+  const [notes, setNotes] = React.useState<Note[]>([]);
+  const [clients, setClients] = React.useState<Client[]>([]);
+  const [transactions, setTransactions] = React.useState<Transaction[]>([]);
 
   React.useEffect(() => {
     // Load data from localStorage when the component mounts
@@ -38,6 +45,28 @@ export default function AiRoomPage() {
          const taskBoard: {groups: TaskGroup[]} = JSON.parse(savedTasks);
          setTasks(taskBoard.groups.flatMap(g => g.tasks));
       }
+      
+      const savedOffers = localStorage.getItem("offers");
+      if (savedOffers) setOffers(JSON.parse(savedOffers));
+
+      const savedBrandVoice = localStorage.getItem("brandVoice");
+      if (savedBrandVoice) setBrandVoice(JSON.parse(savedBrandVoice));
+
+      const savedPersonas = localStorage.getItem("brandPersonas");
+      if (savedPersonas) setPersonas(JSON.parse(savedPersonas));
+
+      const savedGoals = localStorage.getItem("cortex-goals");
+      if (savedGoals) setGoals(JSON.parse(savedGoals));
+
+      const savedNotes = localStorage.getItem("notes");
+      if (savedNotes) setNotes(JSON.parse(savedNotes));
+
+      const savedClients = localStorage.getItem("clients");
+      if (savedClients) setClients(JSON.parse(savedClients));
+
+      const savedTransactions = localStorage.getItem("transactions");
+      if (savedTransactions) setTransactions(JSON.parse(savedTransactions));
+
     } catch (error) {
       console.error("Failed to load room data from local storage", error);
     }
@@ -145,6 +174,13 @@ export default function AiRoomPage() {
             projects,
             deals,
             tasks,
+            offers,
+            brandVoice: brandVoice || undefined,
+            personas,
+            goals,
+            notes,
+            clients,
+            transactions
         });
         const assistantMessage: ChatMessage = { role: "assistant", content: result.advice };
         handleUpdateSession(sessionId, [...updatedMessages, assistantMessage]);

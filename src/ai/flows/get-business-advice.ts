@@ -11,7 +11,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import type { Project, Deal, Task } from '@/lib/types';
+import type { Project, Deal, Task, Offer, BrandVoice, Persona, Goal, Note, Client, Transaction } from '@/lib/types';
 
 
 // Schemas for data structures, consistent with src/lib/types.ts
@@ -40,6 +40,49 @@ const TaskSchema = z.object({
   dueDate: z.string().optional(),
 });
 
+const OfferSchema = z.object({
+    id: z.string(),
+    title: z.string(),
+    price: z.number(),
+});
+
+const BrandVoiceSchema = z.object({
+    tone: z.string(),
+    style: z.string(),
+    examples: z.string(),
+});
+
+const PersonaSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    bio: z.string(),
+});
+
+const GoalSchema = z.object({
+    id: z.string(),
+    title: z.string(),
+    status: z.string(),
+});
+
+const NoteSchema = z.object({
+    id: z.string(),
+    title: z.string(),
+    content: z.string(),
+});
+
+const ClientSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    status: z.string(),
+});
+
+const TransactionSchema = z.object({
+    id: z.string(),
+    type: z.enum(["income", "expense"]),
+    amount: z.number(),
+    category: z.string(),
+});
+
 
 const GetBusinessAdviceInputSchema = z.object({
   question: z.string().describe('The question about the business. It may contain @-mentions like @Projects, @Deals, or @Tasks to specify a data context.'),
@@ -48,6 +91,13 @@ const GetBusinessAdviceInputSchema = z.object({
   projects: z.array(ProjectSchema).optional().describe("List of all user's projects."),
   deals: z.array(DealSchema).optional().describe("List of all user's sales deals."),
   tasks: z.array(TaskSchema).optional().describe("List of all user's tasks."),
+  offers: z.array(OfferSchema).optional().describe("List of all user's created offers."),
+  brandVoice: BrandVoiceSchema.optional().describe("The user's defined brand voice."),
+  personas: z.array(PersonaSchema).optional().describe("List of all user's customer personas."),
+  goals: z.array(GoalSchema).optional().describe("List of all user's business goals."),
+  notes: z.array(NoteSchema).optional().describe("List of all user's notes."),
+  clients: z.array(ClientSchema).optional().describe("List of all user's clients."),
+  transactions: z.array(TransactionSchema).optional().describe("List of all user's financial transactions."),
 });
 export type GetBusinessAdviceInput = z.infer<typeof GetBusinessAdviceInputSchema>;
 
@@ -58,34 +108,40 @@ export type GetBusinessAdviceOutput = z.infer<typeof GetBusinessAdviceOutputSche
 
 // Tools for the AI to get data
 const getProjectsTool = ai.defineTool(
-    {
-        name: 'getProjects',
-        description: 'Get a list of all current projects.',
-        outputSchema: z.array(ProjectSchema),
-    },
-    async (_, flow) => {
-        return flow.state.get<GetBusinessAdviceInput>()?.projects || [];
-    }
+    { name: 'getProjects', description: 'Get a list of all current projects.', outputSchema: z.array(ProjectSchema), },
+    async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.projects || []
 );
 const getDealsTool = ai.defineTool(
-    {
-        name: 'getDeals',
-        description: 'Get a list of all current sales deals.',
-        outputSchema: z.array(DealSchema),
-    },
-     async (_, flow) => {
-        return flow.state.get<GetBusinessAdviceInput>()?.deals || [];
-    }
+    { name: 'getDeals', description: 'Get a list of all current sales deals.', outputSchema: z.array(DealSchema), },
+     async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.deals || []
 );
 const getTasksTool = ai.defineTool(
-    {
-        name: 'getTasks',
-        description: 'Get a list of all tasks.',
-        outputSchema: z.array(TaskSchema),
-    },
-     async (_, flow) => {
-        return flow.state.get<GetBusinessAdviceInput>()?.tasks || [];
-    }
+    { name: 'getTasks', description: 'Get a list of all tasks.', outputSchema: z.array(TaskSchema), },
+     async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.tasks || []
+);
+const getOffersTool = ai.defineTool(
+    { name: 'getOffers', description: 'Get a list of all created offers.', outputSchema: z.array(OfferSchema), },
+     async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.offers || []
+);
+const getPersonasTool = ai.defineTool(
+    { name: 'getPersonas', description: 'Get a list of all customer personas.', outputSchema: z.array(PersonaSchema), },
+     async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.personas || []
+);
+const getGoalsTool = ai.defineTool(
+    { name: 'getGoals', description: 'Get a list of all business goals.', outputSchema: z.array(GoalSchema), },
+     async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.goals || []
+);
+const getNotesTool = ai.defineTool(
+    { name: 'getNotes', description: 'Get a list of all notes.', outputSchema: z.array(NoteSchema), },
+     async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.notes || []
+);
+const getClientsTool = ai.defineTool(
+    { name: 'getClients', description: 'Get a list of all clients.', outputSchema: z.array(ClientSchema), },
+     async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.clients || []
+);
+const getFinanceTool = ai.defineTool(
+    { name: 'getFinance', description: 'Get a list of all financial transactions.', outputSchema: z.array(TransactionSchema), },
+     async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.transactions || []
 );
 
 
@@ -97,10 +153,10 @@ const prompt = ai.definePrompt({
   name: 'getBusinessAdvicePrompt',
   input: {schema: GetBusinessAdviceInputSchema},
   output: {schema: GetBusinessAdviceOutputSchema},
-  tools: [getProjectsTool, getDealsTool, getTasksTool],
+  tools: [getProjectsTool, getDealsTool, getTasksTool, getOffersTool, getPersonasTool, getGoalsTool, getNotesTool, getClientsTool, getFinanceTool],
   prompt: `You are a business advisor providing real-time, custom-trained advice based on the business context and stored conversations.
-  The user's question might contain an @-mention (like @Projects, @Deals, or @Tasks) to specify a data context.
-  If the user asks a question that requires information about their projects, deals, or tasks (e.g., "Summarize my @Projects" or "What are my most urgent @Tasks?"), use the provided tools to get the most up-to-date information before answering.
+  The user's question might contain an @-mention (like @Projects, @Deals, @Tasks, @Offers, @Clients, @Finance, @Notes, @Personas, or @Goals) to specify a data context.
+  If the user asks a question that requires information about their business data (e.g., "Summarize my @Projects" or "What are my most valuable @Deals?"), use the provided tools to get the most up-to-date information before answering.
   If the user just asks a general question, answer it based on the business context and conversation history.
 
   Business Context: {{{businessContext}}}

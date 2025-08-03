@@ -7,7 +7,7 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Toolti
 import { format, subDays, eachDayOfInterval } from "date-fns"
 import { Briefcase, Lightbulb, ListTodo, TrendingUp, Users, DollarSign, Bell, Plus, PenSquare, Film, BarChart2, Zap, CheckCircle, ExternalLink, Activity, ServerCrash } from "lucide-react"
 
-import type { Deal, Project, Task, Transaction, TaskGroup, Note } from "@/lib/types"
+import type { Deal, Project, Task, Transaction, TaskGroup, Note, Offer, BrandVoice, Persona, Goal, Client } from "@/lib/types"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { cn } from "@/lib/utils"
@@ -38,11 +38,18 @@ export default function Dashboard() {
   const cardClassName = "glassmorphic";
   const [isMounted, setIsMounted] = React.useState(false);
   
-  // State for dashboard data
+  // State for all dashboard data
   const [totalRevenue, setTotalRevenue] = React.useState(0);
   const [activeProjects, setActiveProjects] = React.useState<Project[]>([]);
   const [deals, setDeals] = React.useState<Deal[]>([]);
   const [tasks, setTasks] = React.useState<Task[]>([]);
+  const [offers, setOffers] = React.useState<Offer[]>([]);
+  const [brandVoice, setBrandVoice] = React.useState<BrandVoice | null>(null);
+  const [personas, setPersonas] = React.useState<Persona[]>([]);
+  const [goals, setGoals] = React.useState<Goal[]>([]);
+  const [notes, setNotes] = React.useState<Note[]>([]);
+  const [clients, setClients] = React.useState<Client[]>([]);
+  const [transactions, setTransactions] = React.useState<Transaction[]>([]);
   
   const [insights, setInsights] = React.useState<GenerateDashboardInsightsOutput | null>(null);
   const [isLoadingInsights, setIsLoadingInsights] = React.useState(true);
@@ -53,21 +60,20 @@ export default function Dashboard() {
       try {
         const savedTransactions = localStorage.getItem("transactions");
         if(savedTransactions) {
-            const transactions: Transaction[] = JSON.parse(savedTransactions);
-            const income = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+            const txns: Transaction[] = JSON.parse(savedTransactions);
+            setTransactions(txns);
+            const income = txns.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
             setTotalRevenue(income);
         }
 
         const savedProjects = localStorage.getItem("projects");
         if (savedProjects) {
-            const projects: Project[] = Object.values(JSON.parse(savedProjects)).flat() as Project[];
-            setActiveProjects(projects.filter(p => p.status !== 'launch'));
+            const projectsData: Project[] = Object.values(JSON.parse(savedProjects)).flat() as Project[];
+            setActiveProjects(projectsData.filter(p => p.status !== 'launch'));
         }
         
         const savedDeals = localStorage.getItem("deals");
-        if (savedDeals) {
-            setDeals(JSON.parse(savedDeals));
-        }
+        if (savedDeals) setDeals(JSON.parse(savedDeals));
         
         const savedTasks = localStorage.getItem("tasks");
         if (savedTasks) {
@@ -75,6 +81,24 @@ export default function Dashboard() {
             const allTasks = taskBoard.groups.flatMap(g => g.tasks);
             setTasks(allTasks);
         }
+        
+        const savedOffers = localStorage.getItem("offers");
+        if (savedOffers) setOffers(JSON.parse(savedOffers));
+
+        const savedBrandVoice = localStorage.getItem("brandVoice");
+        if (savedBrandVoice) setBrandVoice(JSON.parse(savedBrandVoice));
+
+        const savedPersonas = localStorage.getItem("brandPersonas");
+        if (savedPersonas) setPersonas(JSON.parse(savedPersonas));
+
+        const savedGoals = localStorage.getItem("cortex-goals");
+        if (savedGoals) setGoals(JSON.parse(savedGoals));
+
+        const savedNotes = localStorage.getItem("notes");
+        if (savedNotes) setNotes(JSON.parse(savedNotes));
+
+        const savedClients = localStorage.getItem("clients");
+        if (savedClients) setClients(JSON.parse(savedClients));
 
       } catch (error) {
           console.error("Failed to load dashboard data from local storage", error);
@@ -90,7 +114,14 @@ export default function Dashboard() {
             const result = await generateDashboardInsights({
                 projects: activeProjects.map(p => ({id: p.id, title: p.title, status: p.status, deadline: p.deadline})),
                 deals: deals.map(d => ({id: d.id, title: d.title, status: d.status, value: d.value, clientName: d.clientName})),
-                tasks: tasks.filter(t => !t.completed).map(t => ({id: t.id, name: t.name, completed: t.completed})),
+                tasks: tasks.filter(t => !t.completed).map(t => ({id: t.id, name: t.name, completed: t.completed, dueDate: t.dueDate})),
+                offers: offers.map(o => ({ id: o.id, title: o.title, price: o.price })),
+                brandVoice: brandVoice || undefined,
+                personas: personas.map(p => ({ name: p.name, bio: p.bio })),
+                goals: goals.map(g => ({ id: g.id, title: g.title, status: g.status })),
+                notes: notes.slice(0, 5).map(n => ({ id: n.id, title: n.title, content: n.content.substring(0, 100) })),
+                clients: clients.map(c => ({ id: c.id, name: c.name, status: c.status })),
+                transactions: transactions.slice(0, 10).map(t => ({ id: t.id, type: t.type, amount: t.amount, category: t.category })),
             });
             setInsights(result);
         } catch (error) {
@@ -106,7 +137,7 @@ export default function Dashboard() {
     }
     fetchInsights();
 
-  }, [isMounted, activeProjects, deals, tasks]);
+  }, [isMounted, activeProjects, deals, tasks, offers, brandVoice, personas, goals, notes, clients, transactions]);
 
   const kpiData = [
     { metric: "Revenue", value: `$${totalRevenue.toLocaleString()}`, change: "+20.1%", icon: <DollarSign/> },

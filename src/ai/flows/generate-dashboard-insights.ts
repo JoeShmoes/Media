@@ -9,7 +9,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import type { Project, Deal, Task } from '@/lib/types';
+import type { Project, Deal, Task, Offer, BrandVoice, Persona, Goal, Note, Client, Transaction } from '@/lib/types';
 
 // Define schemas based on existing types without re-declaring all fields
 const ProjectSchema = z.object({
@@ -34,11 +34,60 @@ const TaskSchema = z.object({
     dueDate: z.string().optional(),
 });
 
+const OfferSchema = z.object({
+    id: z.string(),
+    title: z.string(),
+    price: z.number(),
+});
+
+const BrandVoiceSchema = z.object({
+    tone: z.string(),
+    style: z.string(),
+    examples: z.string(),
+});
+
+const PersonaSchema = z.object({
+    name: z.string(),
+    bio: z.string(),
+});
+
+const GoalSchema = z.object({
+    id: z.string(),
+    title: z.string(),
+    status: z.string(),
+});
+
+const NoteSchema = z.object({
+    id: z.string(),
+    title: z.string(),
+    content: z.string(),
+});
+
+const ClientSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    status: z.string(),
+});
+
+const TransactionSchema = z.object({
+    id: z.string(),
+    type: z.enum(["income", "expense"]),
+    amount: z.number(),
+    category: z.string(),
+});
+
 
 const GenerateDashboardInsightsInputSchema = z.object({
   projects: z.array(ProjectSchema).describe('The list of active projects.'),
   deals: z.array(DealSchema).describe('The list of deals in the sales pipeline.'),
   tasks: z.array(TaskSchema).describe('The list of tasks.'),
+  offers: z.array(OfferSchema).describe('The list of created offers.'),
+  brandVoice: BrandVoiceSchema.optional().describe('The defined brand voice.'),
+  personas: z.array(PersonaSchema).describe('The list of defined customer personas.'),
+  goals: z.array(GoalSchema).describe('The list of high-level business goals.'),
+  notes: z.array(NoteSchema).describe('The list of recent notes.'),
+  clients: z.array(ClientSchema).describe('The list of clients.'),
+  transactions: z.array(TransactionSchema).describe('The list of recent financial transactions.'),
 });
 export type GenerateDashboardInsightsInput = z.infer<typeof GenerateDashboardInsightsInputSchema>;
 
@@ -64,17 +113,25 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateDashboardInsightsOutputSchema},
   prompt: `You are an expert business analyst AI. Your job is to analyze the user's current business data and provide actionable insights.
 
-Analyze the following data:
+Analyze all available data to get a holistic view of the business:
 - Projects: {{{json projects}}}
 - Deals: {{{json deals}}}
 - Tasks: {{{json tasks}}}
+- Offers: {{{json offers}}}
+- Brand Voice: {{{json brandVoice}}}
+- Personas: {{{json personas}}}
+- Goals: {{{json goals}}}
+- Notes: {{{json notes}}}
+- Clients: {{{json clients}}}
+- Transactions: {{{json transactions}}}
 
-Based on this data, generate:
-1.  **Suggestions**: 3 high-impact, actionable growth suggestions for the user to focus on this week. These should be strategic and forward-looking. For each suggestion, provide a relevant 'href' to the most appropriate room in the application. Examples:
-    - Text: "Launch a new ad campaign for the '[Offer Title]' offer.", href: "/offer-builder"
-    - Text: "Create a follow-up YouTube video about '[Relevant Topic]'.", href: "/youtube-studio"
-    - Text: "Email uncontacted leads from the last 7 days.", href: "/outreach"
-2.  **Notifications**: Up to 4 critical or warning-level notifications about the current state of their business. Focus on urgent issues, risks, and deadlines. Examples: "Project '[Project Title]' is nearing its deadline." or "You haven't contacted new lead '[Lead Name]' for 3 days."
+
+Based on this complete data set, generate:
+1.  **Suggestions**: 3 high-impact, actionable growth suggestions for the user to focus on this week. These should be strategic and forward-looking, and can cross-reference different parts of the business. For each suggestion, provide a relevant 'href' to the most appropriate room in the application. Examples:
+    - Text: "Launch a new ad campaign for the '[Offer Title]' offer, targeting the '[Persona Name]' persona.", href: "/outreach"
+    - Text: "Create a follow-up YouTube video about '[Relevant Topic from a Note]'.", href: "/youtube-studio"
+    - Text: "Create a new project for client '[Client Name]' based on the recently closed deal '[Deal Title]'.", href: "/projects"
+2.  **Notifications**: Up to 4 critical or warning-level notifications about the current state of their business. Focus on urgent issues, risks, and deadlines across all rooms. Examples: "Project '[Project Title]' is nearing its deadline." or "You have a high-value deal '[Deal Title]' in negotiation that hasn't been updated in 5 days." or "Your expenses in '[Category]' are trending higher than your income this month."
 
 Your tone should be concise, helpful, and direct.
 `,
@@ -87,8 +144,18 @@ const generateDashboardInsightsFlow = ai.defineFlow(
     outputSchema: GenerateDashboardInsightsOutputSchema,
   },
   async input => {
-    // If all lists are empty, return a default state.
-    if (input.projects.length === 0 && input.deals.length === 0 && input.tasks.length === 0) {
+    // Check if all relevant data arrays are empty
+    const isDataEmpty = input.projects.length === 0 &&
+                        input.deals.length === 0 &&
+                        input.tasks.length === 0 &&
+                        input.offers.length === 0 &&
+                        input.personas.length === 0 &&
+                        input.goals.length === 0 &&
+                        input.notes.length === 0 &&
+                        input.clients.length === 0 &&
+                        input.transactions.length === 0;
+
+    if (isDataEmpty) {
         return {
             suggestions: [
                 { text: "Define your first business goal in the Cortex Room.", href: "/cortex-room" },

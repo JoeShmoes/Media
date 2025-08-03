@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Send, User, Bot, Edit, Trash2, Copy, Plus, MoreVertical, X, Save, Briefcase, ListTodo, Sparkles, LayoutDashboard, Notebook, MessageSquare, Users, KanbanSquare, SendHorizonal, CircleDollarSign, Package, Archive, Palette, View, BrainCircuit, FileText, LayoutTemplate, Blocks, PenSquare, Youtube, Search, Zap, Lightbulb, GitMerge, UsersRound, MessageCircleCode, Library, BarChart, Mic } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 
-import type { ChatMessage, ChatSession, Project, Deal, TaskGroup } from "@/lib/types"
+import type { ChatMessage, ChatSession, Project, Deal, TaskGroup, Offer, BrandVoice, Persona, Goal, Note, Client, Transaction } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { getBusinessAdvice } from "@/ai/flows/get-business-advice"
 
@@ -99,10 +99,17 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
   const { toast } = useToast()
   const scrollAreaRef = React.useRef<HTMLDivElement>(null)
   
-  // State to hold data from other rooms
+  // State to hold data from all rooms
   const [projects, setProjects] = React.useState<Project[]>([]);
   const [deals, setDeals] = React.useState<Deal[]>([]);
-  const [tasks, setTasks] = React.useState<any[]>([]);
+  const [tasks, setTasks] = React.useState<Task[]>([]);
+  const [offers, setOffers] = React.useState<Offer[]>([]);
+  const [brandVoice, setBrandVoice] = React.useState<BrandVoice | null>(null);
+  const [personas, setPersonas] = React.useState<Persona[]>([]);
+  const [goals, setGoals] = React.useState<Goal[]>([]);
+  const [notes, setNotes] = React.useState<Note[]>([]);
+  const [clients, setClients] = React.useState<Client[]>([]);
+  const [transactions, setTransactions] = React.useState<Transaction[]>([]);
 
   React.useEffect(() => {
     // Load data from localStorage when the component mounts
@@ -118,6 +125,28 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
          const taskBoard: {groups: TaskGroup[]} = JSON.parse(savedTasks);
          setTasks(taskBoard.groups.flatMap(g => g.tasks));
       }
+      
+      const savedOffers = localStorage.getItem("offers");
+      if (savedOffers) setOffers(JSON.parse(savedOffers));
+
+      const savedBrandVoice = localStorage.getItem("brandVoice");
+      if (savedBrandVoice) setBrandVoice(JSON.parse(savedBrandVoice));
+
+      const savedPersonas = localStorage.getItem("brandPersonas");
+      if (savedPersonas) setPersonas(JSON.parse(savedPersonas));
+
+      const savedGoals = localStorage.getItem("cortex-goals");
+      if (savedGoals) setGoals(JSON.parse(savedGoals));
+
+      const savedNotes = localStorage.getItem("notes");
+      if (savedNotes) setNotes(JSON.parse(savedNotes));
+
+      const savedClients = localStorage.getItem("clients");
+      if (savedClients) setClients(JSON.parse(savedClients));
+      
+      const savedTransactions = localStorage.getItem("transactions");
+      if (savedTransactions) setTransactions(JSON.parse(savedTransactions));
+
     } catch (error) {
       console.error("Failed to load room data from local storage", error);
     }
@@ -174,7 +203,14 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
         storedConversations: JSON.stringify(currentMessages.slice(-5)),
         projects,
         deals,
-        tasks
+        tasks,
+        offers,
+        brandVoice: brandVoice || undefined,
+        personas,
+        goals,
+        notes,
+        clients,
+        transactions,
       })
 
       const formattedAdvice = result.advice

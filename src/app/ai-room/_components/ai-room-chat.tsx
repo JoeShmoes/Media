@@ -5,7 +5,7 @@ import * as React from "react"
 import { z } from "zod"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Send, User, Bot, Edit, Trash2, Copy, Plus, MoreVertical, X, Save, Briefcase, ListTodo, Sparkles } from "lucide-react"
+import { Send, User, Bot, Edit, Trash2, Copy, Plus, MoreVertical, X, Save, Briefcase, ListTodo, Sparkles, LayoutDashboard, Notebook, MessageSquare, Users, KanbanSquare, SendHorizonal, CircleDollarSign, Package, Archive, Palette, View, BrainCircuit, FileText, LayoutTemplate, Blocks, PenSquare, Youtube, Search } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 
 import type { ChatMessage, ChatSession, Project, Deal, TaskGroup } from "@/lib/types"
@@ -43,7 +43,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { View } from "lucide-react"
 
 const formSchema = z.object({
   question: z.string().min(1, "Message is required"),
@@ -58,9 +57,26 @@ interface AiRoomChatProps {
 }
 
 const mentionableRooms = [
-    { name: "Projects", icon: <Briefcase className="mr-2 h-4 w-4" /> },
-    { name: "Deals", icon: <View className="mr-2 h-4 w-4" /> },
-    { name: "Tasks", icon: <ListTodo className="mr-2 h-4 w-4" /> }
+    { name: "Dashboard", icon: <LayoutDashboard className="mr-2 h-4 w-4" /> },
+    { name: "AI Room", icon: <BrainCircuit className="mr-2 h-4 w-4" /> },
+    { name: "Tasks", icon: <ListTodo className="mr-2 h-4 w-4" /> },
+    { name: "Notes", icon: <Notebook className="mr-2 h-4 w-4" /> },
+    { name: "GM", icon: <MessageSquare className="mr-2 h-4 w-4" /> },
+    { name: "Clients", icon: <Users className="mr-2 h-4 w-4" /> },
+    { name: "Projects", icon: <KanbanSquare className="mr-2 h-4 w-4" /> },
+    { name: "Outreach", icon: <SendHorizonal className="mr-2 h-4 w-4" /> },
+    { name: "Finance", icon: <CircleDollarSign className="mr-2 h-4 w-4" /> },
+    { name: "Offer Builder", icon: <Package className="mr-2 h-4 w-4" /> },
+    { name: "Asset Tracker", icon: <Archive className="mr-2 h-4 w-4" /> },
+    { name: "Brand Room", icon: <Palette className="mr-2 h-4 w-4" /> },
+    { name: "Pipeline Tracker", icon: <View className="mr-2 h-4 w-4" /> },
+    { name: "Research", icon: <Search className="mr-2 h-4 w-4" /> },
+    { name: "Cortex Room", icon: <BrainCircuit className="mr-2 h-4 w-4" /> },
+    { name: "AutoDocs", icon: <FileText className="mr-2 h-4 w-4" /> },
+    { name: "Template Builder", icon: <LayoutTemplate className="mr-2 h-4 w-4" /> },
+    { name: "Integration Hub", icon: <Blocks className="mr-2 h-4 w-4" /> },
+    { name: "Content", icon: <PenSquare className="mr-2 h-4 w-4" /> },
+    { name: "Studio", icon: <Youtube className="mr-2 h-4 w-4" /> },
 ];
 
 export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMessage }: AiRoomChatProps) {
@@ -326,17 +342,19 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
                         {/* This is a dummy trigger; the popover is controlled programmatically */}
                         <div className="w-0 h-0" />
                     </PopoverTrigger>
-                    <PopoverContent className="w-48 p-1 mb-2" align="start">
-                       {mentionableRooms.map(room => (
-                            <Button
-                                key={room.name}
-                                variant="ghost"
-                                className="w-full justify-start"
-                                onClick={() => handleMentionSelect(room.name)}
-                            >
-                                {room.icon} {room.name}
-                            </Button>
-                       ))}
+                    <PopoverContent className="w-60 p-1 mb-2 max-h-72 overflow-y-auto" align="start">
+                        <ScrollArea className="h-full">
+                           {mentionableRooms.map(room => (
+                                <Button
+                                    key={room.name}
+                                    variant="ghost"
+                                    className="w-full justify-start"
+                                    onClick={() => handleMentionSelect(room.name)}
+                                >
+                                    {room.icon} {room.name}
+                                </Button>
+                           ))}
+                        </ScrollArea>
                     </PopoverContent>
                 </Popover>
                 <FormField
@@ -360,5 +378,3 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
     </div>
   )
 }
-
-    

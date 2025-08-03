@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Send, User, Bot, Edit, Trash2, Copy, Plus, MoreVertical, X, Save, Briefcase, ListTodo, Sparkles, LayoutDashboard, Notebook, MessageSquare, Users, KanbanSquare, SendHorizonal, CircleDollarSign, Package, Archive, Palette, View, BrainCircuit, FileText, LayoutTemplate, Blocks, PenSquare, Youtube, Search, Zap, Lightbulb, GitMerge, UsersRound, MessageCircleCode, Library, BarChart, Mic } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 
-import type { ChatMessage, ChatSession, Project, Deal, TaskGroup, Offer, BrandVoice, Persona, Goal, Note, Client, Transaction } from "@/lib/types"
+import type { ChatMessage, ChatSession, Project, Deal, Task, TaskGroup, Offer, BrandVoice, Persona, Goal, Note, Client, Transaction } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { getBusinessAdvice } from "@/ai/flows/get-business-advice"
 
@@ -201,16 +201,16 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
         question: userMessageContent,
         businessContext: "The user runs multiple businesses: SEO, website creation, outreach campaigns, and social content. They are a young, hungry entrepreneur.",
         storedConversations: JSON.stringify(currentMessages.slice(-5)),
-        projects,
-        deals,
-        tasks,
-        offers,
+        projects: projects.map(p => ({id: p.id, title: p.title, service: p.service, status: p.status, deadline: p.deadline, link: p.link})),
+        deals: deals.map(d => ({id: d.id, title: d.title, value: d.value, status: d.status, clientName: d.clientName, notes: d.notes})),
+        tasks: tasks.filter(t => !t.completed).map(t => ({id: t.id, name: t.name, completed: t.completed, dueDate: t.dueDate})),
+        offers: offers.map(o => ({ id: o.id, title: o.title, price: o.price })),
         brandVoice: brandVoice || undefined,
-        personas,
-        goals,
-        notes,
-        clients,
-        transactions,
+        personas: personas.map(p => ({ id: p.id, name: p.name, bio: p.bio })),
+        goals: goals.map(g => ({ id: g.id, title: g.title, status: g.status })),
+        notes: notes.slice(0, 5).map(n => ({ id: n.id, title: n.title, content: n.content.substring(0, 100) })),
+        clients: clients.map(c => ({ id: c.id, name: c.name, status: c.status })),
+        transactions: transactions.slice(0, 10).map(t => ({ id: t.id, type: t.type, amount: t.amount, category: t.category })),
       })
 
       const formattedAdvice = result.advice
@@ -448,3 +448,5 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
     </div>
   )
 }
+
+    

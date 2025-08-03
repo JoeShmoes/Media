@@ -93,8 +93,10 @@ type FormValues = z.infer<typeof boardSchema>;
 
 export function TasksBoard() {
     const [initialData, setInitialData] = React.useState<FormValues | null>(null);
+    const [isMounted, setIsMounted] = React.useState(false);
 
     React.useEffect(() => {
+        setIsMounted(true);
         try {
             const savedTasks = localStorage.getItem("tasks");
             if (savedTasks) {
@@ -110,7 +112,7 @@ export function TasksBoard() {
         setInitialData({ groups: [{ id: "default", name: "Default", tasks: [] }] });
     }, []);
 
-    if (!initialData) {
+    if (!isMounted || !initialData) {
         return null; // Or a loading spinner
     }
 
@@ -127,7 +129,7 @@ function TaskBoardForm({ initialData }: { initialData: FormValues }) {
   });
 
   const boardData = useWatch({ control: form.control });
-  const [debouncedBoardData] = useDebounce(boardData, 500);
+  const [debouncedBoardData] = useDebounce(boardData, 1000);
 
   React.useEffect(() => {
     try {

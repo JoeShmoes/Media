@@ -7,6 +7,7 @@ import { Plus, Edit, Trash2, CheckCircle, Circle, MoreVertical, ChevronDown, Sav
 import { z } from "zod";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useDebounce } from "use-debounce";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -101,6 +102,7 @@ export function TasksBoard() {
   });
 
   const boardData = useWatch({ control: form.control });
+  const [debouncedBoardData] = useDebounce(boardData, 500);
   
   React.useEffect(() => {
     setIsMounted(true);
@@ -108,10 +110,9 @@ export function TasksBoard() {
       const savedTasks = localStorage.getItem("tasks");
       if (savedTasks) {
         const board = JSON.parse(savedTasks);
-        if (board && board.groups && board.groups.length > 0) {
+        if (board && board.groups && Array.isArray(board.groups)) {
           form.reset(board);
         } else {
-            // Initialize with default if local storage is empty or malformed
             form.reset({ groups: [{ id: "default", name: "Default", tasks: [] }]});
         }
       } else {
@@ -123,22 +124,20 @@ export function TasksBoard() {
     }
   }, [form]);
   
-  const saveTasks = () => {
-     try {
-        localStorage.setItem("tasks", JSON.stringify(boardData));
-        toast({
-            title: "Tasks Saved!",
-            description: "Your task board has been successfully saved.",
-        })
-      } catch (error) {
-         console.error("Failed to save tasks to local storage", error);
-          toast({
-            variant: "destructive",
-            title: "Error Saving Tasks",
-            description: "There was an issue saving your tasks.",
-        })
+  React.useEffect(() => {
+      if (isMounted && debouncedBoardData.groups.length > 0) {
+          try {
+              localStorage.setItem("tasks", JSON.stringify(debouncedBoardData));
+          } catch (error) {
+              console.error("Failed to save tasks to local storage", error);
+              toast({
+                  variant: "destructive",
+                  title: "Error Saving Tasks",
+                  description: "There was an issue auto-saving your tasks.",
+              })
+          }
       }
-  }
+  }, [debouncedBoardData, isMounted, toast]);
 
 
   const { fields: groups, append: appendGroup, update: updateGroup, remove: removeGroup } = useFieldArray({
@@ -206,7 +205,6 @@ export function TasksBoard() {
       <div className="flex justify-end gap-2">
         <AddTaskDialog onAddTask={handleAddTask} groups={groups} />
         <AddGroupDialog onAddGroup={(name) => appendGroup({ id: `group-${Date.now()}`, name, tasks: [] })} />
-         <Button onClick={saveTasks}><Save className="mr-2"/> Save Changes</Button>
       </div>
 
       <div className="space-y-6">
@@ -233,7 +231,7 @@ export function TasksBoard() {
                 </CardHeader>
                 <CollapsibleContent>
                     <CardContent className="space-y-3">
-                        {sortedTasks.map((task, taskIndex) => {
+                        {sortedTasks.map((task) => {
                             const originalIndex = group.tasks.findIndex(t => t.id === task.id);
                             return (
                                 <div key={task.id} className="flex items-center p-2 rounded-lg hover:bg-muted/50 transition-colors group/task">
@@ -728,3 +726,4 @@ function EditTaskDialog({ task, groups, currentGroupId, onUpdateTask, trigger }:
     
 
     
+

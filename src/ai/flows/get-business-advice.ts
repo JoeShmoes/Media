@@ -85,7 +85,7 @@ const TransactionSchema = z.object({
 
 
 const GetBusinessAdviceInputSchema = z.object({
-  question: z.string().describe('The question about the business. It may contain @-mentions like @Projects, @Deals, or @Tasks to specify a data context.'),
+  question: z.string().describe('The question about the business. It may contain @-mentions to specify a data context.'),
   businessContext: z.string().describe('The context of the business.'),
   storedConversations: z.string().describe('Past conversations related to the business.'),
   projects: z.array(ProjectSchema).optional().describe("List of all user's projects."),
@@ -123,9 +123,17 @@ const getOffersTool = ai.defineTool(
     { name: 'getOffers', description: 'Get a list of all created offers.', outputSchema: z.array(OfferSchema), },
      async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.offers || []
 );
-const getBrandVoiceTool = ai.defineTool(
-    { name: 'getBrandVoice', description: 'Get the defined brand voice.', outputSchema: BrandVoiceSchema.optional(), },
-    async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.brandVoice
+const getClientsTool = ai.defineTool(
+    { name: 'getClients', description: 'Get a list of all clients.', outputSchema: z.array(ClientSchema), },
+     async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.clients || []
+);
+const getFinanceTool = ai.defineTool(
+    { name: 'getFinance', description: 'Get a list of all financial transactions.', outputSchema: z.array(TransactionSchema), },
+     async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.transactions || []
+);
+const getNotesTool = ai.defineTool(
+    { name: 'getNotes', description: 'Get a list of all notes.', outputSchema: z.array(NoteSchema), },
+     async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.notes || []
 );
 const getPersonasTool = ai.defineTool(
     { name: 'getPersonas', description: 'Get a list of all customer personas.', outputSchema: z.array(PersonaSchema), },
@@ -134,18 +142,6 @@ const getPersonasTool = ai.defineTool(
 const getGoalsTool = ai.defineTool(
     { name: 'getGoals', description: 'Get a list of all business goals.', outputSchema: z.array(GoalSchema), },
      async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.goals || []
-);
-const getNotesTool = ai.defineTool(
-    { name: 'getNotes', description: 'Get a list of all notes.', outputSchema: z.array(NoteSchema), },
-     async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.notes || []
-);
-const getClientsTool = ai.defineTool(
-    { name: 'getClients', description: 'Get a list of all clients.', outputSchema: z.array(ClientSchema), },
-     async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.clients || []
-);
-const getFinanceTool = ai.defineTool(
-    { name: 'getFinance', description: 'Get a list of all financial transactions.', outputSchema: z.array(TransactionSchema), },
-     async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.transactions || []
 );
 
 
@@ -157,14 +153,13 @@ const prompt = ai.definePrompt({
   name: 'getBusinessAdvicePrompt',
   input: {schema: GetBusinessAdviceInputSchema},
   output: {schema: GetBusinessAdviceOutputSchema},
-  tools: [getProjectsTool, getDealsTool, getTasksTool, getOffersTool, getBrandVoiceTool, getPersonasTool, getGoalsTool, getNotesTool, getClientsTool, getFinanceTool],
+  tools: [getProjectsTool, getDealsTool, getTasksTool, getOffersTool, getPersonasTool, getGoalsTool, getNotesTool, getClientsTool, getFinanceTool],
   prompt: `You are a business advisor providing real-time, custom-trained advice based on the business context and stored conversations.
   The user's question might contain an @-mention to specify a data context. Use the corresponding tool to get the most up-to-date information before answering.
   - @Projects: Use getProjectsTool
   - @Deals: Use getDealsTool
   - @Tasks: Use getTasksTool
   - @Offers: Use getOffersTool
-  - @Brand: Use getBrandVoiceTool
   - @Personas: Use getPersonasTool
   - @Goals: Use getGoalsTool
   - @Notes: Use getNotesTool

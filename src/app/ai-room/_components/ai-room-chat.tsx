@@ -41,7 +41,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { View } from "lucide-react"
 
@@ -121,8 +120,15 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
     const subscription = form.watch((value, { name, type }) => {
       if (name === 'question' && type === 'change') {
         const text = value.question || '';
-        const lastChar = text.slice(-1);
-        setShowMentionMenu(lastChar === '@');
+        const lastCharIsAt = text.slice(-1) === '@';
+        const atIndex = text.lastIndexOf('@');
+        
+        // Show menu if '@' is the last character and there are no spaces after the last '@'
+        if (lastCharIsAt && text.substring(atIndex).indexOf(' ') === -1) {
+             setShowMentionMenu(true);
+        } else {
+             setShowMentionMenu(false);
+        }
       }
     });
     return () => subscription.unsubscribe();
@@ -207,9 +213,11 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
   
   const handleMentionSelect = (roomName: string) => {
     const currentQuery = form.getValues('question');
-    form.setValue('question', `${currentQuery.slice(0,-1)}@${roomName} `);
+    const atIndex = currentQuery.lastIndexOf('@');
+    form.setValue('question', `${currentQuery.slice(0, atIndex)}@${roomName} `);
     setShowMentionMenu(false);
-    form.setFocus('question');
+    // Timeout to allow the popover to close before focusing
+    setTimeout(() => form.setFocus('question'), 0);
   }
 
   if (!session) {
@@ -314,11 +322,10 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex w-full items-center space-x-2">
                 <Popover open={showMentionMenu} onOpenChange={setShowMentionMenu}>
                     <PopoverTrigger asChild>
-                        <Button variant="ghost" size="icon" disabled={isLoading} onClick={() => form.setValue('question', `${form.getValues('question')}@`)}>
-                            <Sparkles className="h-5 w-5" />
-                        </Button>
+                        {/* This is a dummy trigger; the popover is controlled programmatically */}
+                        <div className="w-0 h-0" />
                     </PopoverTrigger>
-                    <PopoverContent className="w-48 p-1" align="start">
+                    <PopoverContent className="w-48 p-1 mb-2" align="start">
                        {mentionableRooms.map(room => (
                             <Button
                                 key={room.name}
@@ -337,7 +344,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
                 render={({ field }) => (
                     <FormItem className="flex-1">
                     <FormControl>
-                        <Input placeholder="Ask 'How do I scale this?' or type @..." {...field} disabled={isLoading} />
+                        <Input placeholder="Ask 'How do I scale this?' or type @..." {...field} disabled={isLoading} autoComplete="off" />
                     </FormControl>
                     <FormMessage />
                     </FormItem>
@@ -352,3 +359,5 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
     </div>
   )
 }
+
+    

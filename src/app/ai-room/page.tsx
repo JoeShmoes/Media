@@ -168,20 +168,44 @@ export default function AiRoomPage() {
 
   return (
     <div className="flex h-full bg-muted/40">
-      <ChatSidebar
+      <div
+        className={cn(
+          "transition-all duration-300 ease-in-out",
+          isSidebarOpen ? "w-72" : "w-0"
+        )}
+      >
+        <div className={cn("h-full", isSidebarOpen ? "w-72" : "w-0 overflow-hidden")}>
+           <ChatSidebar
             sessions={sessions}
             activeSessionId={activeSessionId}
             onNewChat={handleNewChat}
             onSelectChat={handleSelectChat}
             onDeleteChat={handleDeleteChat}
           />
+        </div>
+      </div>
       <div className="flex-1 flex flex-col">
-          <AiRoomChat
-            session={activeSession ?? null}
-            onUpdateSession={handleUpdateSession}
-            onDeleteMessage={handleDeleteMessage}
-            onEditMessage={handleEditMessage}
-          />
+          <header className="flex items-center gap-4 p-4 border-b">
+             <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                >
+                <PanelLeft />
+                <span className="sr-only">Toggle sidebar</span>
+             </Button>
+             <h1 className="text-xl font-semibold">
+                {activeSession?.title || "AI Room"}
+             </h1>
+          </header>
+          <div className="flex-1 h-full overflow-hidden">
+            <AiRoomChat
+              session={activeSession ?? null}
+              onUpdateSession={handleUpdateSession}
+              onDeleteMessage={handleDeleteMessage}
+              onEditMessage={handleEditMessage}
+            />
+          </div>
       </div>
     </div>
   )

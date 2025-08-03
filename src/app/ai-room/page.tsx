@@ -167,8 +167,8 @@ export default function AiRoomPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-theme(space.14))] bg-muted/40">
-       <div
+    <div className="flex h-full">
+      <div
         className={cn(
           "transition-all duration-300 ease-in-out",
           isSidebarOpen ? "w-72" : "w-0"
@@ -184,8 +184,18 @@ export default function AiRoomPage() {
           />
         </div>
       </div>
-      <div className="flex-1 flex flex-col h-full">
-         <div className="flex-1 overflow-hidden">
+      <div className="flex-1 flex flex-col">
+          <header className="flex items-center gap-4 p-4 border-b">
+             <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                >
+                <PanelLeft />
+                <span className="sr-only">Toggle sidebar</span>
+             </Button>
+          </header>
+          <div className="flex-1 overflow-hidden">
             <AiRoomChat
               session={activeSession ?? null}
               onUpdateSession={handleUpdateSession}

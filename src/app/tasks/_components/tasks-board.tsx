@@ -254,7 +254,10 @@ function TaskBoardForm({ initialData }: { initialData: FormValues }) {
                                         {task.completed ? <CheckCircle className="text-green-500" /> : <Circle className="text-muted-foreground" />}
                                     </Button>
                                     <div className="flex-1 ml-2">
-                                        <p className={`font-medium ${task.completed ? 'line-through text-muted-foreground' : ''}`}>{task.name}</p>
+                                        <p className={cn("font-medium", task.completed && "line-through text-muted-foreground")}>
+                                            {task.name}
+                                            {task.completed && <span className="ml-2 text-xs font-normal text-muted-foreground/80">* Archived</span>}
+                                        </p>
                                         {task.description && <p className="text-xs text-muted-foreground">{task.description}</p>}
                                     </div>
                                     <TaskActions 
@@ -738,3 +741,6 @@ function EditTaskDialog({ task, groups, currentGroupId, onUpdateTask, trigger }:
   );
 }
 
+
+
+    

@@ -196,7 +196,6 @@ function TaskBoardForm({ initialData }: { initialData: FormValues }) {
     const updatedTasks = [...group.tasks];
     const task = updatedTasks[taskIdx];
     
-    // Toggle completion status
     task.completed = !task.completed;
     
     if (task.completed) {
@@ -204,9 +203,6 @@ function TaskBoardForm({ initialData }: { initialData: FormValues }) {
     } else {
         delete task.dueDate;
     }
-
-    // Sort to move completed tasks to the bottom
-    updatedTasks.sort((a, b) => (a.completed ? 1 : -1) - (b.completed ? 1 : -1));
     
     form.setValue(`groups.${groupIdx}.tasks`, updatedTasks, { shouldDirty: true });
   }
@@ -230,7 +226,6 @@ function TaskBoardForm({ initialData }: { initialData: FormValues }) {
 
       <div className="space-y-6">
         {groups.map((group, groupIdx) => {
-          // Re-sorting inside the render function ensures the UI is always up-to-date
           const sortedTasks = [...group.tasks].sort((a, b) => {
               if (a.completed && !b.completed) return 1;
               if (!a.completed && b.completed) return -1;
@@ -256,7 +251,6 @@ function TaskBoardForm({ initialData }: { initialData: FormValues }) {
                 <CollapsibleContent>
                     <CardContent className="space-y-3">
                         {sortedTasks.map((task, taskIdx) => {
-                            // Find original index to update the correct task
                             const originalIndex = group.tasks.findIndex(t => t.id === task.id);
                             return (
                                 <div key={task.id} className="flex items-center p-2 rounded-lg hover:bg-muted/50 transition-colors group/task">
@@ -752,5 +746,7 @@ function EditTaskDialog({ task, groups, currentGroupId, onUpdateTask, trigger }:
 }
 
 
+
+    
 
     

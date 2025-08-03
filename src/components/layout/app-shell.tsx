@@ -54,6 +54,7 @@ import {
   Wrench,
   HelpCircle,
   User,
+  Image as ImageIcon,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import {
@@ -100,6 +101,7 @@ const navLinks = [
     { href: "/integration-hub", icon: Blocks, label: "Integration Hub", description: "Connect and sync with external tools for real-time updates." },
     { href: "/content", icon: PenSquare, label: "Content Scheduler", description: "Plan and auto-generate social media content." },
     { href: "/youtube-studio", icon: Youtube, label: "YouTube Studio", description: "A full creative suite to generate video scripts and media." },
+    { href: "/thumbnail", icon: ImageIcon, label: "Thumbnail Generator", description: "Generate and refine thumbnails with AI." },
 ];
 
 
@@ -141,6 +143,7 @@ const utilityNavItems = [
 const contentCreationNavItems = [
   { href: "/content", icon: PenSquare, label: "Content" },
   { href: "/youtube-studio", icon: Youtube, label: "Studio" },
+  { href: "/thumbnail", icon: ImageIcon, label: "Thumbnail" },
 ]
 
 function LiveClock() {

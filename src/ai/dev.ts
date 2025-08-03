@@ -19,3 +19,4 @@ import '@/ai/flows/generate-sop.ts';
 import '@/ai/flows/compare-versions.ts';
 import '@/ai/flows/generate-content-captions.ts';
 import '@/ai/flows/generate-dashboard-insights.ts';
+import '@/ai/flows/generate-thumbnail.ts';

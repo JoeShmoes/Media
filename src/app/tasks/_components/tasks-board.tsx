@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import * as React from "react";
@@ -125,9 +124,9 @@ export function TasksBoard() {
   }, [form]);
   
   React.useEffect(() => {
-      if (isMounted && debouncedBoardData.groups.length > 0) {
+      if (isMounted && boardData.groups.length > 0) {
           try {
-              localStorage.setItem("tasks", JSON.stringify(debouncedBoardData));
+              localStorage.setItem("tasks", JSON.stringify(boardData));
           } catch (error) {
               console.error("Failed to save tasks to local storage", error);
               toast({
@@ -137,7 +136,7 @@ export function TasksBoard() {
               })
           }
       }
-  }, [debouncedBoardData, isMounted, toast]);
+  }, [boardData, isMounted, toast]);
 
 
   const { fields: groups, append: appendGroup, update: updateGroup, remove: removeGroup } = useFieldArray({
@@ -727,3 +726,6 @@ function EditTaskDialog({ task, groups, currentGroupId, onUpdateTask, trigger }:
 
     
 
+
+
+    

@@ -65,7 +65,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 
-
 const daysOfWeek: DayOfWeek[] = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 const taskSchema = z.object({
@@ -92,136 +91,143 @@ const boardSchema = z.object({
 type FormValues = z.infer<typeof boardSchema>;
 
 export function TasksBoard() {
-    const [initialData, setInitialData] = React.useState<FormValues | null>(null);
-    const [key, setKey] = React.useState(Date.now());
+    const [boardData, setBoardData] = React.useState<FormValues | null>(null);
+    const [isMounted, setIsMounted] = React.useState(false);
+    const { toast } = useToast();
 
+    // Load initial data from localStorage
     React.useEffect(() => {
+        setIsMounted(true);
         try {
             const savedTasks = localStorage.getItem("tasks");
             if (savedTasks) {
                 const board = JSON.parse(savedTasks);
                 if (board && board.groups && Array.isArray(board.groups)) {
-                    setInitialData(board);
-                    setKey(Date.now()); // Force re-render with new key
+                    setBoardData(board);
                     return;
                 }
             }
         } catch (error) {
             console.error("Failed to load tasks from local storage", error);
         }
-        setInitialData({ groups: [{ id: "default", name: "Default", tasks: [] }] });
-        setKey(Date.now());
+        // Set default data if nothing in storage or data is invalid
+        setBoardData({ groups: [{ id: "default", name: "Default", tasks: [] }] });
     }, []);
 
-    if (!initialData) {
+    // Debounce and save data to localStorage
+    const [debouncedBoardData] = useDebounce(boardData, 1000);
+    React.useEffect(() => {
+        if (isMounted && debouncedBoardData) {
+            try {
+                localStorage.setItem("tasks", JSON.stringify(debouncedBoardData));
+            } catch (error) {
+                console.error("Failed to save tasks to local storage", error);
+                toast({
+                    variant: "destructive",
+                    title: "Error Saving Tasks",
+                    description: "There was an issue auto-saving your tasks.",
+                })
+            }
+        }
+    }, [debouncedBoardData, isMounted, toast]);
+
+    if (!isMounted || !boardData) {
         return null; // Or a loading spinner
     }
 
-    return <TaskBoardForm key={key} initialData={initialData} />;
+    return <TaskBoardForm boardData={boardData} setBoardData={setBoardData} />;
 }
 
 
-function TaskBoardForm({ initialData }: { initialData: FormValues }) {
+function TaskBoardForm({ boardData, setBoardData }: { boardData: FormValues, setBoardData: React.Dispatch<React.SetStateAction<FormValues | null>> }) {
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(boardSchema),
-    defaultValues: initialData,
+    values: boardData, // Use values to sync form with external state
   });
-
-  const boardData = useWatch({ control: form.control });
-  const [debouncedBoardData] = useDebounce(boardData, 1000);
-
+  
+  // This effect syncs the parent state back to the form if it changes from outside
   React.useEffect(() => {
-    try {
-        if(debouncedBoardData?.groups) {
-            localStorage.setItem("tasks", JSON.stringify(debouncedBoardData));
-        }
-    } catch (error) {
-        console.error("Failed to save tasks to local storage", error);
-        toast({
-            variant: "destructive",
-            title: "Error Saving Tasks",
-            description: "There was an issue auto-saving your tasks.",
-        })
-    }
-  }, [debouncedBoardData, toast]);
-
+    form.reset(boardData);
+  }, [boardData, form]);
 
   const { fields: groups, append: appendGroup, update: updateGroup, remove: removeGroup } = useFieldArray({
     control: form.control,
     name: "groups",
   });
+  
+  const handleStateChange = (newGroups: TaskGroup[]) => {
+      setBoardData({ groups: newGroups });
+  }
 
   const handleAddTask = (task: Omit<Task, 'id' | 'completed'>, targetGroupId: string) => {
-    const allGroups = form.getValues('groups');
-    const targetGroupIndex = allGroups.findIndex(g => g.id === targetGroupId);
-
-    if (targetGroupIndex === -1) {
-        return;
-    }
-
-    const group = form.getValues(`groups.${targetGroupIndex}`);
+    const newGroups = [...groups];
+    const targetGroupIndex = newGroups.findIndex(g => g.id === targetGroupId);
+    if (targetGroupIndex === -1) return;
+    
     const newTask: Task = { ...task, id: `task-${Date.now()}`, completed: false };
-    const updatedTasks = [...group.tasks, newTask];
-    updateGroup(targetGroupIndex, { ...group, tasks: updatedTasks });
+    newGroups[targetGroupIndex].tasks.push(newTask);
+    handleStateChange(newGroups);
   }
   
   const handleUpdateTask = (groupIdx: number, taskIdx: number, data: Omit<Task, 'id' | 'completed'>, newGroupId?: string) => {
-     const sourceGroup = form.getValues(`groups.${groupIdx}`);
-     const task = { ...sourceGroup.tasks[taskIdx], ...data };
+     const newGroups = [...groups];
+     const sourceGroup = newGroups[groupIdx];
+     const taskToUpdate = { ...sourceGroup.tasks[taskIdx], ...data };
 
      if(newGroupId && newGroupId !== sourceGroup.id) {
-         // Move task to a different group
-         const newTasksInSourceGroup = sourceGroup.tasks.filter((_, i) => i !== taskIdx);
-         updateGroup(groupIdx, { ...sourceGroup, tasks: newTasksInSourceGroup });
-         
-         const targetGroupIndex = groups.findIndex(g => g.id === newGroupId);
+         // Move task
+         sourceGroup.tasks.splice(taskIdx, 1);
+         const targetGroupIndex = newGroups.findIndex(g => g.id === newGroupId);
          if(targetGroupIndex !== -1) {
-            const targetGroup = form.getValues(`groups.${targetGroupIndex}`);
-            const newTasksInTargetGroup = [...targetGroup.tasks, task];
-            updateGroup(targetGroupIndex, { ...targetGroup, tasks: newTasksInTargetGroup });
+            newGroups[targetGroupIndex].tasks.push(taskToUpdate);
          }
-
      } else {
-        // Update task within the same group
-         const updatedTasks = [...sourceGroup.tasks];
-         updatedTasks[taskIdx] = task;
-         updateGroup(groupIdx, { ...sourceGroup, tasks: updatedTasks });
+        // Update task
+         sourceGroup.tasks[taskIdx] = taskToUpdate;
      }
+     handleStateChange(newGroups);
   }
 
   const handleToggleTask = (groupIdx: number, taskIdx: number) => {
-    const group = form.getValues(`groups.${groupIdx}`);
-    const updatedTasks = [...group.tasks];
-    const task = updatedTasks[taskIdx];
-    
+    const newGroups = [...groups];
+    const group = newGroups[groupIdx];
+    const task = group.tasks[taskIdx];
+
     task.completed = !task.completed;
+    task.dueDate = task.completed ? new Date().toISOString() : undefined;
     
-    if (task.completed) {
-        task.dueDate = new Date().toISOString();
-    } else {
-        delete task.dueDate;
-    }
-    
-    form.setValue(`groups.${groupIdx}.tasks`, updatedTasks, { shouldDirty: true });
+    handleStateChange(newGroups);
   }
   
   const handleRemoveTask = (groupIdx: number, taskIdx: number) => {
-    const currentTasks = form.getValues(`groups.${groupIdx}.tasks`);
-    const newTasks = currentTasks.filter((_, i) => i !== taskIdx);
-    form.setValue(`groups.${groupIdx}.tasks`, newTasks);
+    const newGroups = [...groups];
+    newGroups[groupIdx].tasks.splice(taskIdx, 1);
+    handleStateChange(newGroups);
   }
 
   const handleRenameGroup = (groupIdx: number, newName: string) => {
-    updateGroup(groupIdx, { ...groups[groupIdx], name: newName });
+    const newGroups = [...groups];
+    newGroups[groupIdx].name = newName;
+    handleStateChange(newGroups);
+  }
+  
+  const handleRemoveGroup = (groupIdx: number) => {
+      const newGroups = groups.filter((_, i) => i !== groupIdx);
+      handleStateChange(newGroups);
+  }
+  
+  const handleAddGroup = (name: string) => {
+    const newGroup = { id: `group-${Date.now()}`, name, tasks: [] };
+    handleStateChange([...groups, newGroup]);
   }
 
   return (
     <div className="space-y-4">
       <div className="flex justify-end gap-2">
         <AddTaskDialog onAddTask={handleAddTask} groups={groups} />
-        <AddGroupDialog onAddGroup={(name) => appendGroup({ id: `group-${Date.now()}`, name, tasks: [] })} />
+        <AddGroupDialog onAddGroup={handleAddGroup} />
       </div>
 
       <div className="space-y-6">
@@ -244,7 +250,7 @@ function TaskBoardForm({ initialData }: { initialData: FormValues }) {
                   {group.id !== "default" && (
                      <GroupActions 
                         onRename={(newName) => handleRenameGroup(groupIdx, newName)} 
-                        onDelete={() => removeGroup(groupIdx)} 
+                        onDelete={() => handleRemoveGroup(groupIdx)} 
                     />
                   )}
                 </div>
@@ -744,9 +750,5 @@ function EditTaskDialog({ task, groups, currentGroupId, onUpdateTask, trigger }:
     </Dialog>
   );
 }
-
-
-
-    
 
     

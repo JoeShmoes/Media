@@ -247,6 +247,11 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
 
   return (
     <div className="flex flex-col h-full">
+        <header className="p-4 border-b">
+             <h1 className="text-xl font-semibold text-center">
+                {session.title || "AI Room"}
+             </h1>
+        </header>
         <ScrollArea className="flex-1" ref={scrollAreaRef}>
         <div className="space-y-6 p-4 max-w-4xl mx-auto w-full">
             {messages.map((message, index) => (
@@ -343,7 +348,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
                         {/* This is a dummy trigger; the popover is controlled programmatically */}
                         <div className="w-0 h-0" />
                     </PopoverTrigger>
-                    <PopoverContent className="w-60 p-1 mb-2 max-h-72 overflow-y-auto" align="start">
+                    <PopoverContent className="w-60 p-1 mb-2 max-h-72" align="start">
                         <ScrollArea className="h-full">
                            {mentionableRooms.map(room => (
                                 <Button

@@ -5,7 +5,7 @@
 import * as React from "react";
 import { Plus, Edit, Trash2, CheckCircle, Circle, MoreVertical, ChevronDown } from "lucide-react";
 import { z } from "zod";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button } from "@/components/ui/button";
@@ -99,11 +99,34 @@ export function TasksBoard() {
       ],
     },
   });
+
+  const boardData = useWatch({ control: form.control, name: "groups" });
   
   React.useEffect(() => {
     setIsMounted(true);
-    // Load from localStorage if available
-  }, []);
+    try {
+      const savedTasks = localStorage.getItem("tasks");
+      if (savedTasks) {
+        const board = JSON.parse(savedTasks);
+        if (board && board.groups) {
+          form.reset(board);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load tasks from local storage", error);
+    }
+  }, [form]);
+
+  React.useEffect(() => {
+    if (isMounted) {
+      try {
+        const dataToSave = { groups: boardData };
+        localStorage.setItem("tasks", JSON.stringify(dataToSave));
+      } catch (error) {
+         console.error("Failed to save tasks to local storage", error);
+      }
+    }
+  }, [boardData, isMounted]);
 
   const { fields: groups, append: appendGroup, update: updateGroup, remove: removeGroup } = useFieldArray({
     control: form.control,
@@ -687,5 +710,7 @@ function EditTaskDialog({ task, groups, currentGroupId, onUpdateTask, trigger }:
     </Dialog>
   );
 }
+
+    
 
     

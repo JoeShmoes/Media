@@ -93,11 +93,9 @@ type FormValues = z.infer<typeof boardSchema>;
 
 export function TasksBoard() {
     const [initialData, setInitialData] = React.useState<FormValues | null>(null);
-    const [isMounted, setIsMounted] = React.useState(false);
     const [key, setKey] = React.useState(Date.now());
 
     React.useEffect(() => {
-        setIsMounted(true);
         try {
             const savedTasks = localStorage.getItem("tasks");
             if (savedTasks) {
@@ -115,7 +113,7 @@ export function TasksBoard() {
         setKey(Date.now());
     }, []);
 
-    if (!isMounted || !initialData) {
+    if (!initialData) {
         return null; // Or a loading spinner
     }
 
@@ -194,15 +192,21 @@ function TaskBoardForm({ initialData }: { initialData: FormValues }) {
   }
 
   const handleToggleTask = (groupIdx: number, taskIdx: number) => {
-    const completedFieldName = `groups.${groupIdx}.tasks.${taskIdx}.completed` as const;
-    const dueDateFieldName = `groups.${groupIdx}.tasks.${taskIdx}.dueDate` as const;
-    const isCompleted = !form.getValues(completedFieldName);
-    form.setValue(completedFieldName, isCompleted);
-    if (isCompleted) {
-        form.setValue(dueDateFieldName, new Date().toISOString());
+    const group = form.getValues(`groups.${groupIdx}`);
+    const updatedTasks = [...group.tasks];
+    const task = updatedTasks[taskIdx];
+    
+    task.completed = !task.completed;
+    if (task.completed) {
+        task.dueDate = new Date().toISOString();
     } else {
-        form.setValue(dueDateFieldName, undefined);
+        delete task.dueDate;
     }
+
+    // This sort ensures the checked item visually moves, forcing a re-render
+    updatedTasks.sort((a, b) => (a.completed ? 1 : -1) - (b.completed ? 1 : -1) || 0);
+
+    form.setValue(`groups.${groupIdx}.tasks`, updatedTasks, { shouldDirty: true });
   }
   
   const handleRemoveTask = (groupIdx: number, taskIdx: number) => {
@@ -229,14 +233,14 @@ function TaskBoardForm({ initialData }: { initialData: FormValues }) {
             <Collapsible key={group.id} defaultOpen className="group/collapsible">
               <Card className="glassmorphic">
                 <CardHeader className="flex flex-row items-center justify-between">
-                  <div className="flex items-center gap-2">
-                     <CollapsibleTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                            <ChevronRight className="h-5 w-5 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"/>
-                        </Button>
-                     </CollapsibleTrigger>
-                     <CardTitle>{group.name}</CardTitle>
-                  </div>
+                    <div className="flex items-center gap-2">
+                        <CollapsibleTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <ChevronRight className="h-5 w-5 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90"/>
+                            </Button>
+                        </CollapsibleTrigger>
+                        <CardTitle>{group.name}</CardTitle>
+                    </div>
                   {group.id !== "default" && (
                      <GroupActions 
                         onRename={(newName) => handleRenameGroup(groupIdx, newName)} 

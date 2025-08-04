@@ -2,7 +2,6 @@
 "use client";
 import Link from "next/link";
 import { Icons } from "@/components/icons";
-import { Github, Twitter, Linkedin } from "lucide-react";
 
 export function Footer() {
   return (
@@ -24,7 +23,6 @@ export function Footer() {
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link href="/#features" className="hover:text-white">Features</Link></li>
                 <li><Link href="/#pricing" className="hover:text-white">Pricing</Link></li>
-                <li><Link href="/contact" className="hover:text-white">Contact</Link></li>
                 <li><Link href="/dashboard" className="hover:text-white">Sign Up</Link></li>
               </ul>
             </div>
@@ -36,12 +34,10 @@ export function Footer() {
               </ul>
             </div>
              <div>
-                <h4 className="font-semibold mb-4">Connect</h4>
-                <div className="flex gap-4">
-                    <a href="#" className="text-muted-foreground hover:text-white transition-colors"><Twitter/></a>
-                    <a href="#" className="text-muted-foreground hover:text-white transition-colors"><Github/></a>
-                    <a href="#" className="text-muted-foreground hover:text-white transition-colors"><Linkedin/></a>
-                </div>
+                <h4 className="font-semibold mb-4">Contact</h4>
+                 <ul className="space-y-2 text-sm text-muted-foreground">
+                    <li><a href="mailto:nexarismedia@gmail.com" className="hover:text-white">Email Us</a></li>
+                 </ul>
             </div>
           </div>
         </div>

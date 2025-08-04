@@ -2,6 +2,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { BrainCircuit, KanbanSquare, SendHorizonal, CircleDollarSign, PenSquare, Youtube, Check } from "lucide-react";
@@ -71,9 +72,24 @@ export default function LandingPage() {
               <Button size="lg" className="bg-white text-black hover:bg-gray-200">Start Using Nexaris Media</Button>
             </Link>
              <Link href="#features" passHref>
-              <Button size="lg" variant="outline">Explore Features</Button>
+              <Button size="lg" variant="outline" className="text-black bg-gray-200 hover:bg-gray-300">Explore Features</Button>
             </Link>
           </div>
+           <motion.div 
+            className="mt-16"
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+          >
+             <Image 
+                src="https://placehold.co/1024x640.png" 
+                alt="Nexaris Media App Preview" 
+                width={1024} 
+                height={640} 
+                className="rounded-xl shadow-2xl border-4 border-gray-700"
+                data-ai-hint="laptop computer"
+              />
+          </motion.div>
         </motion.section>
 
         {/* Features Section */}

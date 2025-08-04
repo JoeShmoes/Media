@@ -39,7 +39,6 @@ interface SettingsDialogProps {
 
 const settingCategories: { id: SettingCategory, label: string, icon: React.ReactElement }[] = [
     { id: 'universal', label: 'Universal', icon: <Wrench/> },
-    { id: 'workspace', label: 'Workspace', icon: <Shield /> },
     { id: 'profile', label: 'Profile', icon: <User/> },
     { id: 'notifications', label: 'Notifications', icon: <Bell/> },
 ]
@@ -186,37 +185,6 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     <CardContent className="space-y-2">
                         <Label>Default Export Format</Label>
                         <Select value={settings.exportOptions} onValueChange={(v) => setSetting('exportOptions', v as any)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="pdf">PDF</SelectItem><SelectItem value="docx">.docx</SelectItem><SelectItem value="csv">.csv</SelectItem><SelectItem value="png">PNG Screenshot</SelectItem></SelectContent></Select>
-                    </CardContent>
-                </Card>
-            </div>
-        )
-      case 'workspace':
-        return (
-            <div className="space-y-6">
-                <Card>
-                    <CardHeader><CardTitle>Branding</CardTitle><CardDescription>Global app settings for your workspace.</CardDescription></CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2"><Label>Workspace Name</Label><Input value={settings.workspaceName} onChange={(e) => setSetting('workspaceName', e.target.value)} /></div>
-                        <div className="space-y-2"><Label>Tagline</Label><Input value={settings.tagline} onChange={(e) => setSetting('tagline', e.target.value)} /></div>
-                        <Button variant="outline" onClick={() => handleNavigate('/brand-room')}>Set App Logo & Brand Colors</Button>
-                        <Button variant="outline" onClick={handleComingSoon}>Set Workspace Wallpaper</Button>
-                        <Button variant="outline" onClick={handleComingSoon}>Customize Typography Settings</Button>
-                    </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader><CardTitle>Navigation</CardTitle></CardHeader>
-                    <CardContent className="space-y-4">
-                        <Button variant="outline" onClick={handleComingSoon}>Manage Favorite Rooms</Button>
-                        <div className="flex items-center justify-between"><Label htmlFor="fav-panel">Favourites Panel Visibility</Label><Switch id="fav-panel" checked={settings.favouritesPanelVisibility} onCheckedChange={(c) => setSetting('favouritesPanelVisibility', c)} /></div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader><CardTitle>Access Control</CardTitle></CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                           <Label>Room Access Control</Label>
-                           <Select value={settings.roomAccessControl} onValueChange={(v) => setSetting('roomAccessControl', v as any)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="private">Private</SelectItem><SelectItem value="shared">Shared</SelectItem><SelectItem value="team">Team View</SelectItem></SelectContent></Select>
-                        </div>
                     </CardContent>
                 </Card>
             </div>

@@ -7,7 +7,7 @@ export type SidebarLayout = "expanded" | "minimal" | "hidden";
 export type RoomBackground = "solid" | "blur" | "custom";
 export type TimeFormat = "12hr" | "24hr";
 export type SettingCategory = 
-  | 'universal' | 'profile' | 'notifications' | 'workspace' 
+  | 'universal' | 'profile' | 'notifications'
   | 'cortex' | 'dashboard' | 'tasks' | 'notes' | 'research' 
   | 'gm' | 'clients' | 'projects' | 'outreach' | 'finance' 
   | 'offerBuilder' | 'assetTracker' | 'brandRoom' | 'pipelineTracker' 
@@ -23,12 +23,6 @@ export type Settings = {
   quickSync: boolean;
   exportOptions: 'pdf' | 'docx' | 'csv' | 'png';
   roomShortcuts: { [key: string]: string };
-
-  // Workspace
-  workspaceName: string;
-  tagline: string;
-  favouritesPanelVisibility: boolean;
-  roomAccessControl: 'private' | 'shared' | 'team';
   
   // Profile
   userName: string;
@@ -62,12 +56,6 @@ const defaultSettings: Settings = {
   quickSync: false,
   exportOptions: "csv",
   roomShortcuts: {},
-
-  // Workspace
-  workspaceName: "Nexaris Media",
-  tagline: "Your Central AI Command Hub",
-  favouritesPanelVisibility: true,
-  roomAccessControl: "private",
   
   // Profile
   userName: "User",

@@ -50,37 +50,77 @@ const sectionVariants = {
 };
 
 function AnimatedLaptop() {
+  const laptopVariants = {
+    hidden: { opacity: 0, y: 50, scale: 0.8 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: { duration: 0.8, delay: 0.4, ease: "easeOut" },
+    },
+  };
+
+  const screenVariants = {
+    closed: { rotateX: 90 },
+    open: { 
+      rotateX: 0,
+      transition: { duration: 0.6, delay: 1, ease: [0.33, 1, 0.68, 1] }
+    },
+  };
+  
+  const imageVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.5, delay: 1.5 } },
+  };
+
+
   return (
     <motion.div
       className="w-full max-w-4xl mt-16"
-      initial={{ opacity: 0, y: 50, scale: 0.8, rotateX: 20 }}
-      animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
-      transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-      style={{ perspective: "1500px" }}
+      style={{ perspective: "2000px" }}
+      variants={laptopVariants}
+      initial="hidden"
+      animate="visible"
     >
-      <div className="relative" style={{ transformStyle: "preserve-3d" }}>
+      <div className="relative w-full h-auto" style={{ transformStyle: "preserve-3d" }}>
+        {/* Laptop Base */}
+        <div className="relative w-full h-[25px] bg-gray-800 rounded-t-sm rounded-b-lg"
+          style={{ transform: "rotateX(-80deg) translateZ(-12px) translateY(12px)" }}
+        >
+          <div className="absolute top-1/2 left-1/2 w-24 h-1 -translate-x-1/2 -translate-y-1/2 bg-gray-600/50 rounded-full"></div>
+        </div>
+
         {/* Laptop Screen */}
-        <div className="relative aspect-video w-full rounded-xl border-4 border-gray-700 bg-black shadow-2xl overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-6 bg-gray-800 flex items-center px-2">
+        <motion.div
+          className="relative aspect-video w-full rounded-xl border-4 border-gray-700 bg-black shadow-2xl overflow-hidden"
+          style={{ transformOrigin: "bottom center" }}
+          variants={screenVariants}
+          initial="closed"
+          animate="open"
+        >
+          <div className="absolute top-0 left-0 w-full h-6 bg-gray-800 flex items-center px-2 z-10">
             <div className="flex gap-1.5">
               <div className="w-3 h-3 rounded-full bg-red-500"></div>
               <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
               <div className="w-3 h-3 rounded-full bg-green-500"></div>
             </div>
           </div>
-          <Image
-            src="https://placehold.co/1280x720.png"
-            alt="Nexaris Media App Preview"
-            width={1280}
-            height={720}
-            className="w-full h-full object-cover pt-6"
-            data-ai-hint="dashboard analytics"
-          />
-        </div>
-        {/* Laptop Base */}
-        <div className="absolute bottom-0 left-1/2 w-[110%] h-4 -translate-x-1/2 translate-y-full rounded-b-md bg-gray-600" style={{ transform: "rotateX(-60deg)" }}>
-            <div className="absolute top-1/2 left-1/2 w-24 h-1 -translate-x-1/2 -translate-y-1/2 bg-gray-500/50 rounded-full"></div>
-        </div>
+          <motion.div 
+            className="w-full h-full pt-6"
+            variants={imageVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <Image
+              src="https://placehold.co/1280x720.png"
+              alt="Nexaris Media App Preview"
+              width={1280}
+              height={720}
+              className="w-full h-full object-cover"
+              data-ai-hint="dashboard analytics"
+            />
+          </motion.div>
+        </motion.div>
       </div>
     </motion.div>
   );

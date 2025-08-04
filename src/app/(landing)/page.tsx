@@ -95,9 +95,6 @@ export default function LandingPage() {
             <Link href="/login" passHref>
               <Button size="lg" className="bg-white text-black hover:bg-gray-200">Start Using Nexaris Media</Button>
             </Link>
-             <Link href="#features" passHref>
-              <Button size="lg" variant="outline" className="text-white border-white hover:bg-white hover:text-black">Explore Features</Button>
-            </Link>
           </div>
         </motion.section>
 

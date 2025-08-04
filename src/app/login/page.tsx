@@ -104,9 +104,6 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col min-h-screen items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black text-white p-4">
         <div className="flex flex-col items-center text-center mb-8">
-            <Link href="/" className="mb-4">
-                <Icons.logo className="w-16 h-16 text-white" />
-            </Link>
             <h1 className="text-3xl font-bold">Welcome to Nexaris Media</h1>
             <p className="text-muted-foreground mt-2">Your central AI command hub. Sign in to continue.</p>
         </div>

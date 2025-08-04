@@ -146,10 +146,6 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col min-h-screen items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black text-white p-4">
         <div className="w-full max-w-md space-y-8">
-            <div className="flex items-center justify-center gap-4 mb-4">
-                <Icons.logo className="h-10 w-10 text-white" />
-                <h1 className="text-4xl font-bold tracking-tight">Nexaris Media</h1>
-            </div>
 
             <h2 className="text-center text-2xl font-semibold tracking-tight">
               {isLoginView ? "Welcome back" : "Create an account"}
@@ -165,14 +161,14 @@ export default function LoginPage() {
                         <Input id="login-password" type="password" placeholder="Password" {...loginForm.register("password")} className={formStyles.input}/>
                         {loginForm.formState.errors.password && <p className="text-sm text-destructive">{loginForm.formState.errors.password.message}</p>}
                     </div>
-                     <div className="text-right">
+                    <Button type="submit" className={`w-full ${formStyles.button}`} disabled={isSubmitting}>
+                        {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Sign In"}
+                    </Button>
+                     <div className="text-center">
                         <button type="button" onClick={() => setIsResetDialogOpen(true)} className="text-sm font-semibold text-white/70 hover:text-white transition">
                             Forgot password?
                         </button>
                     </div>
-                    <Button type="submit" className={`w-full ${formStyles.button}`} disabled={isSubmitting}>
-                        {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Sign In"}
-                    </Button>
                 </form>
             ) : (
                 <form onSubmit={signUpForm.handleSubmit(onSignUpSubmit)} className="space-y-6">

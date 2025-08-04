@@ -49,6 +49,44 @@ const sectionVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
 };
 
+function AnimatedLaptop() {
+  return (
+    <motion.div
+      className="w-full max-w-4xl mt-16"
+      initial={{ opacity: 0, y: 50, scale: 0.8, rotateX: 20 }}
+      animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
+      transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+      style={{ perspective: "1500px" }}
+    >
+      <div className="relative" style={{ transformStyle: "preserve-3d" }}>
+        {/* Laptop Screen */}
+        <div className="relative aspect-video w-full rounded-xl border-4 border-gray-700 bg-black shadow-2xl overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-6 bg-gray-800 flex items-center px-2">
+            <div className="flex gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+              <div className="w-3 h-3 rounded-full bg-green-500"></div>
+            </div>
+          </div>
+          <Image
+            src="https://placehold.co/1280x720.png"
+            alt="Nexaris Media App Preview"
+            width={1280}
+            height={720}
+            className="w-full h-full object-cover pt-6"
+            data-ai-hint="dashboard analytics"
+          />
+        </div>
+        {/* Laptop Base */}
+        <div className="absolute bottom-0 left-1/2 w-[110%] h-4 -translate-x-1/2 translate-y-full rounded-b-md bg-gray-600" style={{ transform: "rotateX(-60deg)" }}>
+            <div className="absolute top-1/2 left-1/2 w-24 h-1 -translate-x-1/2 -translate-y-1/2 bg-gray-500/50 rounded-full"></div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+
 export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white">
@@ -75,21 +113,7 @@ export default function LandingPage() {
               <Button size="lg" variant="outline" className="text-black bg-gray-200 hover:bg-gray-300">Explore Features</Button>
             </Link>
           </div>
-           <motion.div 
-            className="mt-16"
-            initial={{ opacity: 0, y: 50, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-          >
-             <Image 
-                src="https://placehold.co/1024x640.png" 
-                alt="Nexaris Media App Preview" 
-                width={1024} 
-                height={640} 
-                className="rounded-xl shadow-2xl border-4 border-gray-700"
-                data-ai-hint="laptop computer"
-              />
-          </motion.div>
+           <AnimatedLaptop />
         </motion.section>
 
         {/* Features Section */}

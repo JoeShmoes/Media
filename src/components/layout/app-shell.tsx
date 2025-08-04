@@ -250,7 +250,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <SidebarHeader className="flex flex-col items-stretch gap-2">
             <div className="flex items-center gap-2">
                 <Icons.logo className="w-8 h-8 text-white group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:h-8 transition-all"/>
-                <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">BizMaster AI</span>
+                <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">Nexaris Media</span>
             </div>
              <div className="relative group-data-[collapsible=icon]:hidden">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />

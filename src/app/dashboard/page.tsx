@@ -33,7 +33,7 @@ const chartConfig = {
 }
 
 
-export default function Dashboard() {
+export default function DashboardPage() {
   const { settings } = useSettings();
   const cardClassName = "glassmorphic";
   const [isMounted, setIsMounted] = React.useState(false);

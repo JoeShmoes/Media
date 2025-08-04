@@ -8,7 +8,7 @@ import { ThemeProvider } from 'next-themes';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'BizMaster AI',
+  title: 'Nexaris Media',
   description: 'Your Central AI Command Hub to Run and Scale Every Business You Own',
 };
 

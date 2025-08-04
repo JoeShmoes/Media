@@ -10,7 +10,7 @@ export const Icons = {
     >
       <rect width="100" height="100" rx="20" fill="currentColor" />
       <path
-        d="M30 80V20L70 60V20"
+        d="M30 80 V 20 L 70 60 V 20"
         stroke="#222225"
         strokeWidth="15"
         strokeLinejoin="round"

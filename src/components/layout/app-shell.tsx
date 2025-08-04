@@ -179,8 +179,7 @@ function LiveClock() {
 
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const [user, loadingUser] = useAuthState(auth);
-  const [appUser, setAppUser] = React.useState<AppUser | null>(null);
+  const [user] = useAuthState(auth);
   const pathname = usePathname()
   const router = useRouter()
   const { settings, setSetting } = useSettings();
@@ -193,20 +192,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [deals, setDeals] = React.useState<Deal[]>([]);
   const [notes, setNotes] = React.useState<Note[]>([]);
 
-  React.useEffect(() => {
-    const fetchAppUser = async () => {
-        if (user) {
-            const userRef = doc(db, "users", user.uid);
-            const userDoc = await getDoc(userRef);
-            if (userDoc.exists()) {
-                setAppUser(userDoc.data() as AppUser);
-            }
-        }
-    }
-    if (!loadingUser) {
-        fetchAppUser();
-    }
-  }, [user, loadingUser]);
 
   React.useEffect(() => {
     // Load searchable data from localStorage
@@ -441,11 +426,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Button variant="ghost" className="justify-start w-full h-auto p-2">
                  <div className="flex items-center gap-3">
                    <Avatar className="h-8 w-8">
-                     <AvatarImage src={appUser?.photoURL || undefined} />
+                     <AvatarImage src={user?.photoURL || undefined} />
                      <AvatarFallback><User/></AvatarFallback>
                    </Avatar>
                   <div className="flex-col items-start group-data-[collapsible=icon]:hidden">
-                      <span className="text-sm font-medium text-foreground">{appUser ? `${appUser.firstName} ${appUser.lastName}`: 'User'}</span>
+                      <span className="text-sm font-medium text-foreground">{user?.displayName || 'User'}</span>
                   </div>
                 </div>
               </Button>

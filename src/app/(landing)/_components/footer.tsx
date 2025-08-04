@@ -22,17 +22,17 @@ export function Footer() {
             <div>
               <h4 className="font-semibold mb-4">Quick Links</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="#features" className="hover:text-white">Features</Link></li>
-                <li><Link href="/dashboard" className="hover:text-white">Pricing</Link></li>
-                <li><Link href="/dashboard" className="hover:text-white">Contact</Link></li>
+                <li><Link href="/#features" className="hover:text-white">Features</Link></li>
+                <li><Link href="/#pricing" className="hover:text-white">Pricing</Link></li>
+                <li><Link href="/contact" className="hover:text-white">Contact</Link></li>
                 <li><Link href="/dashboard" className="hover:text-white">Sign Up</Link></li>
               </ul>
             </div>
              <div>
               <h4 className="font-semibold mb-4">Legal</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="#" className="hover:text-white">Privacy Policy</Link></li>
-                <li><Link href="#" className="hover:text-white">Terms of Service</Link></li>
+                <li><Link href="/privacy-policy" className="hover:text-white">Privacy Policy</Link></li>
+                <li><Link href="/terms-of-service" className="hover:text-white">Terms of Service</Link></li>
               </ul>
             </div>
              <div>

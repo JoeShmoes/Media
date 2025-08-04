@@ -34,13 +34,13 @@ export function Header() {
           <span className="font-bold text-lg">Nexaris Media</span>
         </Link>
         <nav className="hidden md:flex items-center gap-6">
-          <Link href="#features" className="text-sm font-medium hover:text-primary transition-colors">
+          <Link href="/#features" className="text-sm font-medium hover:text-primary transition-colors">
             Features
           </Link>
-          <Link href="/dashboard" className="text-sm font-medium hover:text-primary transition-colors">
+          <Link href="/#pricing" className="text-sm font-medium hover:text-primary transition-colors">
             Pricing
           </Link>
-           <Link href="/dashboard" className="text-sm font-medium hover:text-primary transition-colors">
+           <Link href="/contact" className="text-sm font-medium hover:text-primary transition-colors">
             Contact
           </Link>
         </nav>

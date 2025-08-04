@@ -4,9 +4,12 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { BrainCircuit, KanbanSquare, SendHorizonal, CircleDollarSign, PenSquare, Youtube } from "lucide-react";
+import { BrainCircuit, KanbanSquare, SendHorizonal, CircleDollarSign, PenSquare, Youtube, Check } from "lucide-react";
 import { Header } from "./_components/header";
 import { Footer } from "./_components/footer";
+import { Switch } from "@/components/ui/switch";
+import * as React from "react";
+import { Label } from "@/components/ui/label";
 
 const features = [
   {
@@ -47,6 +50,7 @@ const sectionVariants = {
 };
 
 export default function LandingPage() {
+    const [isYearly, setIsYearly] = React.useState(false);
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white">
       <Header />
@@ -129,7 +133,45 @@ export default function LandingPage() {
                 </div>
             </div>
         </motion.section>
+        
+        {/* Pricing Section */}
+        <motion.section
+            id="pricing"
+            className="container mx-auto px-4 py-20"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+            variants={sectionVariants}
+        >
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Simple, All-Inclusive Pricing</h2>
+            <p className="text-center text-muted-foreground mb-12 max-w-xl mx-auto">One plan. Every feature. No hidden fees. The app is live and ready for you—no waitlist, no demo required.</p>
+            
+            <div className="flex justify-center items-center gap-4 mb-8">
+                <Label htmlFor="billing-cycle">Monthly</Label>
+                <Switch id="billing-cycle" checked={isYearly} onCheckedChange={setIsYearly} />
+                <Label htmlFor="billing-cycle">Annually (Save 20%)</Label>
+            </div>
 
+            <div className="flex justify-center">
+                <div className="bg-white/5 p-8 rounded-lg glassmorphic border border-white/10 w-full max-w-md">
+                    <h3 className="text-2xl font-semibold text-center mb-2">The All-In-One Plan</h3>
+                     <p className="text-center text-muted-foreground mb-6">Everything you need to run and scale your business.</p>
+                    <div className="text-center mb-6">
+                        <span className="text-5xl font-bold">${isYearly ? "39" : "49"}</span>
+                        <span className="text-muted-foreground">/ month</span>
+                    </div>
+                    <ul className="space-y-3 mb-8">
+                        {["All Rooms & Features Included", "Unlimited AI Usage", "Priority Support", "Regular Updates"].map((item, i) => (
+                           <li key={i} className="flex items-center gap-3">
+                                <Check className="h-5 w-5 text-green-500" />
+                                <span>{item}</span>
+                           </li>
+                        ))}
+                    </ul>
+                    <Button size="lg" className="w-full bg-white text-black hover:bg-gray-200">Get Started Instantly</Button>
+                </div>
+            </div>
+        </motion.section>
       </main>
       <Footer />
     </div>

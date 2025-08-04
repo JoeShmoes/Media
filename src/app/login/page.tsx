@@ -63,34 +63,42 @@ export default function LoginPage() {
 
   const handleGoogleSignIn = async () => {
     setIsSubmitting(true);
-    await signInWithGoogle();
-    setIsSubmitting(false);
+    const user = await signInWithGoogle();
+    if (user) {
+        router.push('/dashboard');
+    } else {
+        setIsSubmitting(false);
+    }
   }
 
   const onLoginSubmit = async (data: LoginFormValues) => {
     setIsSubmitting(true);
     const user = await signInWithEmail(data.email, data.password);
-    if (!user) {
+    if (user) {
+        router.push('/dashboard');
+    } else {
       toast({
         variant: "destructive",
         title: "Login Failed",
         description: "Invalid email or password. Please try again.",
       });
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   }
 
   const onSignUpSubmit = async (data: SignUpFormValues) => {
     setIsSubmitting(true);
     const user = await signUpWithEmail(data.email, data.password);
-    if (!user) {
+    if (user) {
+        router.push('/dashboard');
+    } else {
       toast({
         variant: "destructive",
         title: "Sign Up Failed",
         description: "Could not create an account. The email may already be in use.",
       });
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   }
 
   return (
@@ -190,3 +198,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+    

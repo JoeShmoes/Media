@@ -118,8 +118,7 @@ export default function ClientsPage() {
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-end gap-2 mb-4">
           <Button onClick={handleAddClient}>
-              <PlusCircle />
-              Add Client
+              <PlusCircle className="mr-2" /> Add Client
           </Button>
           <Button variant="outline" onClick={handleExport}>
               <Download className="mr-2"/> Export as {settings.exportOptions.toUpperCase()}

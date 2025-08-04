@@ -54,6 +54,21 @@ export default function ProjectsPage() {
   const { settings } = useSettings();
   const { toast } = useToast();
 
+  React.useEffect(() => {
+    try {
+      const savedProjects = localStorage.getItem("projects");
+      if (savedProjects) {
+        setBoardData(JSON.parse(savedProjects));
+      }
+    } catch(e) {
+      console.error(e)
+    }
+  }, [])
+
+  React.useEffect(() => {
+    localStorage.setItem("projects", JSON.stringify(boardData));
+  }, [boardData])
+
   const handleAddProject = () => {
     setEditingProject(null)
     setIsDialogOpen(true)

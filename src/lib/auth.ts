@@ -18,7 +18,7 @@ export const signUpWithEmail = async (data: SignUpData) => {
             lastName: data.lastName,
             phone: data.phone,
             age: data.age,
-            photoURL: "",
+            photoURL: `https://placehold.co/100x100.png?text=${data.firstName.charAt(0)}${data.lastName.charAt(0)}`,
         };
         
         await setDoc(doc(db, "users", user.uid), newUser);

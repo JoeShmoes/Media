@@ -179,7 +179,7 @@ function LiveClock() {
 
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const [user] = useAuthState(auth);
+  const [user, loadingUser] = useAuthState(auth);
   const [appUser, setAppUser] = React.useState<AppUser | null>(null);
   const pathname = usePathname()
   const router = useRouter()
@@ -203,8 +203,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             }
         }
     }
-    fetchAppUser();
-  }, [user]);
+    if (!loadingUser) {
+        fetchAppUser();
+    }
+  }, [user, loadingUser]);
 
   React.useEffect(() => {
     // Load searchable data from localStorage

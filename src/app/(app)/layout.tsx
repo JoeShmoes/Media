@@ -18,7 +18,7 @@ export default function AppLayout({
 
     React.useEffect(() => {
         if (!loading && !user) {
-            router.push('/');
+            router.push('/login');
         }
     }, [user, loading, router]);
 

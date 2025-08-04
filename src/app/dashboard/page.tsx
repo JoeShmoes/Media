@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react";
@@ -37,7 +38,7 @@ const chartConfig = {
 
 
 export default function DashboardPage() {
-  const [user, loading, error] = useAuthState(auth);
+  const [user] = useAuthState(auth);
   const { settings } = useSettings();
   const cardClassName = "glassmorphic";
   const [isMounted, setIsMounted] = React.useState(false);
@@ -178,37 +179,9 @@ export default function DashboardPage() {
   }, [tasks]);
 
   
-  if (loading || !isMounted) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-          <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
+  if (!isMounted) {
+    return null; // or a loading screen
   }
-
-  if (!user) {
-    return (
-       <div className="flex flex-col items-center justify-center min-h-screen bg-background">
-         <div className="text-center p-8 max-w-md w-full">
-            <Icons.logo className="w-16 h-16 mx-auto mb-4 text-primary" />
-           <h1 className="text-3xl font-bold mb-2">Welcome to Nexaris Media</h1>
-           <p className="text-muted-foreground mb-8">Your central AI command hub. Please sign in to continue.</p>
-           <div className="space-y-4">
-             <Button className="w-full" onClick={signInWithGoogle}>
-                <LogIn className="mr-2"/> Sign In with Google
-             </Button>
-             <Button className="w-full" variant="outline" onClick={signInWithGoogle}>
-               <LogIn className="mr-2"/> Sign Up with Google
-             </Button>
-           </div>
-           <p className="text-xs text-muted-foreground mt-8">
-             By signing in, you agree to our <Link href="/terms-of-service" className="underline hover:text-primary">Terms of Service</Link> and <Link href="/privacy-policy" className="underline hover:text-primary">Privacy Policy</Link>.
-           </p>
-         </div>
-       </div>
-    )
-  }
-
 
   return (
       <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">

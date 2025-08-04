@@ -3,8 +3,9 @@
 
 import * as React from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, ChevronLeft } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,13 +18,15 @@ import { Input } from "@/components/ui/input";
 import { Icons } from "@/components/icons";
 import {
   AlertDialog,
+  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import { Label } from "@/components/ui/label";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -144,9 +147,21 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black text-white p-4">
-        <div className="w-full max-w-md space-y-8">
+    <div className="relative flex flex-col min-h-screen items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black text-white p-4">
+      <Link href="/" passHref>
+        <Button variant="ghost" className="absolute top-4 left-4 flex items-center gap-2">
+          <ChevronLeft className="h-5 w-5"/> Back to Home
+        </Button>
+      </Link>
+      
+        <div className="text-center mb-12">
+            <Link href="/" className="flex items-center justify-center gap-2">
+                <Icons.logo className="h-10 w-10 text-white" />
+                <span className="font-bold text-2xl">Nexaris Media</span>
+            </Link>
+        </div>
 
+        <div className="w-full max-w-md space-y-8">
             <h2 className="text-center text-2xl font-semibold tracking-tight">
               {isLoginView ? "Welcome back" : "Create an account"}
             </h2>
@@ -154,11 +169,13 @@ export default function LoginPage() {
             {isLoginView ? (
                  <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-6">
                     <div className="space-y-2">
-                        <Input id="login-email" type="email" placeholder="Email" {...loginForm.register("email")} className={formStyles.input} />
+                        <Label htmlFor="login-email">Email</Label>
+                        <Input id="login-email" type="email" {...loginForm.register("email")} className={formStyles.input} />
                         {loginForm.formState.errors.email && <p className="text-sm text-destructive">{loginForm.formState.errors.email.message}</p>}
                     </div>
                     <div className="space-y-2">
-                        <Input id="login-password" type="password" placeholder="Password" {...loginForm.register("password")} className={formStyles.input}/>
+                        <Label htmlFor="login-password">Password</Label>
+                        <Input id="login-password" type="password" {...loginForm.register("password")} className={formStyles.input}/>
                         {loginForm.formState.errors.password && <p className="text-sm text-destructive">{loginForm.formState.errors.password.message}</p>}
                     </div>
                     <Button type="submit" className={`w-full ${formStyles.button}`} disabled={isSubmitting}>
@@ -174,34 +191,41 @@ export default function LoginPage() {
                 <form onSubmit={signUpForm.handleSubmit(onSignUpSubmit)} className="space-y-6">
                     <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <Input id="firstName" placeholder="First name" {...signUpForm.register("firstName")} className={formStyles.input}/>
+                            <Label htmlFor="firstName">First name</Label>
+                            <Input id="firstName" {...signUpForm.register("firstName")} className={formStyles.input}/>
                             {signUpForm.formState.errors.firstName && <p className="text-sm text-destructive">{signUpForm.formState.errors.firstName.message}</p>}
                         </div>
                         <div className="space-y-2">
-                            <Input id="lastName" placeholder="Last name" {...signUpForm.register("lastName")} className={formStyles.input}/>
+                            <Label htmlFor="lastName">Last name</Label>
+                            <Input id="lastName" {...signUpForm.register("lastName")} className={formStyles.input}/>
                             {signUpForm.formState.errors.lastName && <p className="text-sm text-destructive">{signUpForm.formState.errors.lastName.message}</p>}
                         </div>
                     </div>
                      <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <Input id="phone" type="tel" placeholder="Phone number" {...signUpForm.register("phone")} className={formStyles.input}/>
+                            <Label htmlFor="phone">Phone number</Label>
+                            <Input id="phone" type="tel" {...signUpForm.register("phone")} className={formStyles.input}/>
                             {signUpForm.formState.errors.phone && <p className="text-sm text-destructive">{signUpForm.formState.errors.phone.message}</p>}
                         </div>
                         <div className="space-y-2">
-                            <Input id="age" type="number" placeholder="Age" {...signUpForm.register("age")} className={formStyles.input}/>
+                            <Label htmlFor="age">Age</Label>
+                            <Input id="age" type="number" {...signUpForm.register("age")} className={formStyles.input}/>
                             {signUpForm.formState.errors.age && <p className="text-sm text-destructive">{signUpForm.formState.errors.age.message}</p>}
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <Input id="signup-email" type="email" placeholder="Email" {...signUpForm.register("email")} className={formStyles.input}/>
+                        <Label htmlFor="signup-email">Email</Label>
+                        <Input id="signup-email" type="email" {...signUpForm.register("email")} className={formStyles.input}/>
                         {signUpForm.formState.errors.email && <p className="text-sm text-destructive">{signUpForm.formState.errors.email.message}</p>}
                     </div>
                     <div className="space-y-2">
-                        <Input id="signup-password" type="password" placeholder="Password" {...signUpForm.register("password")} className={formStyles.input}/>
+                        <Label htmlFor="signup-password">Password</Label>
+                        <Input id="signup-password" type="password" {...signUpForm.register("password")} className={formStyles.input}/>
                          {signUpForm.formState.errors.password && <p className="text-sm text-destructive">{signUpForm.formState.errors.password.message}</p>}
                     </div>
                     <div className="space-y-2">
-                        <Input id="confirmPassword" type="password" placeholder="Confirm Password" {...signUpForm.register("confirmPassword")} className={formStyles.input}/>
+                        <Label htmlFor="confirmPassword">Confirm Password</Label>
+                        <Input id="confirmPassword" type="password" {...signUpForm.register("confirmPassword")} className={formStyles.input}/>
                          {signUpForm.formState.errors.confirmPassword && <p className="text-sm text-destructive">{signUpForm.formState.errors.confirmPassword.message}</p>}
                     </div>
                     <Button type="submit" className={`w-full ${formStyles.button}`} disabled={isSubmitting}>
@@ -228,7 +252,8 @@ export default function LoginPage() {
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <div className="py-4">
-                    <Input id="reset-email" type="email" placeholder="Email" {...resetPasswordForm.register("email")} className="bg-background"/>
+                    <Label htmlFor="reset-email">Email</Label>
+                    <Input id="reset-email" type="email" {...resetPasswordForm.register("email")} className="bg-background"/>
                     {resetPasswordForm.formState.errors.email && <p className="text-sm text-destructive mt-2">{resetPasswordForm.formState.errors.email.message}</p>}
                 </div>
                 <AlertDialogFooter>

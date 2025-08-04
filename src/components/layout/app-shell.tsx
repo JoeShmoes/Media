@@ -81,7 +81,7 @@ import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, C
 import { useRouter } from "next/navigation"
 
 export const navLinks = [
-    { href: "/", icon: LayoutDashboard, label: "Dashboard", description: "A high-level overview of your business." },
+    { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard", description: "A high-level overview of your business." },
     { href: "/ai-room", icon: BrainCircuit, label: "AI Room", description: "Your custom-trained AI business advisor." },
     { href: "/tasks", icon: ListTodo, label: "Tasks", description: "Create and manage your tasks and to-do lists." },
     { href: "/notes", icon: Notebook, label: "Notes", description: "Create and manage your notes. They are saved automatically." },
@@ -111,7 +111,7 @@ const favouritesNavItems = [
 ]
 
 const mainNavItems = [
-    { href: "/", icon: LayoutDashboard, label: "Dashboard" },
+    { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { href: "/tasks", icon: ListTodo, label: "Tasks" },
     { href: "/notes", icon: Notebook, label: "Notes" },
     { href: "/gm", icon: MessageSquare, label: "GM" },
@@ -231,11 +231,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       setSetting('sidebarLayout', isOpen ? 'expanded' : 'minimal');
   }
 
-  const currentPage = navLinks.find(link => link.href === pathname);
+  const currentPage = navLinks.find(link => pathname.startsWith(link.href) && (link.href !== '/' || pathname === '/'));
   
   const runCommand = (command: () => void) => {
     setIsCommandOpen(false)
     command()
+  }
+
+  const isLandingPage = pathname === "/";
+
+  if (isLandingPage) {
+    return <>{children}</>;
   }
 
   return (
@@ -244,7 +250,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <SidebarHeader className="flex flex-col items-stretch gap-2">
             <div className="flex items-center gap-2">
                 <Icons.logo className="w-8 h-8 text-white group-data-[collapsible=icon]:w-8 group-data-[collapsible=icon]:h-8 transition-all"/>
-                <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">Nexaris Media</span>
+                <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">BizMaster AI</span>
             </div>
              <div className="relative group-data-[collapsible=icon]:hidden">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />

@@ -1,7 +1,7 @@
 
 'use server';
 /**
- * @fileOverview A Genkit flow for generating images for a YouTube script.
+ * @fileOverview A Genkit flow for generating an image for a YouTube script paragraph.
  *
  * - generateYoutubeImages - A function that handles the image generation for a script paragraph.
  * - GenerateYoutubeImagesInput - The input type for the generateYoutubeImages function.
@@ -36,30 +36,18 @@ const generateYoutubeImagesFlow = ai.defineFlow(
   async ({ paragraph, prompt, style }) => {
     const imageGenerationPrompt = prompt || `Generate a ${style || 'cinematic and realistic'} image for the following scene: ${paragraph}`;
     
-    // Generate 3 images in parallel
-    const imagePromises = Array(3).fill(null).map(() => 
-      ai.generate({
-          model: 'googleai/gemini-2.0-flash-preview-image-generation',
-          prompt: imageGenerationPrompt,
-          config: {
-              responseModalities: ['TEXT', 'IMAGE'],
-          },
-      })
-    );
+    const { media } = await ai.generate({
+        model: 'googleai/gemini-2.0-flash-preview-image-generation',
+        prompt: [{text: imageGenerationPrompt}],
+        config: {
+            responseModalities: ['TEXT', 'IMAGE'],
+        },
+    });
 
-    const results = await Promise.all(imagePromises);
-    
-    const images: string[] = results.map(result => {
-        if (result.media?.url) {
-            return result.media.url;
-        }
-        return null;
-    }).filter((img): img is string => img !== null);
-    
-    if (images.length === 0) {
-        throw new Error('All image generation attempts failed for the paragraph.');
+    if (media?.url) {
+      return { images: [media.url] };
     }
 
-    return { images };
+    throw new Error('Image generation failed for the paragraph.');
   }
 );

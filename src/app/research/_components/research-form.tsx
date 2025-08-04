@@ -1,15 +1,16 @@
+
 "use client"
 
 import * as React from "react"
 import { z } from "zod"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Bot, User, BookOpen, Search, Send, Loader2 } from "lucide-react"
+import { Bot, User, BookOpen, Search, Send, Loader2, Link as LinkIcon, Globe } from "lucide-react"
 import { useDebounce } from 'use-debounce';
 
 import { cn } from "@/lib/utils"
 import { performResearch, searchWikipedia, getWikipediaSummaryForClient, PerformResearchInput } from "@/ai/flows/perform-research"
-import type { WikipediaSearchResult } from "@/lib/types"
+import type { WikipediaSearchResult, PerformResearchOutput } from "@/lib/types"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -20,9 +21,12 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useSettings } from "@/hooks/use-settings"
 
 const searchSchema = z.object({
   topic: z.string().min(2, "Topic is required"),
+  engine: z.enum(['wikipedia', 'google']),
 })
 type SearchFormValues = z.infer<typeof searchSchema>
 
@@ -37,23 +41,26 @@ export function ResearchForm() {
   const [selectedArticle, setSelectedArticle] = React.useState<WikipediaSearchResult | null>(null)
   const [hoveredArticle, setHoveredArticle] = React.useState<WikipediaSearchResult | null>(null)
   const [previewContent, setPreviewContent] = React.useState<string | null>(null)
-  const [researchResult, setResearchResult] = React.useState<{ summary: string, answer: string } | null>(null)
+  const [researchResult, setResearchResult] = React.useState<PerformResearchOutput | null>(null)
   const [isSearching, setIsSearching] = React.useState(false)
   const [isResearching, setIsResearching] = React.useState(false)
   const [isPreviewLoading, setIsPreviewLoading] = React.useState(false);
   const { toast } = useToast()
+  const { settings } = useSettings()
 
   const [debouncedHoveredArticle] = useDebounce(hoveredArticle, 300);
 
   const searchForm = useForm<SearchFormValues>({
     resolver: zodResolver(searchSchema),
-    defaultValues: { topic: "" },
+    defaultValues: { topic: "", engine: 'wikipedia' },
   })
 
   const questionForm = useForm<QuestionFormValues>({
     resolver: zodResolver(questionSchema),
     defaultValues: { question: "" },
   });
+  
+  const searchEngine = searchForm.watch('engine');
 
   React.useEffect(() => {
     if (debouncedHoveredArticle) {
@@ -83,6 +90,26 @@ export function ResearchForm() {
     setHoveredArticle(null)
     setPreviewContent(null);
 
+    if (data.engine === 'google') {
+        // For Google, we skip the article selection and go straight to research
+        setIsResearching(true);
+        try {
+            const input: PerformResearchInput = {
+                topic: data.topic,
+                question: "Provide a comprehensive overview of this topic.", // Default question for Google search
+                engine: "google"
+            };
+            const result = await performResearch(input);
+            setResearchResult(result);
+        } catch(e) {
+            toast({ variant: "destructive", title: "Error with Google Search", description: "Could not perform research." });
+        } finally {
+            setIsResearching(false);
+        }
+        setIsSearching(false)
+        return;
+    }
+
     try {
       const results = await searchWikipedia(data)
       setSearchResults(results)
@@ -107,7 +134,8 @@ export function ResearchForm() {
     try {
         const input: PerformResearchInput = {
             topic: selectedArticle.title,
-            question: data.question
+            question: data.question,
+            engine: 'wikipedia'
         }
       const result = await performResearch(input)
       setResearchResult(result)
@@ -136,22 +164,25 @@ export function ResearchForm() {
     setSearchResults(null);
     setSelectedArticle(null);
     setResearchResult(null);
+    setIsResearching(false);
   }
 
-  if (selectedArticle) {
+  if (selectedArticle || (searchEngine === 'google' && researchResult)) {
      return (
         <div className="grid md:grid-cols-2 gap-8 items-start">
              <Card className="glassmorphic">
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
-                        <span>Selected Article</span>
-                        <Button variant="link" onClick={() => setSelectedArticle(null)}>Change</Button>
+                        <span>Research Topic</span>
+                        <Button variant="link" onClick={handleReset}>Change Topic</Button>
                     </CardTitle>
-                    <CardDescription>{selectedArticle.title}</CardDescription>
+                    <CardDescription>{selectedArticle?.title || searchForm.getValues('topic')}</CardDescription>
                 </CardHeader>
-                <CardContent>
-                    <p className="text-sm text-muted-foreground line-clamp-4">{selectedArticle.description}</p>
-                </CardContent>
+                {selectedArticle && 
+                    <CardContent>
+                        <p className="text-sm text-muted-foreground line-clamp-4">{selectedArticle.description}</p>
+                    </CardContent>
+                }
                 <CardFooter>
                     <Form {...questionForm}>
                         <form onSubmit={questionForm.handleSubmit(onQuestionSubmit)} className="w-full space-y-4">
@@ -160,17 +191,17 @@ export function ResearchForm() {
                                 name="question"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Ask a question about this article</FormLabel>
+                                        <FormLabel>Ask a follow-up question</FormLabel>
                                         <FormControl>
                                             <div className="relative">
                                                 <Textarea 
                                                     placeholder="e.g., What were the main reasons for its fall?" 
                                                     {...field} 
-                                                    disabled={isResearching} 
+                                                    disabled={isResearching || searchEngine === 'google'} 
                                                     className="pr-12"
                                                     rows={1}
                                                 />
-                                                <Button type="submit" size="icon" className="absolute right-2 bottom-2 h-8 w-8" disabled={isResearching}>
+                                                <Button type="submit" size="icon" className="absolute right-2 bottom-2 h-8 w-8" disabled={isResearching || searchEngine === 'google'}>
                                                     {isResearching ? <Loader2 className="animate-spin" /> : <Send className="h-4 w-4" />}
                                                 </Button>
                                             </div>
@@ -197,16 +228,28 @@ export function ResearchForm() {
                         </div>
                     )}
                     {researchResult && (
-                        <div>
-                        <div className="mb-6">
-                            <h3 className="font-semibold text-lg mb-2 flex items-center"><BookOpen className="mr-2 h-5 w-5"/> Wikipedia Summary</h3>
-                            <p className="text-muted-foreground whitespace-pre-wrap text-sm">{researchResult.summary}</p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-lg mb-2 flex items-center"><Bot className="mr-2 h-5 w-5"/> AI-Enhanced Answer</h3>
-                            <p className="text-foreground whitespace-pre-wrap text-sm">{researchResult.answer}</p>
-                        </div>
-                        </div>
+                        <ScrollArea className="h-[400px]">
+                            <div className="pr-4 space-y-6">
+                                <div className="mb-6">
+                                    <h3 className="font-semibold text-lg mb-2 flex items-center"><BookOpen className="mr-2 h-5 w-5"/> Summary</h3>
+                                    <p className="text-muted-foreground whitespace-pre-wrap text-sm">{researchResult.summary}</p>
+                                </div>
+                                {researchResult.sources && researchResult.sources.length > 0 && (
+                                    <div className="mb-6">
+                                        <h3 className="font-semibold text-lg mb-2 flex items-center"><LinkIcon className="mr-2 h-5 w-5"/> Sources</h3>
+                                        <div className="space-y-2">
+                                            {researchResult.sources.map(source => (
+                                                <a key={source.url} href={source.url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-400 hover:underline block truncate">{source.title}</a>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                <div>
+                                    <h3 className="font-semibold text-lg mb-2 flex items-center"><Bot className="mr-2 h-5 w-5"/> AI-Enhanced Answer</h3>
+                                    <p className="text-foreground whitespace-pre-wrap text-sm">{researchResult.answer}</p>
+                                </div>
+                            </div>
+                        </ScrollArea>
                     )}
                     {!isResearching && !researchResult && (
                         <div className="text-center text-muted-foreground py-12">Ask a question to begin your research.</div>
@@ -222,19 +265,38 @@ export function ResearchForm() {
         <Card className="glassmorphic">
             <CardHeader>
             <CardTitle>Research Topic</CardTitle>
-            <CardDescription>Enter a topic to find relevant articles on Wikipedia.</CardDescription>
+            <CardDescription>Enter a topic and select a search engine.</CardDescription>
             </CardHeader>
             <CardContent>
             <Form {...searchForm}>
-                <form onSubmit={searchForm.handleSubmit(onSearchSubmit)}>
+                <form onSubmit={searchForm.handleSubmit(onSearchSubmit)} className="space-y-4">
+                 <FormField
+                    control={searchForm.control}
+                    name="engine"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Search Engine</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="wikipedia">Wikipedia</SelectItem>
+                            <SelectItem value="google">Google</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
                 <FormField
                     control={searchForm.control}
                     name="topic"
                     render={({ field }) => (
                     <FormItem>
+                         <FormLabel>Topic</FormLabel>
                         <FormControl>
                             <div className="relative">
-                                <Input placeholder="e.g., The Roman Empire" {...field} disabled={isSearching} />
+                                <Input placeholder={searchEngine === 'wikipedia' ? "e.g., The Roman Empire" : "e.g., latest AI trends"} {...field} disabled={isSearching} />
                                 <Button type="submit" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8" disabled={isSearching}>
                                     {isSearching ? <Loader2 className="animate-spin" /> : <Search className="h-4 w-4" />}
                                 </Button>
@@ -245,46 +307,48 @@ export function ResearchForm() {
                 />
                 </form>
             </Form>
-            <div className="mt-6 space-y-3">
-                <h3 className="text-sm font-medium text-muted-foreground">Results</h3>
-                {isSearching && (
-                    <div className="space-y-3">
-                        {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
-                    </div>
-                )}
-                {searchResults && searchResults.length > 0 && (
-                    <div className="flex flex-col gap-2 max-h-80 overflow-y-auto">
-                        {searchResults.map(article => (
-                            <button 
-                                key={article.pageid} 
-                                onClick={() => handleSelectArticle(article)} 
-                                onMouseEnter={() => setHoveredArticle(article)}
-                                onMouseLeave={() => setHoveredArticle(null)}
-                                className="text-left p-3 rounded-md hover:bg-muted transition-colors border border-transparent focus-visible:border-primary focus-visible:outline-none"
-                            >
-                                <p className="font-medium">{article.title}</p>
-                                <p className="text-sm text-muted-foreground line-clamp-2">{article.description}</p>
-                            </button>
-                        ))}
-                    </div>
-                )}
-                {!isSearching && !searchResults && (
-                    <div className="text-center text-muted-foreground py-12">
-                    Your search results will appear here.
-                    </div>
-                )}
-                {!isSearching && searchResults?.length === 0 && (
-                    <div className="text-center text-muted-foreground py-12">
-                    No articles found for this topic.
-                    </div>
-                )}
-            </div>
+            {searchEngine === 'wikipedia' && 
+                <div className="mt-6 space-y-3">
+                    <h3 className="text-sm font-medium text-muted-foreground">Results</h3>
+                    {isSearching && (
+                        <div className="space-y-3">
+                            {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
+                        </div>
+                    )}
+                    {searchResults && searchResults.length > 0 && (
+                        <div className="flex flex-col gap-2 max-h-80 overflow-y-auto">
+                            {searchResults.map(article => (
+                                <button 
+                                    key={article.pageid} 
+                                    onClick={() => handleSelectArticle(article)} 
+                                    onMouseEnter={() => setHoveredArticle(article)}
+                                    onMouseLeave={() => setHoveredArticle(null)}
+                                    className="text-left p-3 rounded-md hover:bg-muted transition-colors border border-transparent focus-visible:border-primary focus-visible:outline-none"
+                                >
+                                    <p className="font-medium">{article.title}</p>
+                                    <p className="text-sm text-muted-foreground line-clamp-2">{article.description}</p>
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                    {!isSearching && !searchResults && (
+                        <div className="text-center text-muted-foreground py-12">
+                        Your search results will appear here.
+                        </div>
+                    )}
+                    {!isSearching && searchResults?.length === 0 && (
+                        <div className="text-center text-muted-foreground py-12">
+                        No articles found for this topic.
+                        </div>
+                    )}
+                </div>
+            }
             </CardContent>
       </Card>
       <Card className="glassmorphic">
         <CardHeader>
           <CardTitle>Article Preview</CardTitle>
-          <CardDescription>Hover over an article to see its summary.</CardDescription>
+          <CardDescription>Hover over a Wikipedia article to see its summary.</CardDescription>
         </CardHeader>
         <CardContent>
           {isPreviewLoading && (
@@ -304,7 +368,7 @@ export function ResearchForm() {
             </ScrollArea>
           ) : !isPreviewLoading && (
              <div className="text-center text-muted-foreground py-24">
-              Hover over an article to see a preview here.
+              {searchEngine === 'wikipedia' ? 'Hover over an article to see a preview here.' : 'Previews are not available for Google search.'}
             </div>
           )}
         </CardContent>

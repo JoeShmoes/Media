@@ -36,7 +36,7 @@ const generateThumbnailFlow = ai.defineFlow(
     
     const imageGenerationPrompt = baseImage 
       ? [{ media: { url: baseImage } }, { text: prompt }]
-      : prompt;
+      : [{ text: prompt }];
 
     const { media } = await ai.generate({
         model: 'googleai/gemini-2.0-flash-preview-image-generation',

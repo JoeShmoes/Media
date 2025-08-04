@@ -149,6 +149,13 @@ export type WikipediaSearchResult = {
   description?: string;
 }
 
+export type PerformResearchOutput = {
+  summary: string;
+  answer: string;
+  sources?: { title: string; url: string }[];
+};
+
+
 export type Note = {
   id: string;
   title: string;

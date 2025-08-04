@@ -242,7 +242,7 @@ export function YoutubeScriptForm() {
              <Card className="glassmorphic">
                 <CardHeader>
                     <CardTitle>Generate Media</CardTitle>
-                    <CardDescription>Note: Image generation is rate-limited. You can generate a limited number of images per day.</CardDescription>
+                    <CardDescription>Generate images for all scenes and a voiceover for the entire script.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <Button onClick={handleGenerateImages} disabled={isImagesLoading} className="w-full">
@@ -361,7 +361,7 @@ export function YoutubeScriptForm() {
                                         variant="outline" 
                                         className="w-full"
                                     >
-                                        <Download className="mr-2" /> Download Images for Scene {index + 1}
+                                        <Download className="mr-2" /> Download Image(s) for Scene {index + 1}
                                     </Button>
                                 </>
                            ) : (

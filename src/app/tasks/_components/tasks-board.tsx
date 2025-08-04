@@ -2,12 +2,12 @@
 "use client";
 
 import * as React from "react";
-import { Plus, Edit, Trash2, CheckCircle, Circle, MoreVertical, ChevronRight, Save } from "lucide-react";
+import { Plus, Edit, Trash2, CheckCircle, Circle, MoreVertical, ChevronRight, Save, Bot } from "lucide-react";
 import { z } from "zod";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDebounce } from "use-debounce";
-import { format } from "date-fns"
+import { format, isToday, startOfDay } from "date-fns"
 
 import { Button } from "@/components/ui/button";
 import {
@@ -64,6 +64,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { useSettings } from "@/hooks/use-settings";
 
 const daysOfWeek: DayOfWeek[] = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -94,6 +95,7 @@ export function TasksBoard() {
     const [boardData, setBoardData] = React.useState<FormValues | null>(null);
     const [isMounted, setIsMounted] = React.useState(false);
     const { toast } = useToast();
+    const { settings } = useSettings();
 
     // Load initial data from localStorage
     React.useEffect(() => {
@@ -113,6 +115,39 @@ export function TasksBoard() {
         // Set default data if nothing in storage or data is invalid
         setBoardData({ groups: [{ id: "default", name: "Default", tasks: [] }] });
     }, []);
+    
+    // Auto-rollover logic
+    React.useEffect(() => {
+      if (!boardData || !isMounted || !settings.autoRollover) return;
+
+      const today = startOfDay(new Date());
+      const todayDayName = format(today, 'EEEE') as DayOfWeek;
+
+      const newGroups = boardData.groups.map(group => ({
+        ...group,
+        tasks: group.tasks.map(task => {
+          if (task.completed && task.dueDate) {
+            const completedDate = startOfDay(new Date(task.dueDate));
+            if (completedDate < today) {
+              const shouldRenew = 
+                task.renew === "Everyday" ||
+                (Array.isArray(task.renew) && task.renew.includes(todayDayName));
+              
+              if (shouldRenew) {
+                return { ...task, completed: false, dueDate: undefined };
+              }
+            }
+          }
+          return task;
+        })
+      }));
+
+      // Check if there are any changes to avoid unnecessary updates
+      if(JSON.stringify(newGroups) !== JSON.stringify(boardData.groups)) {
+        setBoardData({ groups: newGroups });
+      }
+    }, [isMounted, settings.autoRollover]);
+
 
     // Debounce and save data to localStorage
     const [debouncedBoardData] = useDebounce(boardData, 1000);
@@ -140,7 +175,7 @@ export function TasksBoard() {
 
 
 function TaskBoardForm({ boardData, setBoardData }: { boardData: FormValues, setBoardData: React.Dispatch<React.SetStateAction<FormValues | null>> }) {
-  const { toast } = useToast();
+  const { settings } = useSettings();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(boardSchema),
@@ -231,6 +266,16 @@ function TaskBoardForm({ boardData, setBoardData }: { boardData: FormValues, set
       </div>
 
       <div className="space-y-6">
+        {settings.aiTaskSuggestions && (
+            <Card className="glassmorphic border-primary/50">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Bot className="text-primary"/> AI Task Suggestions</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-muted-foreground text-sm">AI-powered task suggestions will appear here soon, based on your projects and goals.</p>
+                </CardContent>
+            </Card>
+        )}
         {groups.map((group, groupIdx) => {
           const sortedTasks = [...group.tasks].sort((a, b) => {
               if (a.completed && !b.completed) return 1;
@@ -266,7 +311,6 @@ function TaskBoardForm({ boardData, setBoardData }: { boardData: FormValues, set
                                     <div className="flex-1 ml-2">
                                         <p className={cn("font-medium", task.completed && "line-through text-muted-foreground")}>
                                             {task.name}
-                                            {task.completed && <span className="ml-2 text-xs font-normal text-muted-foreground/80">* Archived</span>}
                                         </p>
                                         {task.description && <p className="text-xs text-muted-foreground">{task.description}</p>}
                                     </div>
@@ -750,5 +794,3 @@ function EditTaskDialog({ task, groups, currentGroupId, onUpdateTask, trigger }:
     </Dialog>
   );
 }
-
-    

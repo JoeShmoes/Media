@@ -81,7 +81,7 @@ import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, C
 import { useRouter } from "next/navigation"
 
 export const navLinks = [
-    { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard", description: "A high-level overview of your business." },
+    { href: "/", icon: LayoutDashboard, label: "Dashboard", description: "A high-level overview of your business." },
     { href: "/ai-room", icon: BrainCircuit, label: "AI Room", description: "Your custom-trained AI business advisor." },
     { href: "/tasks", icon: ListTodo, label: "Tasks", description: "Create and manage your tasks and to-do lists." },
     { href: "/notes", icon: Notebook, label: "Notes", description: "Create and manage your notes. They are saved automatically." },
@@ -111,7 +111,7 @@ const favouritesNavItems = [
 ]
 
 const mainNavItems = [
-    { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+    { href: "/", icon: LayoutDashboard, label: "Dashboard" },
     { href: "/tasks", icon: ListTodo, label: "Tasks" },
     { href: "/notes", icon: Notebook, label: "Notes" },
     { href: "/gm", icon: MessageSquare, label: "GM" },

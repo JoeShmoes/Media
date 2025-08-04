@@ -22,6 +22,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { useSettings } from "@/hooks/use-settings"
+import { useToast } from "@/hooks/use-toast"
 
 const initialBoardData: ProjectBoard = {
   discovery: [],
@@ -49,6 +51,8 @@ export default function ProjectsPage() {
   const [editingProject, setEditingProject] = React.useState<Project | null>(null)
   const [viewingProject, setViewingProject] = React.useState<Project | null>(null)
   const csvLinkRef = React.useRef<any>(null);
+  const { settings } = useSettings();
+  const { toast } = useToast();
 
   const handleAddProject = () => {
     setEditingProject(null)
@@ -100,8 +104,14 @@ export default function ProjectsPage() {
   }, [boardData]);
   
   const handleExport = () => {
-    if (csvLinkRef.current) {
-        csvLinkRef.current.link.click();
+    const format = settings.exportOptions;
+    if (format === 'csv') {
+        csvLinkRef.current?.link.click();
+    } else {
+      toast({
+        title: "Export Not Implemented",
+        description: `Exporting as ${format.toUpperCase()} is not yet supported.`,
+      })
     }
   }
 
@@ -112,7 +122,7 @@ export default function ProjectsPage() {
             <PlusCircle className="mr-2" /> New Project
           </Button>
            <Button variant="outline" onClick={handleExport}>
-              <Download className="mr-2"/> Export CSV
+              <Download className="mr-2"/> Export as {settings.exportOptions.toUpperCase()}
           </Button>
           <CSVLink 
               data={allProjects} 

@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { InitialBalanceDialog } from "./_components/initial-balance-dialog"
+import { useSettings } from "@/hooks/use-settings"
+import { useToast } from "@/hooks/use-toast"
 
 const chartConfig = {
   profit: {
@@ -43,6 +45,8 @@ export default function FinancePage() {
     const [isInitialBalanceDialogOpen, setIsInitialBalanceDialogOpen] = React.useState(false);
     const [isMounted, setIsMounted] = React.useState(false);
     const csvLinkRef = React.useRef<any>(null);
+    const { settings } = useSettings();
+    const { toast } = useToast();
 
     React.useEffect(() => {
         setIsMounted(true);
@@ -98,8 +102,14 @@ export default function FinancePage() {
     }
     
     const handleExport = () => {
-        if (csvLinkRef.current) {
-            csvLinkRef.current.link.click();
+        const format = settings.exportOptions;
+        if (format === 'csv') {
+            csvLinkRef.current?.link.click();
+        } else {
+          toast({
+            title: "Export Not Implemented",
+            description: `Exporting as ${format.toUpperCase()} is not yet supported.`,
+          })
         }
     }
 
@@ -148,7 +158,7 @@ export default function FinancePage() {
               <PlusCircle className="mr-2"/> Add Transaction
           </Button>
           <Button variant="outline" onClick={handleExport}>
-              <Download className="mr-2"/> Export CSV
+              <Download className="mr-2"/> Export as {settings.exportOptions.toUpperCase()}
           </Button>
           <CSVLink 
               data={transactions} 

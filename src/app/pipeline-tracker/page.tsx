@@ -9,6 +9,8 @@ import type { Deal, DealStatus } from "@/lib/types";
 import { DealCard } from "./_components/deal-card";
 import { DealDialog } from "./_components/deal-dialog";
 import { DealDetailsDialog } from "./_components/deal-details-dialog";
+import { useSettings } from "@/hooks/use-settings"
+import { useToast } from "@/hooks/use-toast"
 
 const initialDeals: Deal[] = [];
 
@@ -31,6 +33,8 @@ export default function PipelineTrackerPage() {
   const [editingDeal, setEditingDeal] = React.useState<Deal | null>(null);
   const [viewingDeal, setViewingDeal] = React.useState<Deal | null>(null);
   const csvLinkRef = React.useRef<any>(null);
+  const { settings } = useSettings();
+  const { toast } = useToast();
 
 
   React.useEffect(() => {
@@ -75,8 +79,14 @@ export default function PipelineTrackerPage() {
   };
   
   const handleExport = () => {
-    if (csvLinkRef.current) {
-        csvLinkRef.current.link.click();
+    const format = settings.exportOptions;
+    if (format === 'csv') {
+        csvLinkRef.current?.link.click();
+    } else {
+      toast({
+        title: "Export Not Implemented",
+        description: `Exporting as ${format.toUpperCase()} is not yet supported.`,
+      })
     }
   }
 
@@ -114,7 +124,7 @@ export default function PipelineTrackerPage() {
             <PlusCircle className="mr-2" /> Add New Deal
           </Button>
           <Button variant="outline" onClick={handleExport}>
-              <Download className="mr-2"/> Export CSV
+              <Download className="mr-2"/> Export as {settings.exportOptions.toUpperCase()}
           </Button>
           <CSVLink 
               data={deals} 

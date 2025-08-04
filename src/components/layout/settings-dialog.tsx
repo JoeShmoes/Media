@@ -23,6 +23,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui
 import { Input } from "../ui/input"
 import { useSettings, type SettingCategory } from "@/hooks/use-settings"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { KeyboardShortcutsDialog } from "./keyboard-shortcuts-dialog"
 
 interface SettingsDialogProps {
   open: boolean
@@ -63,6 +64,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const { theme, setTheme } = useTheme()
   const { settings, setSetting } = useSettings();
   const [activeCategory, setActiveCategory] = React.useState<SettingCategory>('universal')
+  const [isShortcutsOpen, setIsShortcutsOpen] = React.useState(false);
 
   const renderContent = () => {
     switch (activeCategory) {
@@ -100,7 +102,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                  <Card>
                     <CardHeader><CardTitle>Productivity</CardTitle></CardHeader>
                     <CardContent className="space-y-4">
-                         <Button variant="outline">View Keyboard Shortcuts</Button>
+                         <Button variant="outline" onClick={() => setIsShortcutsOpen(true)}>View Keyboard Shortcuts</Button>
                         <div className="flex items-center justify-between"><Label htmlFor="ai-assist">AI Assistant</Label><Switch id="ai-assist" checked={settings.aiAssistant} onCheckedChange={(c) => setSetting('aiAssistant', c)}/></div>
                         <div className="flex items-center justify-between"><Label htmlFor="quick-sync">Quick Sync</Label><Switch id="quick-sync" checked={settings.quickSync} onCheckedChange={(c) => setSetting('quickSync', c)}/></div>
                     </CardContent>
@@ -243,6 +245,8 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
 
 
   return (
+    <>
+    <KeyboardShortcutsDialog open={isShortcutsOpen} onOpenChange={setIsShortcutsOpen} />
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl h-[80vh]">
         <DialogHeader>
@@ -291,5 +295,6 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         </ResizablePanelGroup>
       </DialogContent>
     </Dialog>
+    </>
   )
 }

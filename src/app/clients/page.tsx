@@ -30,6 +30,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { useSettings } from "@/hooks/use-settings"
+import { useToast } from "@/hooks/use-toast"
 
 const initialClients: Client[] = []
 
@@ -44,6 +46,8 @@ export default function ClientsPage() {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false)
   const [editingClient, setEditingClient] = React.useState<Client | null>(null)
   const csvLinkRef = React.useRef<any>(null);
+  const { settings } = useSettings();
+  const { toast } = useToast();
 
 
   const handleAddClient = () => {
@@ -61,8 +65,14 @@ export default function ClientsPage() {
   }
   
   const handleExport = () => {
-    if (csvLinkRef.current) {
-        csvLinkRef.current.link.click();
+    const format = settings.exportOptions;
+    if (format === 'csv') {
+      csvLinkRef.current?.link.click();
+    } else {
+      toast({
+        title: "Export Not Implemented",
+        description: `Exporting as ${format.toUpperCase()} is not yet supported.`,
+      })
     }
   }
 
@@ -89,7 +99,7 @@ export default function ClientsPage() {
               Add Client
           </Button>
           <Button variant="outline" onClick={handleExport}>
-              <Download className="mr-2"/> Export CSV
+              <Download className="mr-2"/> Export as {settings.exportOptions.toUpperCase()}
           </Button>
           <CSVLink 
               data={clients} 

@@ -80,7 +80,7 @@ import { PageHeader } from "../page-header"
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { useRouter } from "next/navigation"
 
-const navLinks = [
+export const navLinks = [
     { href: "/", icon: LayoutDashboard, label: "Dashboard", description: "A high-level overview of your business." },
     { href: "/ai-room", icon: BrainCircuit, label: "AI Room", description: "Your custom-trained AI business advisor." },
     { href: "/tasks", icon: ListTodo, label: "Tasks", description: "Create and manage your tasks and to-do lists." },
@@ -210,10 +210,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         e.preventDefault()
         setIsCommandOpen((open) => !open)
       }
+      
+      // Handle custom room shortcuts
+      if (settings.roomShortcuts) {
+        for (const href in settings.roomShortcuts) {
+            const shortcut = settings.roomShortcuts[href];
+             if (shortcut && e.key.toLowerCase() === shortcut.toLowerCase() && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault();
+                router.push(href);
+            }
+        }
+      }
     }
     document.addEventListener("keydown", down)
     return () => document.removeEventListener("keydown", down)
-  }, [])
+  }, [settings.roomShortcuts, router])
   
   const sidebarOpen = settings.sidebarLayout === 'expanded';
   const setSidebarOpen = (isOpen: boolean) => {

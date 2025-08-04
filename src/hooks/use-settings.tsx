@@ -22,6 +22,7 @@ export type Settings = {
   aiAssistant: boolean;
   quickSync: boolean;
   exportOptions: 'pdf' | 'docx' | 'csv' | 'png';
+  roomShortcuts: { [key: string]: string };
 
   // Workspace
   workspaceName: string;
@@ -59,7 +60,8 @@ const defaultSettings: Settings = {
   autosave: true,
   aiAssistant: true,
   quickSync: false,
-  exportOptions: "pdf",
+  exportOptions: "csv",
+  roomShortcuts: {},
 
   // Workspace
   workspaceName: "Nexaris Media",
@@ -107,8 +109,10 @@ export function useSettings() {
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = React.useState<Settings>(defaultSettings);
+  const [isMounted, setIsMounted] = React.useState(false);
 
   React.useEffect(() => {
+    setIsMounted(true);
     try {
       const savedSettings = localStorage.getItem("appSettings");
       if (savedSettings) {
@@ -120,14 +124,14 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   }, []);
   
   React.useEffect(() => {
-    try {
-      if (settings !== defaultSettings) {
-         localStorage.setItem("appSettings", JSON.stringify(settings));
-      }
-    } catch (error)      {
-       console.error("Failed to save settings to local storage", error);
+    if (isMounted) {
+        try {
+            localStorage.setItem("appSettings", JSON.stringify(settings));
+        } catch (error)      {
+           console.error("Failed to save settings to local storage", error);
+        }
     }
-  }, [settings]);
+  }, [settings, isMounted]);
 
   const setSetting = <K extends keyof Settings>(key: K, value: Settings[K]) => {
     setSettings((prev) => ({

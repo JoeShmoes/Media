@@ -1,4 +1,6 @@
 
+"use client";
+
 import { Header } from "../(landing)/_components/header";
 import { Footer } from "../(landing)/_components/footer";
 import { motion } from "framer-motion";

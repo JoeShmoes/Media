@@ -16,19 +16,18 @@ import { signInWithEmail, signUpWithEmail } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Icons } from "@/components/icons";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
+  password: z.string().min(1, { message: "Password is required." }),
 });
 
 const signUpSchema = z.object({
   firstName: z.string().min(1, { message: "First name is required." }),
   lastName: z.string().min(1, { message: "Last name is required." }),
   phone: z.string().min(1, { message: "Phone number is required." }),
-  age: z.coerce.number().min(18, { message: "You must be at least 18 years old." }),
+  age: z.coerce.number().min(18, { message: "You must be at least 18." }),
   email: z.string().email({ message: "Invalid email address." }),
   password: z.string().min(6, { message: "Password must be at least 6 characters." }),
   confirmPassword: z.string(),
@@ -46,6 +45,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isLoginView, setIsLoginView] = React.useState(false);
 
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -80,8 +80,8 @@ export default function LoginPage() {
         title: "Login Failed",
         description: "Invalid email or password. Please try again.",
       });
-      setIsSubmitting(false);
     }
+    setIsSubmitting(false);
   }
 
   const onSignUpSubmit = async (data: SignUpFormValues) => {
@@ -96,106 +96,84 @@ export default function LoginPage() {
         title: "Sign Up Failed",
         description: "Could not create an account. The email may already be in use.",
       });
-      setIsSubmitting(false);
     }
+    setIsSubmitting(false);
+  }
+
+  const formStyles = {
+    input: "bg-gray-800/50 border-gray-700 h-12 focus:border-primary",
+    button: "h-12 text-base font-semibold bg-gray-800 hover:bg-gray-700",
   }
 
   return (
     <div className="flex flex-col min-h-screen items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black text-white p-4">
-        <div className="flex flex-col items-center text-center mb-8">
-            <h1 className="text-3xl font-bold">Welcome to Nexaris Media</h1>
-            <p className="text-muted-foreground mt-2">Your central AI command hub. Sign in to continue.</p>
+        <div className="w-full max-w-md space-y-8">
+            <div className="flex items-center justify-center gap-4 mb-8">
+                <Icons.logo className="h-10 w-10 text-white" />
+                <h1 className="text-4xl font-bold tracking-tight">Nexaris Media</h1>
+            </div>
+
+            {isLoginView ? (
+                 <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-6">
+                    <div className="space-y-2">
+                        <Input id="login-email" type="email" placeholder="Email" {...loginForm.register("email")} className={formStyles.input} />
+                        {loginForm.formState.errors.email && <p className="text-sm text-destructive">{loginForm.formState.errors.email.message}</p>}
+                    </div>
+                    <div className="space-y-2">
+                        <Input id="login-password" type="password" placeholder="Password" {...loginForm.register("password")} className={formStyles.input}/>
+                        {loginForm.formState.errors.password && <p className="text-sm text-destructive">{loginForm.formState.errors.password.message}</p>}
+                    </div>
+                    <Button type="submit" className={`w-full ${formStyles.button}`} disabled={isSubmitting}>
+                        {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Sign In"}
+                    </Button>
+                </form>
+            ) : (
+                <form onSubmit={signUpForm.handleSubmit(onSignUpSubmit)} className="space-y-6">
+                    <div className="grid grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <Input id="firstName" placeholder="First name" {...signUpForm.register("firstName")} className={formStyles.input}/>
+                            {signUpForm.formState.errors.firstName && <p className="text-sm text-destructive">{signUpForm.formState.errors.firstName.message}</p>}
+                        </div>
+                        <div className="space-y-2">
+                            <Input id="lastName" placeholder="Last name" {...signUpForm.register("lastName")} className={formStyles.input}/>
+                            {signUpForm.formState.errors.lastName && <p className="text-sm text-destructive">{signUpForm.formState.errors.lastName.message}</p>}
+                        </div>
+                    </div>
+                     <div className="grid grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <Input id="phone" type="tel" placeholder="Phone number" {...signUpForm.register("phone")} className={formStyles.input}/>
+                            {signUpForm.formState.errors.phone && <p className="text-sm text-destructive">{signUpForm.formState.errors.phone.message}</p>}
+                        </div>
+                        <div className="space-y-2">
+                            <Input id="age" type="number" placeholder="Age" {...signUpForm.register("age")} className={formStyles.input}/>
+                            {signUpForm.formState.errors.age && <p className="text-sm text-destructive">{signUpForm.formState.errors.age.message}</p>}
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <Input id="signup-email" type="email" placeholder="Email" {...signUpForm.register("email")} className={formStyles.input}/>
+                        {signUpForm.formState.errors.email && <p className="text-sm text-destructive">{signUpForm.formState.errors.email.message}</p>}
+                    </div>
+                    <div className="space-y-2">
+                        <Input id="signup-password" type="password" placeholder="Password" {...signUpForm.register("password")} className={formStyles.input}/>
+                         {signUpForm.formState.errors.password && <p className="text-sm text-destructive">{signUpForm.formState.errors.password.message}</p>}
+                    </div>
+                    <div className="space-y-2">
+                        <Input id="confirmPassword" type="password" placeholder="Confirm Password" {...signUpForm.register("confirmPassword")} className={formStyles.input}/>
+                         {signUpForm.formState.errors.confirmPassword && <p className="text-sm text-destructive">{signUpForm.formState.errors.confirmPassword.message}</p>}
+                    </div>
+                    <Button type="submit" className={`w-full ${formStyles.button}`} disabled={isSubmitting}>
+                        {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Create Account"}
+                    </Button>
+                </form>
+            )}
+
+            <p className="text-center text-sm text-muted-foreground">
+                {isLoginView ? "Don't have an account? " : "Already using Nexaris Media? "}
+                <button onClick={() => setIsLoginView(!isLoginView)} className="font-semibold text-white hover:underline focus:outline-none">
+                    {isLoginView ? "Sign up" : "Sign in"}
+                </button>
+            </p>
         </div>
-        <Tabs defaultValue="login" className="w-full max-w-md">
-            <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="login">Log In</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
-            <TabsContent value="login">
-                <Card className="glassmorphic">
-                    <CardHeader>
-                        <CardTitle>Log In</CardTitle>
-                        <CardDescription>Enter your credentials to access your account.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="login-email">Email</Label>
-                                <Input id="login-email" type="email" placeholder="you@example.com" {...loginForm.register("email")} />
-                                {loginForm.formState.errors.email && <p className="text-sm text-destructive">{loginForm.formState.errors.email.message}</p>}
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="login-password">Password</Label>
-                                <Input id="login-password" type="password" {...loginForm.register("password")} />
-                                {loginForm.formState.errors.password && <p className="text-sm text-destructive">{loginForm.formState.errors.password.message}</p>}
-                            </div>
-                            <Button type="submit" className="w-full" disabled={isSubmitting}>
-                                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Log In
-                            </Button>
-                        </form>
-                    </CardContent>
-                </Card>
-            </TabsContent>
-            <TabsContent value="signup">
-                 <Card className="glassmorphic">
-                    <CardHeader>
-                        <CardTitle>Sign Up</CardTitle>
-                        <CardDescription>Create a new account to get started.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                       <form onSubmit={signUpForm.handleSubmit(onSignUpSubmit)} className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="firstName">First Name</Label>
-                                    <Input id="firstName" {...signUpForm.register("firstName")} />
-                                    {signUpForm.formState.errors.firstName && <p className="text-sm text-destructive">{signUpForm.formState.errors.firstName.message}</p>}
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="lastName">Last Name</Label>
-                                    <Input id="lastName" {...signUpForm.register("lastName")} />
-                                    {signUpForm.formState.errors.lastName && <p className="text-sm text-destructive">{signUpForm.formState.errors.lastName.message}</p>}
-                                </div>
-                            </div>
-                             <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="phone">Phone Number</Label>
-                                    <Input id="phone" type="tel" {...signUpForm.register("phone")} />
-                                    {signUpForm.formState.errors.phone && <p className="text-sm text-destructive">{signUpForm.formState.errors.phone.message}</p>}
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="age">Age</Label>
-                                    <Input id="age" type="number" {...signUpForm.register("age")} />
-                                    {signUpForm.formState.errors.age && <p className="text-sm text-destructive">{signUpForm.formState.errors.age.message}</p>}
-                                </div>
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="signup-email">Email</Label>
-                                <Input id="signup-email" type="email" placeholder="you@example.com" {...signUpForm.register("email")} />
-                                {signUpForm.formState.errors.email && <p className="text-sm text-destructive">{signUpForm.formState.errors.email.message}</p>}
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="signup-password">Password</Label>
-                                <Input id="signup-password" type="password" {...signUpForm.register("password")} />
-                                 {signUpForm.formState.errors.password && <p className="text-sm text-destructive">{signUpForm.formState.errors.password.message}</p>}
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                                <Input id="confirmPassword" type="password" {...signUpForm.register("confirmPassword")} />
-                                 {signUpForm.formState.errors.confirmPassword && <p className="text-sm text-destructive">{signUpForm.formState.errors.confirmPassword.message}</p>}
-                            </div>
-                            <Button type="submit" className="w-full" disabled={isSubmitting}>
-                                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Create Account
-                            </Button>
-                        </form>
-                    </CardContent>
-                </Card>
-            </TabsContent>
-        </Tabs>
-        <p className="text-xs text-muted-foreground mt-8 text-center max-w-sm">
-            By signing in, you agree to our <Link href="/terms-of-service" className="underline hover:text-primary">Terms of Service</Link> and <Link href="/privacy-policy" className="underline hover:text-primary">Privacy Policy</Link>.
-        </p>
     </div>
   );
 }

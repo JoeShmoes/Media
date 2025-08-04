@@ -3,7 +3,7 @@
 
 import * as React from "react"
 import { useTheme } from "next-themes"
-import { Sun, Moon, Laptop, Palette, Shield, Code, Bell, User, LayoutDashboard, ListTodo, Notebook, Search, MessageSquare, Users, KanbanSquare, SendHorizonal, CircleDollarSign, Package, Archive, View, BrainCircuit, Workflow, Blocks, FileText, LayoutTemplate, Youtube, PenSquare, HelpCircle, Wrench } from "lucide-react"
+import { Sun, Moon, Laptop, Palette, Shield, Code, Bell, User, LayoutDashboard, ListTodo, Notebook, Search, MessageSquare, Users, KanbanSquare, SendHorizonal, CircleDollarSign, Package, Archive, View, BrainCircuit, Workflow, Blocks, FileText, LayoutTemplate, Youtube, PenSquare, HelpCircle, Wrench, Target } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {

@@ -204,11 +204,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 setSetting('userName', `${appUser.firstName} ${appUser.lastName}`);
                 setSetting('userEmail', appUser.email);
                 setSetting('userAvatar', appUser.photoURL || '');
+            } else {
+                // This might happen on first sign-up before Firestore doc is created
+                // We'll rely on the auth object's info for now
+                setSetting('userName', user.displayName || 'User');
+                setSetting('userEmail', user.email || '');
+                setSetting('userAvatar', user.photoURL || '');
             }
         }
     };
-    fetchAppUser();
-  }, [user, setSetting]);
+    if (!loading) {
+      fetchAppUser();
+    }
+  }, [user, loading, setSetting]);
 
 
   React.useEffect(() => {

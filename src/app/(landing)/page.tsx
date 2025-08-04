@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { BrainCircuit, KanbanSquare, SendHorizonal, CircleDollarSign, PenSquare, Youtube, Check } from "lucide-react";
 import { Header } from "./_components/header";
 import { Footer } from "./_components/footer";
-import { Switch } from "@/components/ui/switch";
 import * as React from "react";
 import { Label } from "@/components/ui/label";
 
@@ -50,7 +49,6 @@ const sectionVariants = {
 };
 
 export default function LandingPage() {
-    const [isYearly, setIsYearly] = React.useState(false);
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white">
       <Header />
@@ -146,19 +144,13 @@ export default function LandingPage() {
             <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Simple, All-Inclusive Pricing</h2>
             <p className="text-center text-muted-foreground mb-12 max-w-xl mx-auto">One plan. Every feature. No hidden fees. The app is live and ready for you—no waitlist, no demo required.</p>
             
-            <div className="flex justify-center items-center gap-4 mb-8">
-                <Label htmlFor="billing-cycle">Monthly</Label>
-                <Switch id="billing-cycle" checked={isYearly} onCheckedChange={setIsYearly} />
-                <Label htmlFor="billing-cycle">Annually (Save 20%)</Label>
-            </div>
-
             <div className="flex justify-center">
                 <div className="bg-white/5 p-8 rounded-lg glassmorphic border border-white/10 w-full max-w-md">
                     <h3 className="text-2xl font-semibold text-center mb-2">The All-In-One Plan</h3>
                      <p className="text-center text-muted-foreground mb-6">Everything you need to run and scale your business.</p>
                     <div className="text-center mb-6">
-                        <span className="text-5xl font-bold">${isYearly ? "39" : "49"}</span>
-                        <span className="text-muted-foreground">/ month</span>
+                        <span className="text-5xl font-bold">Free</span>
+                        <span className="text-muted-foreground">/ forever</span>
                     </div>
                     <ul className="space-y-3 mb-8">
                         {["All Rooms & Features Included", "Unlimited AI Usage", "Priority Support", "Regular Updates"].map((item, i) => (
@@ -168,7 +160,9 @@ export default function LandingPage() {
                            </li>
                         ))}
                     </ul>
-                    <Button size="lg" className="w-full bg-white text-black hover:bg-gray-200">Get Started Instantly</Button>
+                    <Button size="lg" className="w-full bg-white text-black hover:bg-gray-200" asChild>
+                        <Link href="/dashboard">Get Started Instantly</Link>
+                    </Button>
                 </div>
             </div>
         </motion.section>

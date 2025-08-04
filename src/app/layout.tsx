@@ -18,11 +18,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="h-full">
       <head>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='white'></rect><path d='M30 80 L 30 20 L 70 60 L 70 20' stroke='%23222225' stroke-width='15' fill='none' stroke-linejoin='round' stroke-linecap='round'></path></svg>" />
       </head>
-      <body className={inter.className}>
+      <body className={`${inter.className} h-full`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <SettingsProvider>
             {children}
@@ -33,5 +33,3 @@ export default function RootLayout({
     </html>
   );
 }
-
-    

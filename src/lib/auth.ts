@@ -1,7 +1,7 @@
 
 "use client";
 
-import { signOut as firebaseSignOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { signOut as firebaseSignOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "./firebase";
 import type { AppUser, SignUpData } from "./types";
@@ -48,3 +48,13 @@ export const signOut = async () => {
         console.error("Error signing out: ", error);
     }
 };
+
+export const sendPasswordReset = async (email: string) => {
+    try {
+        await sendPasswordResetEmail(auth, email);
+        return true;
+    } catch (error) {
+        console.error("Error sending password reset email: ", error);
+        return false;
+    }
+}

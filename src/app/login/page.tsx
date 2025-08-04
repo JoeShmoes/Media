@@ -2,7 +2,6 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
@@ -12,11 +11,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
 
 import { auth } from "@/lib/firebase";
-import { signInWithEmail, signUpWithEmail } from "@/lib/auth";
+import { signInWithEmail, signUpWithEmail, sendPasswordReset } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Icons } from "@/components/icons";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -36,16 +45,22 @@ const signUpSchema = z.object({
     path: ["confirmPassword"],
 });
 
+const resetPasswordSchema = z.object({
+  email: z.string().email({ message: "Invalid email address." }),
+});
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 type SignUpFormValues = z.infer<typeof signUpSchema>;
+type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
+
 
 export default function LoginPage() {
   const [user, loading] = useAuthState(auth);
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [isLoginView, setIsLoginView] = React.useState(false);
+  const [isLoginView, setIsLoginView] = React.useState(true);
+  const [isResetDialogOpen, setIsResetDialogOpen] = React.useState(false);
 
   const loginForm = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -54,6 +69,11 @@ export default function LoginPage() {
   const signUpForm = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
   });
+  
+  const resetPasswordForm = useForm<ResetPasswordFormValues>({
+    resolver: zodResolver(resetPasswordSchema),
+  });
+
 
   React.useEffect(() => {
     if (!loading && user) {
@@ -99,6 +119,26 @@ export default function LoginPage() {
     }
     setIsSubmitting(false);
   }
+  
+  const onPasswordResetSubmit = async (data: ResetPasswordFormValues) => {
+      setIsSubmitting(true);
+      const success = await sendPasswordReset(data.email);
+      if (success) {
+          toast({
+              title: "Password Reset Email Sent",
+              description: "Check your inbox for a link to reset your password.",
+          });
+          setIsResetDialogOpen(false);
+      } else {
+          toast({
+              variant: "destructive",
+              title: "Error",
+              description: "Could not send password reset email. Please check the email address.",
+          });
+      }
+      setIsSubmitting(false);
+  }
+
 
   const formStyles = {
     input: "bg-gray-800/50 border-gray-700 h-12 focus:border-primary",
@@ -122,6 +162,11 @@ export default function LoginPage() {
                     <div className="space-y-2">
                         <Input id="login-password" type="password" placeholder="Password" {...loginForm.register("password")} className={formStyles.input}/>
                         {loginForm.formState.errors.password && <p className="text-sm text-destructive">{loginForm.formState.errors.password.message}</p>}
+                    </div>
+                     <div className="text-right">
+                        <button type="button" onClick={() => setIsResetDialogOpen(true)} className="text-sm font-semibold text-white/70 hover:text-white transition">
+                            Forgot password?
+                        </button>
                     </div>
                     <Button type="submit" className={`w-full ${formStyles.button}`} disabled={isSubmitting}>
                         {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Sign In"}
@@ -174,6 +219,30 @@ export default function LoginPage() {
                 </button>
             </p>
         </div>
+        
+        <AlertDialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
+          <AlertDialogContent>
+            <form onSubmit={resetPasswordForm.handleSubmit(onPasswordResetSubmit)}>
+                 <AlertDialogHeader>
+                  <AlertDialogTitle>Reset your password</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Enter your email address and we will send you a link to reset your password.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <div className="py-4">
+                    <Input id="reset-email" type="email" placeholder="Email" {...resetPasswordForm.register("email")} className="bg-background"/>
+                    {resetPasswordForm.formState.errors.email && <p className="text-sm text-destructive mt-2">{resetPasswordForm.formState.errors.email.message}</p>}
+                </div>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <Button type="submit" disabled={isSubmitting}>
+                     {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Send Reset Email"}
+                  </Button>
+                </AlertDialogFooter>
+            </form>
+          </AlertDialogContent>
+        </AlertDialog>
+
     </div>
   );
 }

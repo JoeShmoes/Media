@@ -12,8 +12,6 @@ import { DealDetailsDialog } from "./_components/deal-details-dialog";
 import { useSettings } from "@/hooks/use-settings"
 import { useToast } from "@/hooks/use-toast"
 
-const initialDeals: Deal[] = [];
-
 const columnOrder: DealStatus[] = ["leads", "needs-analysis", "proposal", "negotiation", "closed-won", "closed-lost"];
 
 const columnTitles: Record<DealStatus, string> = {
@@ -27,7 +25,7 @@ const columnTitles: Record<DealStatus, string> = {
 
 export default function PipelineTrackerPage() {
   const [isMounted, setIsMounted] = React.useState(false);
-  const [deals, setDeals] = React.useState<Deal[]>(initialDeals);
+  const [deals, setDeals] = React.useState<Deal[]>([]);
   const [isDealDialogOpen, setIsDealDialogOpen] = React.useState(false);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = React.useState(false);
   const [editingDeal, setEditingDeal] = React.useState<Deal | null>(null);

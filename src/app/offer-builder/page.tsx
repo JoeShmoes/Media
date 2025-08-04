@@ -21,11 +21,34 @@ import { OfferDetailsDialog } from "./_components/offer-details-dialog";
 
 
 export default function OfferBuilderPage() {
+  const [isMounted, setIsMounted] = React.useState(false);
   const [offers, setOffers] = React.useState<Offer[]>([]);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [editingOffer, setEditingOffer] = React.useState<Offer | null>(null);
   const [viewingOffer, setViewingOffer] = React.useState<Offer | null>(null);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = React.useState(false);
+  
+  React.useEffect(() => {
+    setIsMounted(true);
+    try {
+        const savedOffers = localStorage.getItem("offers");
+        if (savedOffers) {
+            setOffers(JSON.parse(savedOffers));
+        }
+    } catch (error) {
+        console.error("Failed to load offers from local storage", error);
+    }
+  }, []);
+  
+  React.useEffect(() => {
+      if(isMounted) {
+          try {
+              localStorage.setItem("offers", JSON.stringify(offers));
+          } catch(error) {
+              console.error("Failed to save offers to local storage", error);
+          }
+      }
+  }, [offers, isMounted]);
 
   const handleAddOffer = () => {
     setEditingOffer(null);
@@ -48,7 +71,7 @@ export default function OfferBuilderPage() {
 
   const handleSaveOffer = (offerData: Omit<Offer, 'id'> & {id?: string}) => {
     if (offerData.id) {
-      setOffers(offers.map(o => (o.id === offerData.id ? { ...o, ...offerData } : o)));
+      setOffers(offers.map(o => (o.id === offerData.id ? { ...o, ...offerData } as Offer : o)));
     } else {
       const newOffer: Offer = {
         ...offerData,
@@ -57,6 +80,8 @@ export default function OfferBuilderPage() {
       setOffers([newOffer, ...offers]);
     }
   }
+  
+  if (!isMounted) return null;
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">

@@ -33,8 +33,6 @@ import {
 import { useSettings } from "@/hooks/use-settings"
 import { useToast } from "@/hooks/use-toast"
 
-const initialClients: Client[] = []
-
 const statusVariant: { [key: string]: "default" | "secondary" | "outline" | "destructive" | null | undefined } = {
   Active: "default",
   Prospect: "secondary",
@@ -42,12 +40,35 @@ const statusVariant: { [key: string]: "default" | "secondary" | "outline" | "des
 }
 
 export default function ClientsPage() {
-  const [clients, setClients] = React.useState<Client[]>(initialClients)
+  const [isMounted, setIsMounted] = React.useState(false);
+  const [clients, setClients] = React.useState<Client[]>([])
   const [isDialogOpen, setIsDialogOpen] = React.useState(false)
   const [editingClient, setEditingClient] = React.useState<Client | null>(null)
   const csvLinkRef = React.useRef<any>(null);
   const { settings } = useSettings();
   const { toast } = useToast();
+
+  React.useEffect(() => {
+    setIsMounted(true);
+    try {
+      const savedClients = localStorage.getItem("clients");
+      if (savedClients) {
+        setClients(JSON.parse(savedClients));
+      }
+    } catch (error) {
+        console.error("Failed to load clients from local storage", error);
+    }
+  }, []);
+
+  React.useEffect(() => {
+      if (isMounted) {
+          try {
+              localStorage.setItem("clients", JSON.stringify(clients));
+          } catch(error) {
+              console.error("Failed to save clients to local storage", error);
+          }
+      }
+  }, [clients, isMounted]);
 
 
   const handleAddClient = () => {
@@ -90,6 +111,8 @@ export default function ClientsPage() {
         setClients([newClient, ...clients])
     }
   }
+  
+  if (!isMounted) return null;
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">

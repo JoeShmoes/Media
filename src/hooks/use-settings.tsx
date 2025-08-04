@@ -29,6 +29,15 @@ export type Settings = {
   favouritesPanelVisibility: boolean;
   roomAccessControl: 'private' | 'shared' | 'team';
   
+  // Profile
+  userName: string;
+  userEmail: string;
+  userAvatar: string;
+
+  // Notifications
+  desktopNotifications: boolean;
+  emailNotifications: 'all' | 'mentions' | 'none';
+  
   // Cortex
   llmModel: 'gpt4o' | 'claude';
   cortexMemory: boolean;
@@ -58,6 +67,15 @@ const defaultSettings: Settings = {
   favouritesPanelVisibility: true,
   roomAccessControl: "private",
   
+  // Profile
+  userName: "Fozan Shazad",
+  userEmail: "fozan@example.com",
+  userAvatar: "https://placehold.co/100x100.png",
+
+  // Notifications
+  desktopNotifications: true,
+  emailNotifications: "mentions",
+
   // Cortex
   llmModel: "gpt4o",
   cortexMemory: true,

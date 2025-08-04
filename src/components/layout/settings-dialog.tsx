@@ -22,6 +22,7 @@ import { Switch } from "../ui/switch"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
 import { Input } from "../ui/input"
 import { useSettings, type SettingCategory } from "@/hooks/use-settings"
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 
 interface SettingsDialogProps {
   open: boolean
@@ -139,6 +140,60 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                         <div className="space-y-2">
                            <Label>Room Access Control</Label>
                            <Select value={settings.roomAccessControl} onValueChange={(v) => setSetting('roomAccessControl', v as any)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="private">Private</SelectItem><SelectItem value="shared">Shared</SelectItem><SelectItem value="team">Team View</SelectItem></SelectContent></Select>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        )
+      case 'profile':
+        return (
+            <div className="space-y-6">
+                <Card>
+                    <CardHeader><CardTitle>Profile</CardTitle><CardDescription>Manage your public profile information.</CardDescription></CardHeader>
+                    <CardContent className="space-y-4">
+                       <div className="flex items-center gap-4">
+                          <Avatar className="h-20 w-20">
+                            <AvatarImage src={settings.userAvatar} />
+                            <AvatarFallback>{settings.userName.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                          <div className="space-y-2 flex-1">
+                               <Label>Avatar URL</Label>
+                               <Input value={settings.userAvatar} onChange={(e) => setSetting('userAvatar', e.target.value)} />
+                           </div>
+                       </div>
+                       <div className="space-y-2">
+                           <Label>Full Name</Label>
+                           <Input value={settings.userName} onChange={(e) => setSetting('userName', e.target.value)} />
+                       </div>
+                        <div className="space-y-2">
+                           <Label>Email Address</Label>
+                           <Input type="email" value={settings.userEmail} onChange={(e) => setSetting('userEmail', e.target.value)} />
+                       </div>
+                       <Button variant="outline">Change Password</Button>
+                    </CardContent>
+                </Card>
+            </div>
+        )
+      case 'notifications':
+        return (
+             <div className="space-y-6">
+                <Card>
+                    <CardHeader><CardTitle>Notifications</CardTitle><CardDescription>Manage how you receive notifications.</CardDescription></CardHeader>
+                    <CardContent className="space-y-4">
+                         <div className="flex items-center justify-between">
+                           <Label htmlFor="desktop-notifications">Desktop Notifications</Label>
+                           <Switch id="desktop-notifications" checked={settings.desktopNotifications} onCheckedChange={(c) => setSetting('desktopNotifications', c)} />
+                       </div>
+                        <div className="space-y-2">
+                           <Label>Email Notifications</Label>
+                           <Select value={settings.emailNotifications} onValueChange={(v) => setSetting('emailNotifications', v as any)}>
+                             <SelectTrigger><SelectValue/></SelectTrigger>
+                             <SelectContent>
+                               <SelectItem value="all">All</SelectItem>
+                               <SelectItem value="mentions">Mentions & Important</SelectItem>
+                               <SelectItem value="none">None</SelectItem>
+                             </SelectContent>
+                           </Select>
                         </div>
                     </CardContent>
                 </Card>

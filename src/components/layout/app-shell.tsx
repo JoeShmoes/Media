@@ -204,16 +204,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 setSetting('userName', `${appUser.firstName} ${appUser.lastName}`);
                 setSetting('userEmail', appUser.email);
                 setSetting('userAvatar', appUser.photoURL || '');
-            } else {
-                // This might happen on first sign-up before Firestore doc is created
-                // We'll rely on the auth object's info for now
-                setSetting('userName', user.displayName || 'User');
-                setSetting('userEmail', user.email || '');
-                setSetting('userAvatar', user.photoURL || '');
             }
         }
     };
-    if (!loading) {
+    if (!loading && user) {
       fetchAppUser();
     }
   }, [user, loading, setSetting]);
@@ -453,7 +447,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                  <div className="flex items-center gap-3">
                    <Avatar className="h-8 w-8">
                      <AvatarImage src={settings.userAvatar || undefined} />
-                     <AvatarFallback>{settings.userName.charAt(0)}</AvatarFallback>
+                     <AvatarFallback><Icons.user className="h-5 w-5"/></AvatarFallback>
                    </Avatar>
                   <div className="flex-col items-start group-data-[collapsible=icon]:hidden">
                       <span className="text-sm font-medium text-foreground">{settings.userName}</span>

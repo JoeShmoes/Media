@@ -3,7 +3,7 @@
 
 import * as React from "react"
 import { useTheme } from "next-themes"
-import { Sun, Moon, Laptop, Palette, Shield, Code, Bell, User, LayoutDashboard, ListTodo, Notebook, Search, MessageSquare, Users, KanbanSquare, SendHorizonal, CircleDollarSign, Package, Archive, View, BrainCircuit, Workflow, Blocks, FileText, LayoutTemplate, Youtube, PenSquare, HelpCircle, Wrench, Target, Upload } from "lucide-react"
+import { Sun, Moon, Laptop, Palette, Shield, Code, Bell, User, LayoutDashboard, ListTodo, Notebook, Search, MessageSquare, Users, KanbanSquare, SendHorizonal, CircleDollarSign, Package, Archive, View, BrainCircuit, Workflow, Blocks, FileText, LayoutTemplate, Youtube, PenSquare, HelpCircle, Wrench, Target, Upload, Trash2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -27,6 +27,8 @@ import { KeyboardShortcutsDialog } from "./keyboard-shortcuts-dialog"
 import { useToast } from "@/hooks/use-toast"
 import { auth } from "@/lib/firebase"
 import { updateProfile } from "firebase/auth"
+import { sendPasswordReset } from "@/lib/auth"
+import { Icons } from "../icons"
 
 interface SettingsDialogProps {
   open: boolean
@@ -84,6 +86,44 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           };
           reader.readAsDataURL(file);
       }
+  }
+
+  const handleRemoveAvatar = () => {
+    setSetting('userAvatar', '');
+    if (auth.currentUser) {
+        updateProfile(auth.currentUser, { photoURL: "" })
+    }
+  }
+
+  const handleChangePassword = async () => {
+      if(settings.userEmail) {
+        const { success, error } = await sendPasswordReset(settings.userEmail);
+        if (success) {
+            toast({
+                title: "Password Reset Email Sent",
+                description: `A password reset link has been sent to ${settings.userEmail}.`,
+            });
+        } else {
+             toast({
+                variant: "destructive",
+                title: "Error",
+                description: error || "Could not send password reset email.",
+            });
+        }
+      } else {
+           toast({
+                variant: "destructive",
+                title: "No Email Found",
+                description: "Could not find an email address to send the reset link to.",
+            });
+      }
+  }
+
+  const handleChangeEmail = () => {
+      toast({
+          title: "Changing Your Email",
+          description: "For security, changing your email requires re-authentication. Please log out and sign back in to proceed.",
+      });
   }
 
   const renderContent = () => {
@@ -175,14 +215,21 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     <CardContent className="space-y-4">
                        <div className="flex items-center gap-4">
                           <Avatar className="h-20 w-20">
-                            <AvatarImage src={settings.userAvatar} />
-                            <AvatarFallback>{settings.userName.charAt(0)}</AvatarFallback>
+                            <AvatarImage src={settings.userAvatar || undefined} />
+                            <AvatarFallback>
+                                <Icons.user className="h-8 w-8 text-muted-foreground"/>
+                            </AvatarFallback>
                           </Avatar>
                            <div className="space-y-2">
                                 <Label>Avatar</Label>
-                                <Button variant="outline" onClick={() => avatarInputRef.current?.click()}>
-                                    <Upload className="mr-2 h-4 w-4"/> Upload New
-                                </Button>
+                                <div className="flex gap-2">
+                                    <Button variant="outline" onClick={() => avatarInputRef.current?.click()}>
+                                        <Upload className="mr-2 h-4 w-4"/> Upload New
+                                    </Button>
+                                    <Button variant="ghost" size="icon" onClick={handleRemoveAvatar} disabled={!settings.userAvatar}>
+                                        <Trash2 className="h-4 w-4"/>
+                                    </Button>
+                                </div>
                                 <Input 
                                     type="file" 
                                     ref={avatarInputRef} 
@@ -198,9 +245,12 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                        </div>
                         <div className="space-y-2">
                            <Label>Email Address</Label>
-                           <Input type="email" value={settings.userEmail} onChange={(e) => setSetting('userEmail', e.target.value)} disabled/>
+                           <Input type="email" value={settings.userEmail} onChange={(e) => setSetting('userEmail', e.target.value)} />
                        </div>
-                       <Button variant="outline" onClick={() => toast({ title: "Coming soon!"})}>Change Password</Button>
+                       <div className="flex gap-2">
+                           <Button variant="outline" onClick={handleChangePassword}>Change Password</Button>
+                           <Button variant="outline" onClick={handleChangeEmail}>Change Email</Button>
+                       </div>
                     </CardContent>
                 </Card>
             </div>

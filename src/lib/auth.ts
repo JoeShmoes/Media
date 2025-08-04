@@ -11,10 +11,12 @@ export const signUpWithEmail = async (data: SignUpData) => {
         const result = await createUserWithEmailAndPassword(auth, data.email, data.password);
         const user = result.user;
 
-        // Update the user's profile in Firebase Authentication
+        const displayName = `${data.firstName} ${data.lastName}`;
+        const photoURL = `https://placehold.co/100x100.png?text=${data.firstName.charAt(0)}${data.lastName.charAt(0)}`;
+
         await updateProfile(user, {
-            displayName: `${data.firstName} ${data.lastName}`,
-            photoURL: `https://placehold.co/100x100.png?text=${data.firstName.charAt(0)}${data.lastName.charAt(0)}`,
+            displayName: displayName,
+            photoURL: photoURL,
         });
 
         const newUser: AppUser = {
@@ -24,10 +26,9 @@ export const signUpWithEmail = async (data: SignUpData) => {
             lastName: data.lastName,
             phone: data.phone,
             age: data.age,
-            photoURL: user.photoURL,
+            photoURL: photoURL,
         };
         
-        // Store the user document in Firestore
         await setDoc(doc(db, "users", user.uid), newUser);
         
         return { success: true };
@@ -46,7 +47,20 @@ export const signInWithEmail = async (email: string, password: string) => {
         if (userDoc.exists()) {
              return { success: true, user: userDoc.data() as AppUser };
         } else {
-            throw new Error("User profile does not exist.");
+            // This case might happen for users created before the Firestore doc logic was in place
+            // We can try to create it now
+            const user = result.user;
+            const appUser: AppUser = {
+                uid: user.uid,
+                email: user.email || '',
+                firstName: user.displayName?.split(' ')[0] || 'User',
+                lastName: user.displayName?.split(' ')[1] || '',
+                phone: '',
+                age: 0,
+                photoURL: user.photoURL || '',
+            };
+            await setDoc(userRef, appUser, { merge: true });
+            return { success: true, user: appUser };
         }
     } catch (error: any) {
         console.error("Error signing in with email: ", error);

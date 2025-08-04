@@ -4,6 +4,7 @@
 import * as React from "react"
 import { useTheme } from "next-themes"
 import { Sun, Moon, Laptop, Palette, Shield, Code, Bell, User, LayoutDashboard, ListTodo, Notebook, Search, MessageSquare, Users, KanbanSquare, SendHorizonal, CircleDollarSign, Package, Archive, View, BrainCircuit, Workflow, Blocks, FileText, LayoutTemplate, Youtube, PenSquare, HelpCircle, Wrench, Target, Upload, Trash2 } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -69,6 +70,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const { theme, setTheme } = useTheme()
   const { settings, setSetting } = useSettings();
   const { toast } = useToast();
+  const router = useRouter();
   const [activeCategory, setActiveCategory] = React.useState<SettingCategory>('universal')
   const [isShortcutsOpen, setIsShortcutsOpen] = React.useState(false);
   const avatarInputRef = React.useRef<HTMLInputElement>(null);
@@ -124,6 +126,18 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           title: "Changing Your Email",
           description: "For security, changing your email requires re-authentication. Please log out and sign back in to proceed.",
       });
+  }
+
+  const handleComingSoon = () => {
+    toast({
+      title: "Feature Coming Soon",
+      description: "This functionality is currently under development.",
+    });
+  }
+
+  const handleNavigate = (path: string) => {
+    onOpenChange(false);
+    router.push(path);
   }
 
   const renderContent = () => {
@@ -184,15 +198,15 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     <CardContent className="space-y-4">
                         <div className="space-y-2"><Label>Workspace Name</Label><Input value={settings.workspaceName} onChange={(e) => setSetting('workspaceName', e.target.value)} /></div>
                         <div className="space-y-2"><Label>Tagline</Label><Input value={settings.tagline} onChange={(e) => setSetting('tagline', e.target.value)} /></div>
-                        <Button variant="outline">Set App Logo & Brand Colors</Button>
-                        <Button variant="outline">Set Workspace Wallpaper</Button>
-                        <Button variant="outline">Customize Typography Settings</Button>
+                        <Button variant="outline" onClick={() => handleNavigate('/brand-room')}>Set App Logo & Brand Colors</Button>
+                        <Button variant="outline" onClick={handleComingSoon}>Set Workspace Wallpaper</Button>
+                        <Button variant="outline" onClick={handleComingSoon}>Customize Typography Settings</Button>
                     </CardContent>
                 </Card>
                  <Card>
                     <CardHeader><CardTitle>Navigation</CardTitle></CardHeader>
                     <CardContent className="space-y-4">
-                        <Button variant="outline">Manage Favorite Rooms</Button>
+                        <Button variant="outline" onClick={handleComingSoon}>Manage Favorite Rooms</Button>
                         <div className="flex items-center justify-between"><Label htmlFor="fav-panel">Favourites Panel Visibility</Label><Switch id="fav-panel" checked={settings.favouritesPanelVisibility} onCheckedChange={(c) => setSetting('favouritesPanelVisibility', c)} /></div>
                     </CardContent>
                 </Card>
@@ -245,7 +259,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                        </div>
                         <div className="space-y-2">
                            <Label>Email Address</Label>
-                           <Input type="email" value={settings.userEmail} onChange={(e) => setSetting('userEmail', e.target.value)} />
+                           <Input type="email" value={settings.userEmail} readOnly disabled />
                        </div>
                        <div className="flex gap-2">
                            <Button variant="outline" onClick={handleChangePassword}>Change Password</Button>

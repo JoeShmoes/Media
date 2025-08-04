@@ -4,9 +4,10 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import type { Client, Deal, Project, Note } from "@/lib/types"
+import type { Client, Deal, Project, Note, AppUser } from "@/lib/types"
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
+import { doc, getDoc } from "firebase/firestore";
 import { signOut } from '@/lib/auth';
 
 
@@ -179,6 +180,7 @@ function LiveClock() {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [user] = useAuthState(auth);
+  const [appUser, setAppUser] = React.useState<AppUser | null>(null);
   const pathname = usePathname()
   const router = useRouter()
   const { settings, setSetting } = useSettings();
@@ -190,6 +192,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [projects, setProjects] = React.useState<Project[]>([]);
   const [deals, setDeals] = React.useState<Deal[]>([]);
   const [notes, setNotes] = React.useState<Note[]>([]);
+
+  React.useEffect(() => {
+    const fetchAppUser = async () => {
+        if (user) {
+            const userRef = doc(db, "users", user.uid);
+            const userDoc = await getDoc(userRef);
+            if (userDoc.exists()) {
+                setAppUser(userDoc.data() as AppUser);
+            }
+        }
+    }
+    fetchAppUser();
+  }, [user]);
 
   React.useEffect(() => {
     // Load searchable data from localStorage
@@ -424,11 +439,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Button variant="ghost" className="justify-start w-full h-auto p-2">
                  <div className="flex items-center gap-3">
                    <Avatar className="h-8 w-8">
-                     <AvatarImage src={user?.photoURL || undefined} />
-                     <AvatarFallback>{user?.displayName?.[0]}</AvatarFallback>
+                     <AvatarImage src={appUser?.photoURL || undefined} />
+                     <AvatarFallback><User/></AvatarFallback>
                    </Avatar>
                   <div className="flex-col items-start group-data-[collapsible=icon]:hidden">
-                      <span className="text-sm font-medium text-foreground">{user?.displayName || "User"}</span>
+                      <span className="text-sm font-medium text-foreground">{appUser ? `${appUser.firstName} ${appUser.lastName}`: 'User'}</span>
                   </div>
                 </div>
               </Button>

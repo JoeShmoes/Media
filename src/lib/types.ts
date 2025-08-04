@@ -1,6 +1,16 @@
 
 
+export type AppUser = {
+    uid: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    phone: string;
+    age: number;
+    photoURL?: string;
+};
 
+export type SignUpData = Omit<AppUser, 'uid' | 'photoURL'> & { password?: string };
 
 
 export type CompareVersionsOutput = {

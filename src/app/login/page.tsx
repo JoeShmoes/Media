@@ -26,9 +26,18 @@ const loginSchema = z.object({
 });
 
 const signUpSchema = z.object({
+  firstName: z.string().min(1, { message: "First name is required." }),
+  lastName: z.string().min(1, { message: "Last name is required." }),
+  phone: z.string().min(1, { message: "Phone number is required." }),
+  age: z.coerce.number().min(18, { message: "You must be at least 18 years old." }),
   email: z.string().email({ message: "Invalid email address." }),
   password: z.string().min(6, { message: "Password must be at least 6 characters." }),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
 });
+
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 type SignUpFormValues = z.infer<typeof signUpSchema>;
@@ -63,8 +72,8 @@ export default function LoginPage() {
 
   const handleGoogleSignIn = async () => {
     setIsSubmitting(true);
-    const user = await signInWithGoogle();
-    if (user) {
+    const success = await signInWithGoogle();
+    if (success) {
         router.push('/dashboard');
     } else {
         toast({
@@ -93,8 +102,9 @@ export default function LoginPage() {
 
   const onSignUpSubmit = async (data: SignUpFormValues) => {
     setIsSubmitting(true);
-    const user = await signUpWithEmail(data.email, data.password);
-    if (user) {
+    const { confirmPassword, ...signUpData } = data;
+    const success = await signUpWithEmail(signUpData);
+    if (success) {
         router.push('/dashboard');
     } else {
       toast({
@@ -166,6 +176,30 @@ export default function LoginPage() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                        <form onSubmit={signUpForm.handleSubmit(onSignUpSubmit)} className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="firstName">First Name</Label>
+                                    <Input id="firstName" {...signUpForm.register("firstName")} />
+                                    {signUpForm.formState.errors.firstName && <p className="text-sm text-destructive">{signUpForm.formState.errors.firstName.message}</p>}
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="lastName">Last Name</Label>
+                                    <Input id="lastName" {...signUpForm.register("lastName")} />
+                                    {signUpForm.formState.errors.lastName && <p className="text-sm text-destructive">{signUpForm.formState.errors.lastName.message}</p>}
+                                </div>
+                            </div>
+                             <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="phone">Phone Number</Label>
+                                    <Input id="phone" type="tel" {...signUpForm.register("phone")} />
+                                    {signUpForm.formState.errors.phone && <p className="text-sm text-destructive">{signUpForm.formState.errors.phone.message}</p>}
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="age">Age</Label>
+                                    <Input id="age" type="number" {...signUpForm.register("age")} />
+                                    {signUpForm.formState.errors.age && <p className="text-sm text-destructive">{signUpForm.formState.errors.age.message}</p>}
+                                </div>
+                            </div>
                             <div className="space-y-2">
                                 <Label htmlFor="signup-email">Email</Label>
                                 <Input id="signup-email" type="email" placeholder="you@example.com" {...signUpForm.register("email")} />
@@ -175,6 +209,11 @@ export default function LoginPage() {
                                 <Label htmlFor="signup-password">Password</Label>
                                 <Input id="signup-password" type="password" {...signUpForm.register("password")} />
                                  {signUpForm.formState.errors.password && <p className="text-sm text-destructive">{signUpForm.formState.errors.password.message}</p>}
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                                <Input id="confirmPassword" type="password" {...signUpForm.register("confirmPassword")} />
+                                 {signUpForm.formState.errors.confirmPassword && <p className="text-sm text-destructive">{signUpForm.formState.errors.confirmPassword.message}</p>}
                             </div>
                             <Button type="submit" className="w-full" disabled={isSubmitting}>
                                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -203,5 +242,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-    

@@ -5,7 +5,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useRouter } from "next/navigation";
-import { Loader2, LogIn } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -67,6 +67,11 @@ export default function LoginPage() {
     if (user) {
         router.push('/dashboard');
     } else {
+        toast({
+          variant: "destructive",
+          title: "Sign In Failed",
+          description: "Could not sign in with Google. Please try again.",
+        });
         setIsSubmitting(false);
     }
   }
@@ -147,7 +152,7 @@ export default function LoginPage() {
                           </div>
                         </div>
                         <Button className="w-full" variant="outline" onClick={handleGoogleSignIn} disabled={isSubmitting}>
-                           {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2"/>}
+                           {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Icons.logo className="mr-2 h-4 w-4" />}
                            Google
                         </Button>
                     </CardContent>
@@ -185,7 +190,7 @@ export default function LoginPage() {
                           </div>
                         </div>
                         <Button className="w-full" variant="outline" onClick={handleGoogleSignIn} disabled={isSubmitting}>
-                           {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LogIn className="mr-2"/>}
+                           {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Icons.logo className="mr-2 h-4 w-4" />}
                            Google
                         </Button>
                     </CardContent>
@@ -198,3 +203,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+    

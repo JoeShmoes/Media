@@ -2,9 +2,10 @@
 
 import * as React from "react";
 import Link from "next/link"
+import { useAuthState } from "react-firebase-hooks/auth";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Tooltip, LineChart, Line } from "recharts"
 import { format, subDays, eachDayOfInterval } from "date-fns"
-import { Briefcase, Lightbulb, ListTodo, TrendingUp, Users, DollarSign, Bell, Plus, PenSquare, Film, BarChart2, Zap, CheckCircle, ExternalLink, Activity, ServerCrash } from "lucide-react"
+import { Briefcase, Lightbulb, ListTodo, TrendingUp, Users, DollarSign, Bell, Plus, PenSquare, Film, BarChart2, Zap, CheckCircle, ExternalLink, Activity, ServerCrash, LogIn } from "lucide-react"
 
 import type { Deal, Project, Task, Transaction, TaskGroup, Note, Offer, BrandVoice, Persona, Goal, Client } from "@/lib/types"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -14,7 +15,9 @@ import { useSettings } from "@/hooks/use-settings"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { generateDashboardInsights, type GenerateDashboardInsightsOutput } from "@/ai/flows/generate-dashboard-insights"
-import { AppShell } from "@/components/layout/app-shell";
+import { auth } from "@/lib/firebase";
+import { signInWithGoogle } from "@/lib/auth";
+import { Icons } from "@/components/icons";
 
 const quickAccessItems = [
     { label: "New Task", icon: <Plus/>, href: "/tasks" },
@@ -34,6 +37,7 @@ const chartConfig = {
 
 
 export default function DashboardPage() {
+  const [user, loading, error] = useAuthState(auth);
   const { settings } = useSettings();
   const cardClassName = "glassmorphic";
   const [isMounted, setIsMounted] = React.useState(false);
@@ -106,7 +110,7 @@ export default function DashboardPage() {
   }, []);
   
   React.useEffect(() => {
-    if (!isMounted) return;
+    if (!isMounted || !user) return;
 
     const fetchInsights = async () => {
         setIsLoadingInsights(true);
@@ -137,7 +141,7 @@ export default function DashboardPage() {
     }
     fetchInsights();
 
-  }, [isMounted, activeProjects, deals, tasks, offers, brandVoice, personas, goals, notes, clients, transactions]);
+  }, [isMounted, user, activeProjects, deals, tasks, offers, brandVoice, personas, goals, notes, clients, transactions]);
 
   const kpiData = [
     { metric: "Revenue", value: `$${totalRevenue.toLocaleString()}`, change: "+20.1%", icon: <DollarSign/> },
@@ -174,13 +178,39 @@ export default function DashboardPage() {
   }, [tasks]);
 
   
-  if (!isMounted) {
-    return null; // or a loading skeleton
+  if (loading || !isMounted) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+          <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+       <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+         <div className="text-center p-8 max-w-md w-full">
+            <Icons.logo className="w-16 h-16 mx-auto mb-4 text-primary" />
+           <h1 className="text-3xl font-bold mb-2">Welcome to Nexaris Media</h1>
+           <p className="text-muted-foreground mb-8">Your central AI command hub. Please sign in to continue.</p>
+           <div className="space-y-4">
+             <Button className="w-full" onClick={signInWithGoogle}>
+                <LogIn className="mr-2"/> Sign In with Google
+             </Button>
+             <Button className="w-full" variant="outline" onClick={signInWithGoogle}>
+               <LogIn className="mr-2"/> Sign Up with Google
+             </Button>
+           </div>
+           <p className="text-xs text-muted-foreground mt-8">
+             By signing in, you agree to our <Link href="/terms-of-service" className="underline hover:text-primary">Terms of Service</Link> and <Link href="/privacy-policy" className="underline hover:text-primary">Privacy Policy</Link>.
+           </p>
+         </div>
+       </div>
+    )
   }
 
 
   return (
-    <AppShell>
       <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
               {/* Left & Center Columns */}
@@ -303,6 +333,5 @@ export default function DashboardPage() {
               </div>
           </div>
       </div>
-    </AppShell>
   )
 }

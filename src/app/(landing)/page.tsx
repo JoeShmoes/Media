@@ -9,6 +9,10 @@ import { BrainCircuit, KanbanSquare, SendHorizonal, CircleDollarSign, PenSquare,
 import { Header } from "./_components/header";
 import { Footer } from "./_components/footer";
 import * as React from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/lib/firebase";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 const features = [
   {
@@ -49,6 +53,27 @@ const sectionVariants = {
 };
 
 export default function LandingPage() {
+  const [user, loading] = useAuthState(auth);
+  const router = useRouter();
+
+  React.useEffect(() => {
+    if (!loading && user) {
+      router.push('/dashboard');
+    }
+  }, [user, loading, router]);
+  
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-black">
+        <Loader2 className="h-8 w-8 animate-spin text-white" />
+      </div>
+    );
+  }
+
+  if (user) {
+    return null;
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white">
       <Header />

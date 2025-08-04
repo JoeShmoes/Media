@@ -1,17 +1,19 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  "projectId": "bizmaster-ai-ml7xt",
+  "appId": "1:1004488839639:web:85aaa91a0137a385b43b92",
+  "storageBucket": "bizmaster-ai-ml7xt.firebasestorage.app",
+  "apiKey": "AIzaSyANrDr9qysGjm0dYDTZPb5V7TmhsQsMIdo",
+  "authDomain": "bizmaster-ai-ml7xt.firebaseapp.com",
+  "messagingSenderId": "1004488839639"
 };
 
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const auth = getAuth(app);
 const db = getFirestore(app);
 
-export { app, db };
+export { app, auth, db };

@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
+import { signInWithGoogle } from "@/lib/auth";
 
 export function Header() {
   const { scrollY } = useScroll();
@@ -45,11 +46,11 @@ export function Header() {
           </Link>
         </nav>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" asChild>
-            <Link href="/dashboard">Log In</Link>
+          <Button variant="ghost" onClick={signInWithGoogle}>
+            Log In
           </Button>
-          <Button className="bg-white text-black hover:bg-gray-200" asChild>
-            <Link href="/dashboard">Sign Up</Link>
+          <Button className="bg-white text-black hover:bg-gray-200" onClick={signInWithGoogle}>
+            Sign Up
           </Button>
         </div>
       </div>

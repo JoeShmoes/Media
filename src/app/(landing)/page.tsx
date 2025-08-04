@@ -65,23 +65,6 @@ function AnimatedLaptop() {
     visible: { opacity: 1, transition: { duration: 0.5, delay: 1 } },
   };
 
-  const cursorVariants = {
-    initial: { x: "50%", y: "50%", opacity: 0 },
-    animate: {
-      opacity: [0, 1, 1, 1, 1, 1, 1, 0],
-      x: ["25%", "80%", "80%", "45%", "45%", "25%", "25%"],
-      y: ["80%", "70%", "30%", "30%", "55%", "55%", "80%"],
-      transition: { 
-        duration: 8, 
-        repeat: Infinity, 
-        repeatDelay: 2,
-        ease: "easeInOut",
-        delay: 1.5,
-        times: [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1]
-      }
-    }
-  }
-
 
   return (
     <motion.div
@@ -93,7 +76,6 @@ function AnimatedLaptop() {
       <div className="relative">
         {/* Laptop screen */}
         <div className="relative aspect-[16/10] w-full rounded-xl border-8 border-gray-800 bg-gray-900 shadow-2xl">
-           <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-4 h-2 bg-gray-800 rounded-b-sm"></div>
            <div className="absolute inset-2 rounded-md overflow-hidden bg-black">
              <motion.div 
               className="w-full h-full"
@@ -104,7 +86,7 @@ function AnimatedLaptop() {
               <div className="flex h-full w-full text-white text-[8px] md:text-[10px] lg:text-[12px] xl:text-[14px]">
                   {/* Mock Sidebar */}
                   <div className="w-1/6 bg-black/20 p-2 space-y-2">
-                      <div className="w-full p-2 bg-blue-500/30 rounded-md flex items-center gap-2"><LayoutDashboard className="h-3 w-3" /> Dashboard</div>
+                      <div className="w-full p-2 bg-primary/30 rounded-md flex items-center gap-2"><LayoutDashboard className="h-3 w-3" /> Dashboard</div>
                       <div className="w-full p-2 hover:bg-white/10 rounded-md flex items-center gap-2"><ListTodo className="h-3 w-3" /> Tasks</div>
                       <div className="w-full p-2 hover:bg-white/10 rounded-md flex items-center gap-2"><KanbanSquare className="h-3 w-3" /> Projects</div>
                       <div className="w-full p-2 hover:bg-white/10 rounded-md flex items-center gap-2"><Users className="h-3 w-3" /> Clients</div>
@@ -132,41 +114,21 @@ function AnimatedLaptop() {
                       </div>
                        <div className="w-full h-1/2 rounded-lg bg-white/5 border border-white/10 p-2">
                           <div className="h-full w-full opacity-30 flex items-end gap-1">
-                              <div className="w-1/12 h-1/4 bg-blue-500 rounded-t-sm"></div>
-                              <div className="w-1/12 h-1/2 bg-blue-500 rounded-t-sm"></div>
-                              <div className="w-1/12 h-3/4 bg-blue-500 rounded-t-sm"></div>
-                              <div className="w-1/12 h-1/3 bg-blue-500 rounded-t-sm"></div>
-                              <div className="w-1/12 h-2/3 bg-blue-500 rounded-t-sm"></div>
-                              <div className="w-1/12 h-1/2 bg-blue-500 rounded-t-sm"></div>
-                              <div className="w-1/12 h-5/6 bg-blue-500 rounded-t-sm"></div>
-                              <div className="w-1/12 h-full bg-blue-500 rounded-t-sm"></div>
-                              <div className="w-1/12 h-1/2 bg-blue-500 rounded-t-sm"></div>
+                              <div className="w-1/12 h-1/4 bg-primary rounded-t-sm"></div>
+                              <div className="w-1/12 h-1/2 bg-primary rounded-t-sm"></div>
+                              <div className="w-1/12 h-3/4 bg-primary rounded-t-sm"></div>
+                              <div className="w-1/12 h-1/3 bg-primary rounded-t-sm"></div>
+                              <div className="w-1/12 h-2/3 bg-primary rounded-t-sm"></div>
+                              <div className="w-1/12 h-1/2 bg-primary rounded-t-sm"></div>
+                              <div className="w-1/12 h-5/6 bg-primary rounded-t-sm"></div>
+                              <div className="w-1/12 h-full bg-primary rounded-t-sm"></div>
+                              <div className="w-1/12 h-1/2 bg-primary rounded-t-sm"></div>
                           </div>
                        </div>
                   </div>
               </div>
             </motion.div>
-             <motion.svg 
-                className="absolute top-0 left-0 w-8 h-8 text-white" 
-                viewBox="0 0 24 24" 
-                fill="currentColor"
-                variants={cursorVariants}
-                initial="initial"
-                animate="animate"
-                style={{ transform: "rotate(-15deg)" }}
-              >
-                  <path d="M4.5 4.5l15 15m-15 0l15-15"/>
-                  <path d="M12.5 11.5l-1.5 6 3-1-4.5 3.5v-11.5z"/>
-                  <path d="M4.5 4.5l6 1.5-3 4.5-4.5-3v-3z"/>
-                   <path d="M15 9l4.5-3-1.5 6-3-1.5z" />
-              </motion.svg>
            </div>
-        </div>
-
-        {/* Laptop base */}
-        <div className="relative w-[110%] -mt-1 h-4 bg-gray-700 rounded-b-2xl mx-auto" style={{ perspective: "300px"}}>
-           <div className="absolute inset-0 bg-gradient-to-b from-gray-600 to-gray-800" style={{ transform: "rotateX(75deg)" }}></div>
-           <div className="absolute top-1 left-1/2 -translate-x-1/2 w-24 h-1 bg-gray-900/50 rounded-full"></div>
         </div>
       </div>
     </motion.div>
@@ -197,7 +159,7 @@ export default function LandingPage() {
               <Button size="lg" className="bg-white text-black hover:bg-gray-200">Start Using Nexaris Media</Button>
             </Link>
              <Link href="#features" passHref>
-              <Button size="lg" variant="outline" className="text-black bg-gray-200 hover:bg-gray-300">Explore Features</Button>
+              <Button size="lg" variant="outline" className="text-white border-white hover:bg-white hover:text-black">Explore Features</Button>
             </Link>
           </div>
            <AnimatedLaptop />
@@ -298,3 +260,5 @@ export default function LandingPage() {
     </div>
   );
 }
+
+    

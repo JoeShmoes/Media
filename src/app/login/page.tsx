@@ -162,7 +162,7 @@ export default function LoginPage() {
                           </div>
                         </div>
                         <Button className="w-full" variant="outline" onClick={handleGoogleSignIn} disabled={isSubmitting}>
-                           {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Icons.logo className="mr-2 h-4 w-4" />}
+                           {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Icons.google className="mr-2 h-4 w-4" />}
                            Google
                         </Button>
                     </CardContent>
@@ -229,7 +229,7 @@ export default function LoginPage() {
                           </div>
                         </div>
                         <Button className="w-full" variant="outline" onClick={handleGoogleSignIn} disabled={isSubmitting}>
-                           {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Icons.logo className="mr-2 h-4 w-4" />}
+                           {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Icons.google className="mr-2 h-4 w-4" />}
                            Google
                         </Button>
                     </CardContent>

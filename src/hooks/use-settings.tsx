@@ -8,11 +8,7 @@ export type RoomBackground = "solid" | "blur" | "custom";
 export type TimeFormat = "12hr" | "24hr";
 export type SettingCategory = 
   | 'universal' | 'profile' | 'notifications'
-  | 'cortex' | 'dashboard' | 'tasks' | 'notes' | 'research' 
-  | 'gm' | 'clients' | 'projects' | 'outreach' | 'finance' 
-  | 'offerBuilder' | 'assetTracker' | 'brandRoom' | 'pipelineTracker' 
-  | 'autoDocs' | 'templateBuilder' | 'integrationHub' 
-  | 'contentStudio';
+  | 'cortex' | 'tasks';
 
 export type Settings = {
   // Universal
@@ -23,6 +19,10 @@ export type Settings = {
   quickSync: boolean;
   exportOptions: 'pdf' | 'docx' | 'csv' | 'png';
   roomShortcuts: { [key: string]: string };
+  workspaceName: string;
+  tagline: string;
+  favouritesPanelVisibility: boolean;
+  roomAccessControl: "shared" | "private";
   
   // Profile
   userName: string;
@@ -34,11 +34,8 @@ export type Settings = {
   emailNotifications: 'all' | 'mentions' | 'none';
   
   // Cortex
-  llmModel: 'gpt4o' | 'claude';
   cortexMemory: boolean;
-  fileUpload: boolean;
   promptStyle: 'formal' | 'casual' | 'tactical' | 'copywriting';
-  llmApiKey: string;
 
   // Tasks
   tasksDefaultView: 'list' | 'board' | 'calendar' | 'gantt';
@@ -56,6 +53,10 @@ const defaultSettings: Settings = {
   quickSync: false,
   exportOptions: "csv",
   roomShortcuts: {},
+  workspaceName: "Nexaris Media",
+  tagline: "Your Central AI Command Hub",
+  favouritesPanelVisibility: true,
+  roomAccessControl: "shared",
   
   // Profile
   userName: "User",
@@ -67,11 +68,8 @@ const defaultSettings: Settings = {
   emailNotifications: "mentions",
 
   // Cortex
-  llmModel: "gpt4o",
   cortexMemory: true,
-  fileUpload: true,
   promptStyle: "casual",
-  llmApiKey: "",
 
   // Tasks
   tasksDefaultView: "list",

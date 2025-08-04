@@ -45,23 +45,7 @@ const settingCategories: { id: SettingCategory, label: string, icon: React.React
 
 const roomSettingCategories: { id: SettingCategory, label: string, icon: React.ReactElement }[] = [
     { id: 'cortex', label: 'Cortex Room', icon: <BrainCircuit/> },
-    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard/> },
     { id: 'tasks', label: 'Tasks', icon: <ListTodo/> },
-    { id: 'notes', label: 'Notes', icon: <Notebook/> },
-    { id: 'research', label: 'Research', icon: <Search/> },
-    { id: 'gm', label: 'GM Room', icon: <MessageSquare/> },
-    { id: 'clients', label: 'Clients', icon: <Users/> },
-    { id: 'projects', label: 'Projects', icon: <KanbanSquare/> },
-    { id: 'outreach', label: 'Outreach', icon: <SendHorizonal/> },
-    { id: 'finance', label: 'Finance', icon: <CircleDollarSign/> },
-    { id: 'offerBuilder', label: 'Offer Builder', icon: <Package/> },
-    { id: 'assetTracker', label: 'Asset Tracker', icon: <Archive/> },
-    { id: 'brandRoom', label: 'Brand Room', icon: <Palette/> },
-    { id: 'pipelineTracker', label: 'Pipeline Tracker', icon: <View/> },
-    { id: 'autoDocs', label: 'AutoDocs', icon: <FileText/> },
-    { id: 'templateBuilder', label: 'Template Builder', icon: <LayoutTemplate/> },
-    { id: 'integrationHub', label: 'Integration Hub', icon: <Blocks/> },
-    { id: 'contentStudio', label: 'Content Creation', icon: <Youtube/> },
 ]
 
 
@@ -125,18 +109,6 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           title: "Changing Your Email",
           description: "For security, changing your email requires re-authentication. Please log out and sign back in to proceed.",
       });
-  }
-
-  const handleComingSoon = () => {
-    toast({
-      title: "Feature Coming Soon",
-      description: "This functionality is currently under development.",
-    });
-  }
-
-  const handleNavigate = (path: string) => {
-    onOpenChange(false);
-    router.push(path);
   }
 
   const renderContent = () => {
@@ -266,14 +238,10 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
          return (
              <div className="space-y-6">
                 <Card>
-                    <CardHeader><CardTitle>Cortex AI Brain</CardTitle><CardDescription>Configure your global AI assistant.</CardDescription></CardHeader>
+                    <CardHeader><CardTitle>Cortex AI Brain</CardTitle><CardDescription>Configure your global AI assistant, Crifohay.</CardDescription></CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="space-y-2"><Label>LLM Model Selection</Label><Select value={settings.llmModel} onValueChange={(v) => setSetting('llmModel', v as any)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="gpt4o">GPT-4o</SelectItem><SelectItem value="claude">Claude 3</SelectItem></SelectContent></Select></div>
                         <div className="flex items-center justify-between"><Label htmlFor="memory">Memory (Save/Forget Context)</Label><Switch id="memory" checked={settings.cortexMemory} onCheckedChange={(c) => setSetting('cortexMemory', c)} /></div>
-                        <div className="flex items-center justify-between"><Label htmlFor="file-upload">File Upload</Label><Switch id="file-upload" checked={settings.fileUpload} onCheckedChange={(c) => setSetting('fileUpload', c)} /></div>
                         <div className="space-y-2"><Label>Default Prompt Style</Label><Select value={settings.promptStyle} onValueChange={(v) => setSetting('promptStyle', v as any)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="formal">Formal</SelectItem><SelectItem value="casual">Casual</SelectItem><SelectItem value="tactical">Tactical</SelectItem><SelectItem value="copywriting">Copywriting</SelectItem></SelectContent></Select></div>
-                        <Button variant="outline">View Prompt History</Button>
-                        <div className="space-y-2"><Label>Custom LLM API Key</Label><Input type="password" value={settings.llmApiKey} onChange={(e) => setSetting('llmApiKey', e.target.value)} placeholder="Enter your API key" /></div>
                     </CardContent>
                 </Card>
             </div>
@@ -285,12 +253,9 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     <CardHeader><CardTitle>Task Management</CardTitle></CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2"><Label>Default View</Label><Select value={settings.tasksDefaultView} onValueChange={(v) => setSetting('tasksDefaultView', v as any)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="list">List</SelectItem><SelectItem value="board">Board</SelectItem><SelectItem value="calendar">Calendar</SelectItem><SelectItem value="gantt">Gantt</SelectItem></SelectContent></Select></div>
-                        <Button variant="outline">Set Priority Colors</Button>
-                        <Button variant="outline">Manage Task Categories</Button>
                         <div className="space-y-2"><Label>Daily Task Limit</Label><Input type="number" value={settings.dailyTaskLimit} onChange={(e) => setSetting('dailyTaskLimit', Number(e.target.value))} /></div>
                         <div className="flex items-center justify-between"><Label htmlFor="auto-rollover">Auto-Roll Over Incomplete Tasks</Label><Switch id="auto-rollover" checked={settings.autoRollover} onCheckedChange={(c) => setSetting('autoRollover', c)} /></div>
                         <div className="flex items-center justify-between"><Label htmlFor="ai-suggestions">AI Task Suggestions</Label><Switch id="ai-suggestions" checked={settings.aiTaskSuggestions} onCheckedChange={(c) => setSetting('aiTaskSuggestions', c)} /></div>
-                        <Button variant="outline">Manage Task Templates</Button>
                     </CardContent>
                 </Card>
             </div>

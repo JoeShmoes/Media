@@ -46,12 +46,6 @@ const OfferSchema = z.object({
     price: z.number(),
 });
 
-const BrandVoiceSchema = z.object({
-    tone: z.string(),
-    style: z.string(),
-    examples: z.string(),
-});
-
 const PersonaSchema = z.object({
     id: z.string(),
     name: z.string(),
@@ -92,7 +86,6 @@ const GetBusinessAdviceInputSchema = z.object({
   deals: z.array(DealSchema).optional().describe("List of all user's sales deals."),
   tasks: z.array(TaskSchema).optional().describe("List of all user's tasks."),
   offers: z.array(OfferSchema).optional().describe("List of all user's created offers."),
-  brandVoice: BrandVoiceSchema.optional().describe("The user's defined brand voice."),
   personas: z.array(PersonaSchema).optional().describe("List of all user's customer personas."),
   goals: z.array(GoalSchema).optional().describe("List of all user's business goals."),
   notes: z.array(NoteSchema).optional().describe("List of all user's notes."),

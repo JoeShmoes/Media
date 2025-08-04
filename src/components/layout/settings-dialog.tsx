@@ -3,7 +3,7 @@
 
 import * as React from "react"
 import { useTheme } from "next-themes"
-import { Sun, Moon, Laptop, Palette, Shield, Code, Bell, User, LayoutDashboard, ListTodo, Notebook, Search, MessageSquare, Users, KanbanSquare, SendHorizonal, CircleDollarSign, Package, Archive, View, BrainCircuit, Workflow, Blocks, FileText, LayoutTemplate, Youtube, PenSquare, HelpCircle, Wrench, Target, Upload, Trash2 } from "lucide-react"
+import { Sun, Moon, Laptop, Palette, Shield, Code, Bell, User, LayoutDashboard, ListTodo, Notebook, Search, MessageSquare, Users, KanbanSquare, SendHorizonal, CircleDollarSign, Package, Archive, View, BrainCircuit, Workflow, Blocks, FileText, LayoutTemplate, Youtube, PenSquare, HelpCircle, Wrench, Target, Upload, Trash2, Image as ImageIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
@@ -46,6 +46,11 @@ const settingCategories: { id: SettingCategory, label: string, icon: React.React
 const roomSettingCategories: { id: SettingCategory, label: string, icon: React.ReactElement }[] = [
     { id: 'cortex', label: 'Cortex Room', icon: <BrainCircuit/> },
     { id: 'tasks', label: 'Tasks', icon: <ListTodo/> },
+    { id: 'research', label: 'Research', icon: <Search/> },
+    { id: 'gm', label: 'GM Room', icon: <MessageSquare/> },
+    { id: 'outreach', label: 'Outreach', icon: <SendHorizonal/> },
+    { id: 'finance', label: 'Finance', icon: <CircleDollarSign/> },
+    { id: 'youtube-studio', label: 'YouTube Studio', icon: <Youtube/> },
 ]
 
 
@@ -253,13 +258,101 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     <CardHeader><CardTitle>Task Management</CardTitle></CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2"><Label>Default View</Label><Select value={settings.tasksDefaultView} onValueChange={(v) => setSetting('tasksDefaultView', v as any)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="list">List</SelectItem><SelectItem value="board">Board</SelectItem><SelectItem value="calendar">Calendar</SelectItem><SelectItem value="gantt">Gantt</SelectItem></SelectContent></Select></div>
-                        <div className="space-y-2"><Label>Daily Task Limit</Label><Input type="number" value={settings.dailyTaskLimit} onChange={(e) => setSetting('dailyTaskLimit', Number(e.target.value))} /></div>
                         <div className="flex items-center justify-between"><Label htmlFor="auto-rollover">Auto-Roll Over Incomplete Tasks</Label><Switch id="auto-rollover" checked={settings.autoRollover} onCheckedChange={(c) => setSetting('autoRollover', c)} /></div>
                         <div className="flex items-center justify-between"><Label htmlFor="ai-suggestions">AI Task Suggestions</Label><Switch id="ai-suggestions" checked={settings.aiTaskSuggestions} onCheckedChange={(c) => setSetting('aiTaskSuggestions', c)} /></div>
                     </CardContent>
                 </Card>
             </div>
         )
+        case 'research':
+            return (
+                <div className="space-y-6">
+                    <Card>
+                        <CardHeader><CardTitle>Research Assistant</CardTitle></CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="space-y-2">
+                                <Label>Default Search Engine</Label>
+                                <Select value={settings.defaultSearchEngine} onValueChange={(v) => setSetting('defaultSearchEngine', v as any)}>
+                                    <SelectTrigger><SelectValue/></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="wikipedia">Wikipedia</SelectItem>
+                                        <SelectItem value="google">Google</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )
+        case 'gm':
+            return (
+                <div className="space-y-6">
+                    <Card>
+                        <CardHeader><CardTitle>GM Room</CardTitle></CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <Label htmlFor="show-timestamps">Show Timestamps</Label>
+                                <Switch id="show-timestamps" checked={settings.showTimestamps} onCheckedChange={(c) => setSetting('showTimestamps', c)} />
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )
+        case 'outreach':
+            return (
+                <div className="space-y-6">
+                    <Card>
+                        <CardHeader><CardTitle>AI Outreach Engine</CardTitle></CardHeader>
+                        <CardContent className="space-y-4">
+                             <div className="space-y-2">
+                                <Label>Default Message Length</Label>
+                                <Select value={settings.defaultOutreachLength} onValueChange={(v) => setSetting('defaultOutreachLength', v as any)}>
+                                    <SelectTrigger><SelectValue/></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Short">Short</SelectItem>
+                                        <SelectItem value="Long">Long</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )
+        case 'finance':
+            return (
+                <div className="space-y-6">
+                    <Card>
+                        <CardHeader><CardTitle>Finance Room</CardTitle></CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="flex items-center justify-between">
+                                <Label htmlFor="show-profit-loss">Show Profit/Loss Chart</Label>
+                                <Switch id="show-profit-loss" checked={settings.showProfitLossChart} onCheckedChange={(c) => setSetting('showProfitLossChart', c)} />
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )
+        case 'youtube-studio':
+            return (
+                 <div className="space-y-6">
+                    <Card>
+                        <CardHeader><CardTitle>YouTube Studio</CardTitle></CardHeader>
+                        <CardContent className="space-y-4">
+                             <div className="space-y-2">
+                                <Label>Default Image Style</Label>
+                                <Select value={settings.defaultImagePromptStyle} onValueChange={(v) => setSetting('defaultImagePromptStyle', v as any)}>
+                                    <SelectTrigger><SelectValue/></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="cinematic">Cinematic</SelectItem>
+                                        <SelectItem value="realistic">Realistic</SelectItem>
+                                        <SelectItem value="minimalist">Minimalist</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )
       default:
         return (
           <div className="flex items-center justify-center h-full">

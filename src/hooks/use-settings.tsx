@@ -8,7 +8,10 @@ export type RoomBackground = "solid" | "blur" | "custom";
 export type TimeFormat = "12hr" | "24hr";
 export type SettingCategory = 
   | 'universal' | 'profile' | 'notifications'
-  | 'cortex' | 'tasks';
+  | 'cortex' | 'tasks' | 'research' | 'gm' | 'clients' | 'projects' | 'outreach'
+  | 'finance' | 'offer-builder' | 'asset-tracker' | 'brand-room'
+  | 'pipeline-tracker' | 'autodocs' | 'template-builder' | 'integration-hub'
+  | 'content' | 'youtube-studio' | 'thumbnail';
 
 export type Settings = {
   // Universal
@@ -19,10 +22,6 @@ export type Settings = {
   quickSync: boolean;
   exportOptions: 'pdf' | 'docx' | 'csv' | 'png';
   roomShortcuts: { [key: string]: string };
-  workspaceName: string;
-  tagline: string;
-  favouritesPanelVisibility: boolean;
-  roomAccessControl: "shared" | "private";
   
   // Profile
   userName: string;
@@ -39,9 +38,23 @@ export type Settings = {
 
   // Tasks
   tasksDefaultView: 'list' | 'board' | 'calendar' | 'gantt';
-  dailyTaskLimit: number;
   autoRollover: boolean;
   aiTaskSuggestions: boolean;
+  
+  // Research
+  defaultSearchEngine: 'wikipedia' | 'google';
+
+  // GM
+  showTimestamps: boolean;
+
+  // Outreach
+  defaultOutreachLength: 'Short' | 'Long';
+
+  // Finance
+  showProfitLossChart: boolean;
+  
+  // YouTube Studio
+  defaultImagePromptStyle: 'cinematic' | 'realistic' | 'minimalist';
 };
 
 const defaultSettings: Settings = {
@@ -53,10 +66,6 @@ const defaultSettings: Settings = {
   quickSync: false,
   exportOptions: "csv",
   roomShortcuts: {},
-  workspaceName: "Nexaris Media",
-  tagline: "Your Central AI Command Hub",
-  favouritesPanelVisibility: true,
-  roomAccessControl: "shared",
   
   // Profile
   userName: "User",
@@ -73,9 +82,23 @@ const defaultSettings: Settings = {
 
   // Tasks
   tasksDefaultView: "list",
-  dailyTaskLimit: 10,
   autoRollover: true,
   aiTaskSuggestions: true,
+
+  // Research
+  defaultSearchEngine: 'wikipedia',
+
+  // GM
+  showTimestamps: true,
+
+  // Outreach
+  defaultOutreachLength: 'Long',
+
+  // Finance
+  showProfitLossChart: true,
+
+  // YouTube Studio
+  defaultImagePromptStyle: 'cinematic',
 };
 
 interface SettingsContextValue {

@@ -41,6 +41,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { ImageSlideshow } from "./image-slideshow"
 import { Textarea } from "@/components/ui/textarea"
+import { useSettings } from "@/hooks/use-settings"
 
 const formSchema = z.object({
   topic: z.string().min(5, "Topic must be at least 5 characters"),
@@ -65,6 +66,7 @@ export function YoutubeScriptForm() {
   const [imageGenStatus, setImageGenStatus] = React.useState<ImageGenStatus>({});
   
   const { toast } = useToast()
+  const { settings } = useSettings()
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -144,7 +146,7 @@ export function YoutubeScriptForm() {
 
     try {
         const imagePromises = scriptParagraphs.map((p, index) => 
-            generateYoutubeImages({ paragraph: p, prompt: customPrompts[index] || undefined })
+            generateYoutubeImages({ paragraph: p, prompt: customPrompts[index] || undefined, style: settings.youtubeDefaultImageStyle })
                 .then(result => ({ index, result, status: 'fulfilled' as const }))
                 .catch(error => ({ index, error, status: 'rejected' as const }))
         );
@@ -178,7 +180,7 @@ export function YoutubeScriptForm() {
     });
 
     try {
-        const result = await generateYoutubeImages({ paragraph: scriptParagraphs[index], prompt: customPrompts[index] || undefined });
+        const result = await generateYoutubeImages({ paragraph: scriptParagraphs[index], prompt: customPrompts[index] || undefined, style: settings.youtubeDefaultImageStyle });
         setGeneratedImages(prev => ({...prev, [index]: result.images}));
         setImageGenStatus(prev => ({...prev, [index]: 'done'}));
     } catch (error) {

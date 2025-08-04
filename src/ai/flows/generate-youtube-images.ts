@@ -14,6 +14,7 @@ import {z} from 'genkit';
 const GenerateYoutubeImagesInputSchema = z.object({
   paragraph: z.string().describe('A paragraph from the YouTube script.'),
   prompt: z.string().optional().describe('An optional custom prompt for image generation. If not provided, the paragraph will be used as the prompt.'),
+  style: z.string().optional().describe('The artistic style for the image (e.g., cinematic, realistic, minimalist).'),
 });
 export type GenerateYoutubeImagesInput = z.infer<typeof GenerateYoutubeImagesInputSchema>;
 
@@ -32,8 +33,8 @@ const generateYoutubeImagesFlow = ai.defineFlow(
     inputSchema: GenerateYoutubeImagesInputSchema,
     outputSchema: GenerateYoutubeImagesOutputSchema,
   },
-  async ({ paragraph, prompt }) => {
-    const imageGenerationPrompt = prompt || `Generate a realistic and cinematic image for the following scene: ${paragraph}`;
+  async ({ paragraph, prompt, style }) => {
+    const imageGenerationPrompt = prompt || `Generate a ${style || 'cinematic and realistic'} image for the following scene: ${paragraph}`;
     
     // Generate 3 images in parallel
     const imagePromises = Array(3).fill(null).map(() => 

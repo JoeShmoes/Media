@@ -22,6 +22,10 @@ export type Settings = {
   quickSync: boolean;
   exportOptions: 'pdf' | 'docx' | 'csv' | 'png';
   roomShortcuts: { [key: string]: string };
+  workspaceName: string;
+  tagline: string;
+  favouritesPanelVisibility: boolean;
+  roomAccessControl: "shared" | "private";
   
   // Profile
   userName: string;
@@ -41,11 +45,8 @@ export type Settings = {
   autoRollover: boolean;
   aiTaskSuggestions: boolean;
   
-  // Research
-  defaultSearchEngine: 'wikipedia' | 'google';
-
   // GM
-  showTimestamps: boolean;
+  gmShowTimestamps: boolean;
 
   // Outreach
   defaultOutreachLength: 'Short' | 'Long';
@@ -54,7 +55,7 @@ export type Settings = {
   showProfitLossChart: boolean;
   
   // YouTube Studio
-  defaultImagePromptStyle: 'cinematic' | 'realistic' | 'minimalist';
+  youtubeDefaultImageStyle: 'cinematic' | 'realistic' | 'minimalist';
 };
 
 const defaultSettings: Settings = {
@@ -66,7 +67,11 @@ const defaultSettings: Settings = {
   quickSync: false,
   exportOptions: "csv",
   roomShortcuts: {},
-  
+  workspaceName: "Nexaris Media",
+  tagline: "Your Central AI Command Hub",
+  favouritesPanelVisibility: true,
+  roomAccessControl: "shared",
+
   // Profile
   userName: "User",
   userEmail: "",
@@ -85,11 +90,8 @@ const defaultSettings: Settings = {
   autoRollover: true,
   aiTaskSuggestions: true,
 
-  // Research
-  defaultSearchEngine: 'wikipedia',
-
   // GM
-  showTimestamps: true,
+  gmShowTimestamps: true,
 
   // Outreach
   defaultOutreachLength: 'Long',
@@ -98,7 +100,7 @@ const defaultSettings: Settings = {
   showProfitLossChart: true,
 
   // YouTube Studio
-  defaultImagePromptStyle: 'cinematic',
+  youtubeDefaultImageStyle: 'cinematic',
 };
 
 interface SettingsContextValue {

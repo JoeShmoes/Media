@@ -39,6 +39,7 @@ import {
 } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useSettings } from "@/hooks/use-settings"
 
 const formSchema = z.object({
   leadName: z.string().min(2, "Lead name is required"),
@@ -53,6 +54,7 @@ export function OutreachForm() {
   const [generatedCopy, setGeneratedCopy] = React.useState<GenerateOutreachCopyOutput | null>(null)
   const [isLoading, setIsLoading] = React.useState(false)
   const { toast } = useToast()
+  const { settings } = useSettings()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -62,9 +64,13 @@ export function OutreachForm() {
       userContext: "I am the founder of Nexaris Media, an AI-powered agency that helps businesses scale with intelligent automation and content creation.",
       outreachType: "Email",
       productDescription: "An all-in-one AI command hub to run and scale businesses.",
-      length: "Long",
+      length: settings.defaultOutreachLength,
     },
   })
+  
+  React.useEffect(() => {
+    form.setValue('length', settings.defaultOutreachLength)
+  }, [settings.defaultOutreachLength, form])
 
   const onSubmit: SubmitHandler<z.infer<typeof formSchema>> = async (data) => {
     setIsLoading(true)
@@ -72,7 +78,7 @@ export function OutreachForm() {
     try {
        const input: GenerateOutreachCopyInput = {
         ...data,
-        userName: "Fozan", // In a real app, this would come from user data
+        userName: settings.userName,
       };
       const result = await generateOutreachCopy(input)
       setGeneratedCopy(result)

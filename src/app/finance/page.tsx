@@ -212,26 +212,28 @@ export default function FinancePage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4 glassmorphic">
-          <CardHeader>
-            <CardTitle>Financial Overview</CardTitle>
-          </CardHeader>
-          <CardContent className="pl-2">
-            <ChartContainer config={chartConfig} className="h-[300px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} />
-                  <YAxis tickFormatter={(value) => `$${value / 1000}k`} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Line type="monotone" dataKey="income" stroke="var(--color-income)" strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="expenses" stroke="var(--color-expense)" strokeWidth={2} dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-        <Card className="col-span-4 lg:col-span-3 glassmorphic">
+        {settings.showProfitLossChart && (
+            <Card className="col-span-4 glassmorphic">
+                <CardHeader>
+                    <CardTitle>Financial Overview</CardTitle>
+                </CardHeader>
+                <CardContent className="pl-2">
+                    <ChartContainer config={chartConfig} className="h-[300px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={chartData}>
+                        <CartesianGrid vertical={false} />
+                        <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} />
+                        <YAxis tickFormatter={(value) => `$${value / 1000}k`} />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Line type="monotone" dataKey="income" stroke="var(--color-income)" strokeWidth={2} dot={false} />
+                        <Line type="monotone" dataKey="expenses" stroke="var(--color-expense)" strokeWidth={2} dot={false} />
+                        </LineChart>
+                    </ResponsiveContainer>
+                    </ChartContainer>
+                </CardContent>
+            </Card>
+        )}
+        <Card className={settings.showProfitLossChart ? "col-span-4 lg:col-span-3 glassmorphic" : "col-span-full glassmorphic"}>
           <CardHeader>
             <CardTitle>Recent Transactions</CardTitle>
             <CardDescription>Your last 5 transactions.</CardDescription>

@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -12,6 +13,7 @@ import type { GmMessage } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { db } from "@/lib/firebase"
 import { useToast } from "@/hooks/use-toast"
+import { useSettings } from "@/hooks/use-settings"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -27,17 +29,12 @@ const formSchema = z.object({
 })
 type FormValues = z.infer<typeof formSchema>
 
-// Mock user data - in a real app, this would come from an auth provider
-const currentUser = {
-    name: "Fozan Shazad",
-    avatar: "https://placehold.co/40x40.png"
-}
-
 export function GmChat() {
   const [messages, setMessages] = React.useState<GmMessage[]>([])
   const [isLoading, setIsLoading] = React.useState(true)
   const [isSending, setIsSending] = React.useState(false)
   const { toast } = useToast()
+  const { settings } = useSettings()
   const scrollAreaRef = React.useRef<HTMLDivElement>(null)
 
   const form = useForm<FormValues>({
@@ -86,7 +83,10 @@ export function GmChat() {
         await addDoc(collection(db, "gm-messages"), {
             text: data.message,
             createdAt: serverTimestamp(),
-            user: currentUser,
+            user: {
+                name: settings.userName,
+                avatar: settings.userAvatar
+            },
         });
         form.reset()
     } catch (error) {
@@ -130,9 +130,11 @@ export function GmChat() {
                 <div className="flex-1">
                     <div className="flex items-baseline gap-2">
                         <p className="font-semibold">{message.user.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                            {message.createdAt ? format(message.createdAt.toDate(), 'p') : 'sending...'}
-                        </p>
+                        {settings.gmShowTimestamps && (
+                            <p className="text-xs text-muted-foreground">
+                                {message.createdAt ? format(message.createdAt.toDate(), 'p') : 'sending...'}
+                            </p>
+                        )}
                     </div>
                     <p className="text-foreground/90">{message.text}</p>
                 </div>

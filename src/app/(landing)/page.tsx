@@ -92,7 +92,7 @@ export default function LandingPage() {
             Nexaris Media is your command center — manage clients, projects, outreach, finances, content, and more — powered by built-in AI.
           </p>
           <div className="flex gap-4">
-            <Link href="/dashboard" passHref>
+            <Link href="/login" passHref>
               <Button size="lg" className="bg-white text-black hover:bg-gray-200">Start Using Nexaris Media</Button>
             </Link>
              <Link href="#features" passHref>
@@ -186,7 +186,7 @@ export default function LandingPage() {
                         ))}
                     </ul>
                     <Button size="lg" className="w-full bg-white text-black hover:bg-gray-200" asChild>
-                        <Link href="/dashboard">Get Started Instantly</Link>
+                        <Link href="/login">Get Started Instantly</Link>
                     </Button>
                 </div>
             </div>

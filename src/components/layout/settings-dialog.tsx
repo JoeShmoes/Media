@@ -3,7 +3,7 @@
 
 import * as React from "react"
 import { useTheme } from "next-themes"
-import { Sun, Moon, Laptop, Palette, Shield, Code, Bell, User, LayoutDashboard, ListTodo, Notebook, Search, MessageSquare, Users, KanbanSquare, SendHorizonal, CircleDollarSign, Package, Archive, View, BrainCircuit, Workflow, Blocks, FileText, LayoutTemplate, Youtube, PenSquare, HelpCircle, Wrench, Target } from "lucide-react"
+import { Sun, Moon, Laptop, Palette, Shield, Code, Bell, User, LayoutDashboard, ListTodo, Notebook, Search, MessageSquare, Users, KanbanSquare, SendHorizonal, CircleDollarSign, Package, Archive, View, BrainCircuit, Workflow, Blocks, FileText, LayoutTemplate, Youtube, PenSquare, HelpCircle, Wrench, Target, Upload } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -24,6 +24,9 @@ import { Input } from "../ui/input"
 import { useSettings, type SettingCategory } from "@/hooks/use-settings"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { KeyboardShortcutsDialog } from "./keyboard-shortcuts-dialog"
+import { useToast } from "@/hooks/use-toast"
+import { auth } from "@/lib/firebase"
+import { updateProfile } from "firebase/auth"
 
 interface SettingsDialogProps {
   open: boolean
@@ -63,8 +66,25 @@ const roomSettingCategories: { id: SettingCategory, label: string, icon: React.R
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const { theme, setTheme } = useTheme()
   const { settings, setSetting } = useSettings();
+  const { toast } = useToast();
   const [activeCategory, setActiveCategory] = React.useState<SettingCategory>('universal')
   const [isShortcutsOpen, setIsShortcutsOpen] = React.useState(false);
+  const avatarInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleAvatarUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+              const url = e.target?.result as string;
+              setSetting('userAvatar', url);
+              if (auth.currentUser) {
+                updateProfile(auth.currentUser, { photoURL: url })
+              }
+          };
+          reader.readAsDataURL(file);
+      }
+  }
 
   const renderContent = () => {
     switch (activeCategory) {
@@ -158,9 +178,18 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                             <AvatarImage src={settings.userAvatar} />
                             <AvatarFallback>{settings.userName.charAt(0)}</AvatarFallback>
                           </Avatar>
-                          <div className="space-y-2 flex-1">
-                               <Label>Avatar URL</Label>
-                               <Input value={settings.userAvatar} onChange={(e) => setSetting('userAvatar', e.target.value)} />
+                           <div className="space-y-2">
+                                <Label>Avatar</Label>
+                                <Button variant="outline" onClick={() => avatarInputRef.current?.click()}>
+                                    <Upload className="mr-2 h-4 w-4"/> Upload New
+                                </Button>
+                                <Input 
+                                    type="file" 
+                                    ref={avatarInputRef} 
+                                    className="hidden" 
+                                    onChange={handleAvatarUpload}
+                                    accept="image/png, image/jpeg"
+                                />
                            </div>
                        </div>
                        <div className="space-y-2">
@@ -169,9 +198,9 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                        </div>
                         <div className="space-y-2">
                            <Label>Email Address</Label>
-                           <Input type="email" value={settings.userEmail} onChange={(e) => setSetting('userEmail', e.target.value)} />
+                           <Input type="email" value={settings.userEmail} onChange={(e) => setSetting('userEmail', e.target.value)} disabled/>
                        </div>
-                       <Button variant="outline">Change Password</Button>
+                       <Button variant="outline" onClick={() => toast({ title: "Coming soon!"})}>Change Password</Button>
                     </CardContent>
                 </Card>
             </div>

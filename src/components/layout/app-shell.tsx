@@ -179,7 +179,7 @@ function LiveClock() {
 
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const [user] = useAuthState(auth);
+  const [user, loading] = useAuthState(auth);
   const pathname = usePathname()
   const router = useRouter()
   const { settings, setSetting } = useSettings();
@@ -191,6 +191,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [projects, setProjects] = React.useState<Project[]>([]);
   const [deals, setDeals] = React.useState<Deal[]>([]);
   const [notes, setNotes] = React.useState<Note[]>([]);
+
+
+  React.useEffect(() => {
+    const fetchAppUser = async () => {
+        if (user) {
+            const userRef = doc(db, "users", user.uid);
+            const userDoc = await getDoc(userRef);
+
+            if (userDoc.exists()) {
+                const appUser = userDoc.data() as AppUser;
+                setSetting('userName', `${appUser.firstName} ${appUser.lastName}`);
+                setSetting('userEmail', appUser.email);
+                setSetting('userAvatar', appUser.photoURL || '');
+            }
+        }
+    };
+    fetchAppUser();
+  }, [user, setSetting]);
 
 
   React.useEffect(() => {
@@ -426,11 +444,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Button variant="ghost" className="justify-start w-full h-auto p-2">
                  <div className="flex items-center gap-3">
                    <Avatar className="h-8 w-8">
-                     <AvatarImage src={user?.photoURL || undefined} />
-                     <AvatarFallback><User/></AvatarFallback>
+                     <AvatarImage src={settings.userAvatar || undefined} />
+                     <AvatarFallback>{settings.userName.charAt(0)}</AvatarFallback>
                    </Avatar>
                   <div className="flex-col items-start group-data-[collapsible=icon]:hidden">
-                      <span className="text-sm font-medium text-foreground">{user?.displayName || 'User'}</span>
+                      <span className="text-sm font-medium text-foreground">{settings.userName}</span>
                   </div>
                 </div>
               </Button>

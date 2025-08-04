@@ -70,9 +70,9 @@ const defaultSettings: Settings = {
   roomAccessControl: "private",
   
   // Profile
-  userName: "Fozan Shazad",
-  userEmail: "fozan@example.com",
-  userAvatar: "https://placehold.co/100x100.png",
+  userName: "User",
+  userEmail: "",
+  userAvatar: "",
 
   // Notifications
   desktopNotifications: true,

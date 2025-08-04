@@ -1,7 +1,7 @@
 
 import AppLayout from "../(app)/layout";
 
-export default function AiRoomPageLayout({
+export default function ProjectsPageLayout({
   children,
 }: {
   children: React.ReactNode

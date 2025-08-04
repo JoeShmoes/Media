@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { BrainCircuit, KanbanSquare, SendHorizonal, CircleDollarSign, PenSquare, Youtube, Check } from "lucide-react";
+import { BrainCircuit, KanbanSquare, SendHorizonal, CircleDollarSign, PenSquare, Youtube, Check, LayoutDashboard, ListTodo, Users, Settings } from "lucide-react";
 import { Header } from "./_components/header";
 import { Footer } from "./_components/footer";
 import * as React from "react";
@@ -106,19 +106,55 @@ function AnimatedLaptop() {
             </div>
           </div>
           <motion.div 
-            className="w-full h-full pt-6"
+            className="w-full h-full pt-6 bg-gray-900/50"
             variants={imageVariants}
             initial="hidden"
             animate="visible"
           >
-            <Image
-              src="https://placehold.co/1280x720.png"
-              alt="Nexaris Media App Preview"
-              width={1280}
-              height={720}
-              className="w-full h-full object-cover"
-              data-ai-hint="dashboard analytics"
-            />
+             <div className="flex h-full w-full text-white text-[8px] md:text-[10px] lg:text-[12px] xl:text-[14px]">
+                {/* Mock Sidebar */}
+                <div className="w-1/6 bg-black/20 p-2 space-y-2">
+                    <div className="w-full p-2 bg-blue-500/30 rounded-md flex items-center gap-2"><LayoutDashboard className="h-3 w-3" /> Dashboard</div>
+                    <div className="w-full p-2 hover:bg-white/10 rounded-md flex items-center gap-2"><ListTodo className="h-3 w-3" /> Tasks</div>
+                    <div className="w-full p-2 hover:bg-white/10 rounded-md flex items-center gap-2"><KanbanSquare className="h-3 w-3" /> Projects</div>
+                    <div className="w-full p-2 hover:bg-white/10 rounded-md flex items-center gap-2"><Users className="h-3 w-3" /> Clients</div>
+                    <div className="absolute bottom-2 left-2 right-2 p-2 w-auto hover:bg-white/10 rounded-md flex items-center gap-2"><Settings className="h-3 w-3" /> Settings</div>
+                </div>
+                {/* Mock Main Content */}
+                 <div className="w-5/6 p-4 space-y-4">
+                    <div className="grid grid-cols-4 gap-4">
+                        <div className="p-3 rounded-lg bg-white/5 border border-white/10">
+                            <h4 className="font-bold text-lg">$12,450</h4>
+                            <p className="text-xs text-green-400">+15.2%</p>
+                        </div>
+                         <div className="p-3 rounded-lg bg-white/5 border border-white/10">
+                            <h4 className="font-bold text-lg">12</h4>
+                            <p className="text-xs text-white/50">Active Projects</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-white/5 border border-white/10">
+                            <h4 className="font-bold text-lg">8</h4>
+                            <p className="text-xs text-white/50">New Leads</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-white/5 border border-white/10">
+                            <h4 className="font-bold text-lg">23</h4>
+                            <p className="text-xs text-yellow-400">Tasks Due</p>
+                        </div>
+                    </div>
+                     <div className="w-full h-1/2 rounded-lg bg-white/5 border border-white/10 p-2">
+                        <div className="h-full w-full opacity-30 flex items-end gap-1">
+                            <div className="w-1/12 h-1/4 bg-blue-500 rounded-t-sm"></div>
+                            <div className="w-1/12 h-1/2 bg-blue-500 rounded-t-sm"></div>
+                            <div className="w-1/12 h-3/4 bg-blue-500 rounded-t-sm"></div>
+                            <div className="w-1/12 h-1/3 bg-blue-500 rounded-t-sm"></div>
+                            <div className="w-1/12 h-2/3 bg-blue-500 rounded-t-sm"></div>
+                            <div className="w-1/12 h-1/2 bg-blue-500 rounded-t-sm"></div>
+                            <div className="w-1/12 h-5/6 bg-blue-500 rounded-t-sm"></div>
+                            <div className="w-1/12 h-full bg-blue-500 rounded-t-sm"></div>
+                            <div className="w-1/12 h-1/2 bg-blue-500 rounded-t-sm"></div>
+                        </div>
+                     </div>
+                </div>
+             </div>
           </motion.div>
         </motion.div>
       </div>

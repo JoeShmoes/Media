@@ -1,43 +1,10 @@
 
 "use client";
 
-import { GoogleAuthProvider, signInWithPopup, signOut as firebaseSignOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { signOut as firebaseSignOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "./firebase";
 import type { AppUser, SignUpData } from "./types";
-
-export const signInWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    try {
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-
-        // Check if user exists in Firestore, if not, create them
-        const userRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userRef);
-
-        if (!userDoc.exists()) {
-            const nameParts = user.displayName?.split(" ") || ["", ""];
-            const firstName = nameParts[0];
-            const lastName = nameParts.slice(1).join(" ");
-            
-            const newUser: AppUser = {
-                uid: user.uid,
-                email: user.email || "",
-                firstName: firstName,
-                lastName: lastName,
-                phone: user.phoneNumber || "",
-                age: 0, // Age is not provided by Google Auth
-                photoURL: user.photoURL || "",
-            };
-            await setDoc(userRef, newUser);
-        }
-        return true;
-    } catch (error) {
-        console.error("Error signing in with Google: ", error);
-        return false;
-    }
-};
 
 export const signUpWithEmail = async (data: SignUpData) => {
     try {

@@ -5,11 +5,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { BrainCircuit, KanbanSquare, SendHorizonal, CircleDollarSign, PenSquare, Youtube, Check, LayoutDashboard, ListTodo, Users, Settings } from "lucide-react";
+import { BrainCircuit, KanbanSquare, SendHorizonal, CircleDollarSign, PenSquare, Youtube, Check } from "lucide-react";
 import { Header } from "./_components/header";
 import { Footer } from "./_components/footer";
 import * as React from "react";
-import { Label } from "@/components/ui/label";
 
 const features = [
   {
@@ -49,93 +48,6 @@ const sectionVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
 };
 
-function AnimatedLaptop() {
-  const laptopVariants = {
-    hidden: { opacity: 0, scale: 0.9, y: 50 },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      transition: { duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] },
-    },
-  };
-  
-  const imageVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { duration: 0.5, delay: 1 } },
-  };
-
-
-  return (
-    <motion.div
-      className="w-full max-w-4xl mt-16"
-      variants={laptopVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <div className="relative">
-        {/* Laptop screen */}
-        <div className="relative aspect-[16/10] w-full rounded-xl border-8 border-gray-800 bg-gray-900 shadow-2xl">
-           <div className="absolute inset-2 rounded-md overflow-hidden bg-black">
-             <motion.div 
-              className="w-full h-full"
-              variants={imageVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              <div className="flex h-full w-full text-white text-[8px] md:text-[10px] lg:text-[12px] xl:text-[14px]">
-                  {/* Mock Sidebar */}
-                  <div className="w-1/6 bg-black/20 p-2 space-y-2">
-                      <div className="w-full p-2 bg-primary/30 rounded-md flex items-center gap-2"><LayoutDashboard className="h-3 w-3" /> Dashboard</div>
-                      <div className="w-full p-2 hover:bg-white/10 rounded-md flex items-center gap-2"><ListTodo className="h-3 w-3" /> Tasks</div>
-                      <div className="w-full p-2 hover:bg-white/10 rounded-md flex items-center gap-2"><KanbanSquare className="h-3 w-3" /> Projects</div>
-                      <div className="w-full p-2 hover:bg-white/10 rounded-md flex items-center gap-2"><Users className="h-3 w-3" /> Clients</div>
-                      <div className="absolute bottom-2 left-2 right-2 p-2 w-auto hover:bg-white/10 rounded-md flex items-center gap-2"><Settings className="h-3 w-3" /> Settings</div>
-                  </div>
-                  {/* Mock Main Content */}
-                   <div className="w-5/6 p-4 space-y-4">
-                      <div className="grid grid-cols-4 gap-4">
-                          <div className="p-3 rounded-lg bg-white/5 border border-white/10">
-                              <h4 className="font-bold text-lg">$12,450</h4>
-                              <p className="text-xs text-green-400">+15.2%</p>
-                          </div>
-                           <div className="p-3 rounded-lg bg-white/5 border border-white/10">
-                              <h4 className="font-bold text-lg">12</h4>
-                              <p className="text-xs text-white/50">Active Projects</p>
-                          </div>
-                          <div className="p-3 rounded-lg bg-white/5 border border-white/10">
-                              <h4 className="font-bold text-lg">8</h4>
-                              <p className="text-xs text-white/50">New Leads</p>
-                          </div>
-                          <div className="p-3 rounded-lg bg-white/5 border border-white/10">
-                              <h4 className="font-bold text-lg">23</h4>
-                              <p className="text-xs text-yellow-400">Tasks Due</p>
-                          </div>
-                      </div>
-                       <div className="w-full h-1/2 rounded-lg bg-white/5 border border-white/10 p-2">
-                          <div className="h-full w-full opacity-30 flex items-end gap-1">
-                              <div className="w-1/12 h-1/4 bg-primary rounded-t-sm"></div>
-                              <div className="w-1/12 h-1/2 bg-primary rounded-t-sm"></div>
-                              <div className="w-1/12 h-3/4 bg-primary rounded-t-sm"></div>
-                              <div className="w-1/12 h-1/3 bg-primary rounded-t-sm"></div>
-                              <div className="w-1/12 h-2/3 bg-primary rounded-t-sm"></div>
-                              <div className="w-1/12 h-1/2 bg-primary rounded-t-sm"></div>
-                              <div className="w-1/12 h-5/6 bg-primary rounded-t-sm"></div>
-                              <div className="w-1/12 h-full bg-primary rounded-t-sm"></div>
-                              <div className="w-1/12 h-1/2 bg-primary rounded-t-sm"></div>
-                          </div>
-                       </div>
-                  </div>
-              </div>
-            </motion.div>
-           </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-
 export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white">
@@ -162,7 +74,6 @@ export default function LandingPage() {
               <Button size="lg" variant="outline" className="text-white border-white hover:bg-white hover:text-black">Explore Features</Button>
             </Link>
           </div>
-           <AnimatedLaptop />
         </motion.section>
 
         {/* Features Section */}
@@ -260,5 +171,3 @@ export default function LandingPage() {
     </div>
   );
 }
-
-    

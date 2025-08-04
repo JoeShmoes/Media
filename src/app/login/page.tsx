@@ -17,14 +17,12 @@ import { Input } from "@/components/ui/input";
 import { Icons } from "@/components/icons";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
 const loginSchema = z.object({
@@ -91,14 +89,14 @@ export default function LoginPage() {
 
   const onLoginSubmit = async (data: LoginFormValues) => {
     setIsSubmitting(true);
-    const user = await signInWithEmail(data.email, data.password);
-    if (user) {
+    const { success, error } = await signInWithEmail(data.email, data.password);
+    if (success) {
         router.push('/dashboard');
     } else {
       toast({
         variant: "destructive",
         title: "Login Failed",
-        description: "Invalid email or password. Please try again.",
+        description: error || "Invalid email or password. Please try again.",
       });
     }
     setIsSubmitting(false);
@@ -107,14 +105,14 @@ export default function LoginPage() {
   const onSignUpSubmit = async (data: SignUpFormValues) => {
     setIsSubmitting(true);
     const { confirmPassword, ...signUpData } = data;
-    const success = await signUpWithEmail(signUpData);
+    const { success, error } = await signUpWithEmail(signUpData);
     if (success) {
         router.push('/dashboard');
     } else {
       toast({
         variant: "destructive",
         title: "Sign Up Failed",
-        description: "Could not create an account. The email may already be in use.",
+        description: error || "Could not create an account. The email may already be in use.",
       });
     }
     setIsSubmitting(false);
@@ -122,7 +120,7 @@ export default function LoginPage() {
   
   const onPasswordResetSubmit = async (data: ResetPasswordFormValues) => {
       setIsSubmitting(true);
-      const success = await sendPasswordReset(data.email);
+      const { success, error } = await sendPasswordReset(data.email);
       if (success) {
           toast({
               title: "Password Reset Email Sent",
@@ -132,8 +130,8 @@ export default function LoginPage() {
       } else {
           toast({
               variant: "destructive",
-              title: "Error",
-              description: "Could not send password reset email. Please check the email address.",
+              title: "Error Sending Reset Email",
+              description: error || "Could not send password reset email. Please check the email address.",
           });
       }
       setIsSubmitting(false);
@@ -142,17 +140,21 @@ export default function LoginPage() {
 
   const formStyles = {
     input: "bg-gray-800/50 border-gray-700 h-12 focus:border-primary",
-    button: "h-12 text-base font-semibold bg-gray-800 hover:bg-gray-700",
+    button: "h-12 text-base font-semibold bg-white text-black hover:bg-gray-200",
   }
 
   return (
     <div className="flex flex-col min-h-screen items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black text-white p-4">
         <div className="w-full max-w-md space-y-8">
-            <div className="flex items-center justify-center gap-4 mb-8">
+            <div className="flex items-center justify-center gap-4 mb-4">
                 <Icons.logo className="h-10 w-10 text-white" />
                 <h1 className="text-4xl font-bold tracking-tight">Nexaris Media</h1>
             </div>
 
+            <h2 className="text-center text-2xl font-semibold tracking-tight">
+              {isLoginView ? "Welcome back" : "Create an account"}
+            </h2>
+            
             {isLoginView ? (
                  <form onSubmit={loginForm.handleSubmit(onLoginSubmit)} className="space-y-6">
                     <div className="space-y-2">

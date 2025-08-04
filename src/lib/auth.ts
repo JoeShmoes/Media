@@ -23,20 +23,20 @@ export const signUpWithEmail = async (data: SignUpData) => {
         
         await setDoc(doc(db, "users", user.uid), newUser);
         
-        return true;
-    } catch (error) {
+        return { success: true };
+    } catch (error: any) {
         console.error("Error signing up with email: ", error);
-        return false;
+        return { success: false, error: error.message };
     }
 }
 
 export const signInWithEmail = async (email: string, password: string) => {
     try {
         const result = await signInWithEmailAndPassword(auth, email, password);
-        return result.user;
-    } catch (error) {
+        return { success: true, user: result.user };
+    } catch (error: any) {
         console.error("Error signing in with email: ", error);
-        return null;
+        return { success: false, error: error.message };
     }
 }
 
@@ -52,9 +52,9 @@ export const signOut = async () => {
 export const sendPasswordReset = async (email: string) => {
     try {
         await sendPasswordResetEmail(auth, email);
-        return true;
-    } catch (error) {
+        return { success: true };
+    } catch (error: any) {
         console.error("Error sending password reset email: ", error);
-        return false;
+        return { success: false, error: error.message };
     }
 }

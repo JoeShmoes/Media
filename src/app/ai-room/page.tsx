@@ -5,7 +5,7 @@ import * as React from "react"
 import { PanelLeft } from "lucide-react";
 import { ChatSidebar } from "./_components/chat-sidebar"
 import { AiRoomChat } from "./_components/ai-room-chat"
-import type { ChatSession, ChatMessage } from "@/lib/types"
+import type { ChatSession, ChatMessage, GetBusinessAdviceInput } from "@/lib/types"
 import { getBusinessAdvice } from "@/ai/flows/get-business-advice"
 import { useToast } from "@/hooks/use-toast"
 import { useSettings } from "@/hooks/use-settings"
@@ -95,7 +95,7 @@ export default function AiRoomPage() {
     handleUpdateSession(activeSession.id, newMessages);
   }
 
-  const handleRegenerateResponse = async (messageIndex: number) => {
+  const handleRegenerateResponse = async (messageIndex: number, allData: Omit<GetBusinessAdviceInput, 'question' | 'storedConversations' | 'businessContext'>) => {
     if (!activeSession) return;
     
     const newMessages = activeSession.messages.slice(0, messageIndex + 1);
@@ -111,7 +111,8 @@ export default function AiRoomPage() {
       const result = await getBusinessAdvice({
         question: userMessage.content,
         businessContext: settings.tagline,
-        storedConversations
+        storedConversations,
+        ...allData
       })
       
       const assistantMessage: ChatMessage = { role: "assistant", content: result.advice }

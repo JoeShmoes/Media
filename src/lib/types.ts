@@ -1,5 +1,8 @@
 
 
+import type { GetBusinessAdviceInput as GetBusinessAdviceInputType } from "@/ai/flows/get-business-advice";
+export type GetBusinessAdviceInput = GetBusinessAdviceInputType;
+
 export type AppUser = {
     uid: string;
     email: string;

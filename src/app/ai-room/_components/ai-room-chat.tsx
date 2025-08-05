@@ -8,8 +8,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import Markdown from "react-markdown"
 
-import type { ChatSession, ChatMessage } from "@/lib/types"
-import { getBusinessAdvice } from "@/ai/flows/get-business-advice"
+import type { ChatSession, ChatMessage, Project, Deal, Task, Offer, Persona, Goal, Note, Client, Transaction, TaskGroup } from "@/lib/types"
+import { getBusinessAdvice, type GetBusinessAdviceInput } from "@/ai/flows/get-business-advice"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -38,7 +38,7 @@ type ChatFormValues = z.infer<typeof chatSchema>
 interface AiRoomChatProps {
   session: ChatSession,
   onMessagesChange: (messages: ChatMessage[], newTitle?: string) => void;
-  onRegenerateResponse: (messageIndex: number) => void;
+  onRegenerateResponse: (messageIndex: number, allData: Omit<GetBusinessAdviceInput, 'question' | 'storedConversations' | 'businessContext'>) => void;
   onDeleteMessage: (messageIndex: number) => void;
 }
 
@@ -55,6 +55,63 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
     defaultValues: { message: "" },
   })
   
+  // Data states for AI context
+  const [projects, setProjects] = React.useState<Project[]>([]);
+  const [deals, setDeals] = React.useState<Deal[]>([]);
+  const [tasks, setTasks] = React.useState<Task[]>([]);
+  const [offers, setOffers] = React.useState<Offer[]>([]);
+  const [personas, setPersonas] = React.useState<Persona[]>([]);
+  const [goals, setGoals] = React.useState<Goal[]>([]);
+  const [notes, setNotes] = React.useState<Note[]>([]);
+  const [clients, setClients] = React.useState<Client[]>([]);
+  const [transactions, setTransactions] = React.useState<Transaction[]>([]);
+
+  React.useEffect(() => {
+    // Load all necessary data from local storage
+    const loadData = () => {
+        try {
+            const savedProjects = localStorage.getItem("projects");
+            if(savedProjects) setProjects(Object.values(JSON.parse(savedProjects)).flat() as Project[]);
+            
+            const savedDeals = localStorage.getItem("deals");
+            if(savedDeals) setDeals(JSON.parse(savedDeals));
+
+            const savedTasks = localStorage.getItem("tasks");
+             if(savedTasks) {
+                const board: {groups: TaskGroup[]} = JSON.parse(savedTasks);
+                setTasks(board.groups.flatMap(g => g.tasks));
+            }
+            
+            const savedOffers = localStorage.getItem("offers");
+            if(savedOffers) setOffers(JSON.parse(savedOffers));
+
+            const savedPersonas = localStorage.getItem("brandPersonas");
+            if(savedPersonas) setPersonas(JSON.parse(savedPersonas));
+
+            const savedGoals = localStorage.getItem("cortex-goals");
+            if(savedGoals) setGoals(JSON.parse(savedGoals));
+
+            const savedNotes = localStorage.getItem("notes");
+            if(savedNotes) setNotes(JSON.parse(savedNotes));
+            
+            const savedClients = localStorage.getItem("clients");
+            if(savedClients) setClients(JSON.parse(savedClients));
+
+            const savedTransactions = localStorage.getItem("transactions");
+            if(savedTransactions) setTransactions(JSON.parse(savedTransactions));
+
+        } catch (error) {
+            console.error("Failed to load data for AI context", error);
+        }
+    }
+    loadData();
+  }, []);
+  
+  const allDataContext = {
+    projects, deals, tasks, offers, personas, goals, notes, clients, transactions
+  }
+
+
   React.useEffect(() => {
     if (scrollAreaRef.current) {
         scrollAreaRef.current.scrollTo({
@@ -78,7 +135,8 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
       const result = await getBusinessAdvice({
         question: data.message,
         businessContext: settings.tagline,
-        storedConversations
+        storedConversations,
+        ...allDataContext
       })
       
       const assistantMessage: ChatMessage = { role: "assistant", content: result.advice }
@@ -128,7 +186,7 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
       setEditingText("");
       
       // Regenerate AI response
-      await onRegenerateResponse(editingIndex);
+      await onRegenerateResponse(editingIndex, allDataContext);
   }
 
 
@@ -219,7 +277,7 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
             >
               <div className="relative flex w-full items-center">
                 <Textarea
-                  placeholder="Message Nexaris AI..."
+                  placeholder="Message Nexaris AI... (try @Projects or @Deals)"
                   {...form.register("message")}
                   onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {

@@ -2,18 +2,22 @@
 "use client"
 
 import * as React from "react"
+import { PanelLeft } from "lucide-react";
 import { ChatSidebar } from "./_components/chat-sidebar"
 import { AiRoomChat } from "./_components/ai-room-chat"
 import type { ChatSession, ChatMessage } from "@/lib/types"
 import { getBusinessAdvice } from "@/ai/flows/get-business-advice"
 import { useToast } from "@/hooks/use-toast"
 import { useSettings } from "@/hooks/use-settings"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 
 export default function AiRoomPage() {
   const [sessions, setSessions] = React.useState<ChatSession[]>([]);
   const [activeSession, setActiveSession] = React.useState<ChatSession | null>(null);
   const { toast } = useToast()
   const { settings } = useSettings()
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
 
   // For now, let's use some dummy data and localStorage
   React.useEffect(() => {
@@ -158,7 +162,13 @@ export default function AiRoomPage() {
 
   return (
     <div className="flex h-[calc(100vh-theme(height.14))]">
-       <div className="hidden md:flex flex-col w-72 bg-muted/50 border-r">
+      <div
+        className={cn(
+          "hidden md:flex flex-col bg-muted/50 border-r transition-all duration-300 ease-in-out",
+          isSidebarOpen ? "w-72" : "w-0"
+        )}
+      >
+        <div className={cn("h-full", isSidebarOpen ? "w-72" : "w-0 overflow-hidden")}>
          <ChatSidebar 
             sessions={sessions}
             activeSession={activeSession}
@@ -166,8 +176,17 @@ export default function AiRoomPage() {
             onNewChat={handleNewChat}
             onDeleteSession={handleDeleteSession}
          />
+        </div>
        </div>
-       <div className="flex-1 flex flex-col">
+       <div className="flex-1 flex flex-col relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-2 left-2 z-10"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            >
+              <PanelLeft className="h-5 w-5" />
+            </Button>
             {activeSession ? (
                 <AiRoomChat 
                     key={activeSession.id}

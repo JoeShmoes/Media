@@ -75,6 +75,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
   const [showMentionMenu, setShowMentionMenu] = React.useState(false);
   const { toast } = useToast()
   const scrollAreaRef = React.useRef<HTMLDivElement>(null)
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   
   // State to hold data from all rooms
   const [projects, setProjects] = React.useState<Project[]>([]);
@@ -163,6 +164,16 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
     }, 100)
   }, [messages.length])
   
+  const questionValue = form.watch('question');
+
+  React.useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [questionValue]);
+
+
   React.useEffect(() => {
     const subscription = form.watch((value, { name, type }) => {
       if (name === 'question' && type === 'change') {
@@ -278,7 +289,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
     form.setValue('question', `${currentQuery.slice(0, atIndex)}@${roomName} `);
     setShowMentionMenu(false);
     // Timeout to allow the popover to close before focusing
-    setTimeout(() => form.setFocus('question'), 0);
+    setTimeout(() => textareaRef.current?.focus(), 0);
   }
   
   const handleFeatureSelect = (feature: typeof crifohayFeatures[number]) => {
@@ -287,7 +298,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
     } else {
        form.setValue('question', feature.prompt);
     }
-    setTimeout(() => form.setFocus('question'), 0);
+    setTimeout(() => textareaRef.current?.focus(), 0);
   }
 
 
@@ -429,14 +440,29 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
                 <FormField
                 control={form.control}
                 name="question"
-                render={({ field }) => (
+                render={({ field }) => {
+                  const { ref, ...otherFieldProps } = field;
+                  return (
                     <FormItem className="flex-1">
                     <FormControl>
-                        <Textarea placeholder="Ask 'How do I scale this?' or type @..." {...field} disabled={isLoading} className="rounded-2xl pl-12 pr-12 py-3 min-h-[52px] resize-none border-2 border-border focus-visible:ring-primary" autoComplete="off" />
+                        <Textarea 
+                            ref={(e) => {
+                                ref(e);
+                                // @ts-ignore
+                                textareaRef.current = e;
+                            }}
+                            placeholder="Ask 'How do I scale this?' or type @..." 
+                            {...otherFieldProps} 
+                            disabled={isLoading} 
+                            className="rounded-2xl pl-12 pr-12 py-3 min-h-[52px] max-h-[200px] resize-none border-2 border-border focus-visible:ring-primary" 
+                            autoComplete="off"
+                            rows={1}
+                        />
                     </FormControl>
                     <FormMessage />
                     </FormItem>
-                )}
+                  )
+                }}
                 />
                 <Button type="submit" size="icon" className="absolute right-2.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full" disabled={isLoading}>
                     <Send className="h-4 w-4" />
@@ -448,5 +474,3 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
     </div>
   )
 }
-
-    

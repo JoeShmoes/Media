@@ -25,7 +25,7 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useToast } from "@/hooks/use-toast"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Icons } from "@/components/ui/icons"
+import { Icons } from "@/components/icons"
 import { Textarea } from "@/components/ui/textarea"
 import {
   Popover,
@@ -334,7 +334,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
                         className={cn(
                             "rounded-lg p-3 max-w-sm md:max-w-xl relative",
                             message.role === "user"
-                            ? "bg-muted text-foreground"
+                            ? "bg-gray-700 text-white"
                             : "bg-background"
                         )}
                         >
@@ -389,7 +389,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
         </div>
         </ScrollArea>
         <div className="p-4 bg-transparent border-t">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-2xl mx-auto">
             <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="relative">
                 <Popover>
@@ -432,7 +432,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
                 render={({ field }) => (
                     <FormItem className="flex-1">
                     <FormControl>
-                        <Textarea placeholder="Ask 'How do I scale this?' or type @..." {...field} disabled={isLoading} className="rounded-2xl pl-12 pr-12 py-3 min-h-[52px] resize-none" autoComplete="off" />
+                        <Textarea placeholder="Ask 'How do I scale this?' or type @..." {...field} disabled={isLoading} className="rounded-2xl pl-12 pr-12 py-3 min-h-[52px] resize-none border-2 border-border focus-visible:ring-primary" autoComplete="off" />
                     </FormControl>
                     <FormMessage />
                     </FormItem>
@@ -448,3 +448,5 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
     </div>
   )
 }
+
+    

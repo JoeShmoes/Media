@@ -72,13 +72,10 @@ const crifohayFeatures = [
     { name: "AI Workflow Builder", icon: <Zap className="mr-2 h-4 w-4 text-yellow-500" /> },
     { name: "Idea Engine", icon: <Lightbulb className="mr-2 h-4 w-4 text-blue-500" /> },
     { name: "Multi-Agent Simulator", icon: <UsersRound className="mr-2 h-4 w-4 text-purple-500" /> },
-    { name: "Script & Image Generator", icon: <Youtube className="mr-2 h-4 w-4 text-red-500" /> },
     { name: "Task Commander", icon: <ListTodo className="mr-2 h-4 w-4 text-green-500" /> },
-    { name: "Prompt Library", icon: <Library className="mr-2 h-4 w-4 text-orange-500" /> },
-    { name: "Smart Research Agent", icon: <Search className="mr-2 h-4 w-4 text-indigo-500" /> },
     { name: "KPI Generator & Analyzer", icon: <BarChart className="mr-2 h-4 w-4 text-pink-500" /> },
-    { name: "AI Personas", icon: <User className="mr-2 h-4 w-4 text-teal-500" /> },
-    { name: "Chat Memory & Remix", icon: <GitMerge className="mr-2 h-4 w-4 text-gray-500" /> },
+    { name: "Mentions", icon: <MessageCircleCode className="mr-2 h-4 w-4 text-indigo-500" />, action: (form: any) => { form.setValue('question', form.getValues('question') + '@'); } },
+    { name: "Use other chats", icon: <GitMerge className="mr-2 h-4 w-4 text-gray-500" /> },
 ]
 
 export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMessage }: AiRoomChatProps) {
@@ -388,7 +385,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
                     <PopoverContent className="w-64 p-2 mb-2 max-h-96 overflow-y-auto" align="start">
                         <ScrollArea className="h-full">
                             {crifohayFeatures.map(feature => (
-                               <Button key={feature.name} variant="ghost" className="w-full justify-start">
+                               <Button key={feature.name} variant="ghost" className="w-full justify-start" onClick={feature.action ? () => feature.action?.(form) : undefined}>
                                    {feature.icon} {feature.name}
                                </Button>
                             ))}

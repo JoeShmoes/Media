@@ -7,11 +7,11 @@ import { useForm, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import Markdown from "react-markdown"
+import TextareaAutosize from 'react-textarea-autosize';
 
 import type { ChatSession, ChatMessage } from "@/lib/types"
 import { getBusinessAdvice } from "@/ai/flows/get-business-advice"
 import { useToast } from "@/hooks/use-toast"
-import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -34,7 +34,6 @@ export function AiRoomChat({ session, onMessagesChange }: AiRoomChatProps) {
   const { settings } = useSettings()
   const [isLoading, setIsLoading] = React.useState(false)
   const scrollAreaRef = React.useRef<HTMLDivElement>(null)
-  const textareaRef = React.useRef<HTMLTextAreaElement>(null)
 
   const form = useForm<ChatFormValues>({
     resolver: zodResolver(chatSchema),
@@ -50,12 +49,6 @@ export function AiRoomChat({ session, onMessagesChange }: AiRoomChatProps) {
     }
   }, [session.messages]);
   
-  const handleInput = () => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-    }
-  };
 
   const onSubmit: SubmitHandler<ChatFormValues> = async (data) => {
     const userMessage: ChatMessage = { role: "user", content: data.message }
@@ -63,13 +56,6 @@ export function AiRoomChat({ session, onMessagesChange }: AiRoomChatProps) {
     onMessagesChange(newMessages);
     form.reset()
     setIsLoading(true)
-
-    // Auto-adjust textarea height after submission
-    setTimeout(() => {
-      if (textareaRef.current) {
-        textareaRef.current.style.height = "auto";
-      }
-    }, 0);
 
     try {
       const storedConversations = newMessages.slice(0, -1).map(m => `${m.role}: ${m.content}`).join("\n");
@@ -121,11 +107,13 @@ export function AiRoomChat({ session, onMessagesChange }: AiRoomChatProps) {
                 <div key={index} className={cn("flex items-start gap-4 mb-8", message.role === "user" ? "justify-end" : "justify-start")}>
                    {message.role === 'assistant' && (
                        <Avatar className="h-8 w-8">
-                           <AvatarFallback><Bot /></AvatarFallback>
+                           <AvatarFallback>
+                                <Icons.logo className="h-5 w-5"/>
+                           </AvatarFallback>
                        </Avatar>
                    )}
                    <div className="max-w-2xl">
-                      <div className={cn("p-4 rounded-lg", message.role === 'assistant' ? "bg-muted" : "bg-primary text-primary-foreground")}>
+                      <div className={cn("p-4 rounded-lg", message.role === 'assistant' ? "bg-muted" : "bg-primary text-black")}>
                          <Markdown className="prose prose-sm dark:prose-invert max-w-none">{message.content}</Markdown>
                       </div>
                    </div>
@@ -151,11 +139,9 @@ export function AiRoomChat({ session, onMessagesChange }: AiRoomChatProps) {
       <div className="px-4 py-4 bg-background border-t">
         <div className="max-w-4xl mx-auto">
             <form onSubmit={form.handleSubmit(onSubmit)} className="relative">
-                 <Textarea
-                    ref={textareaRef}
+                 <TextareaAutosize
                     placeholder="Message Nexaris AI..."
                     {...form.register("message")}
-                    onInput={handleInput}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault();
@@ -163,7 +149,8 @@ export function AiRoomChat({ session, onMessagesChange }: AiRoomChatProps) {
                         }
                     }}
                     rows={1}
-                    className="w-full resize-none p-3 pr-20 overflow-y-hidden"
+                    maxRows={5}
+                    className="w-full resize-none p-3 pr-20 overflow-y-auto"
                     disabled={isLoading}
                 />
                 <Button type="submit" size="icon" className="absolute right-3 top-1/2 -translate-y-1/2" disabled={isLoading}>

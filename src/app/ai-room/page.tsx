@@ -38,7 +38,9 @@ export default function AiRoomPage() {
 
   React.useEffect(() => {
      try {
-        localStorage.setItem("chatSessions", JSON.stringify(sessions));
+        if (sessions.length > 0) {
+            localStorage.setItem("chatSessions", JSON.stringify(sessions));
+        }
      } catch (error) {
          console.error("Failed to save chat sessions", error);
      }
@@ -66,15 +68,41 @@ export default function AiRoomPage() {
       }));
        // Also update the active session if it's the one being changed
       if (activeSession?.id === sessionId) {
-          setActiveSession(prev => prev ? ({...prev, messages: updatedMessages}) : null);
+          setActiveSession(prev => {
+              if (!prev) return null;
+              const title = newTitle && prev.title === "New Chat" ? newTitle : prev.title;
+              return {...prev, messages: updatedMessages, title };
+          });
       }
   }
   
   const handleDeleteSession = (sessionId: string) => {
-      setSessions(prev => prev.filter(s => s.id !== sessionId));
-      if (activeSession?.id === sessionId) {
-          setActiveSession(sessions.length > 1 ? sessions[0] : null);
-      }
+    let newActiveSession = activeSession;
+    if (activeSession?.id === sessionId) {
+        const currentIndex = sessions.findIndex(s => s.id === sessionId);
+        if (sessions.length > 1) {
+            newActiveSession = sessions[currentIndex === 0 ? 1 : currentIndex - 1];
+        } else {
+            newActiveSession = null;
+        }
+    }
+    
+    const newSessions = sessions.filter(s => s.id !== sessionId);
+
+    if(newSessions.length === 0) {
+        // If no sessions left, create a new one
+        const newSession: ChatSession = {
+            id: `session-${Date.now()}`,
+            title: "New Chat",
+            createdAt: new Date().toISOString(),
+            messages: [],
+        };
+        setSessions([newSession]);
+        setActiveSession(newSession);
+    } else {
+        setSessions(newSessions);
+        setActiveSession(newActiveSession);
+    }
   }
 
 

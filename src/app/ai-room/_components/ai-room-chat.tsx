@@ -155,7 +155,7 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
   };
   
   const handleMentionSelect = (roomName: string) => {
-    const message = form.getValues("message");
+    const message = form.getValues("message") || "";
     const caretPosition = textareaRef.current?.selectionStart || message.length;
     const textBeforeCaret = message.substring(0, caretPosition);
     const atMatch = textBeforeCaret.match(/@(\w*)$/);
@@ -164,7 +164,7 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
         const atIndex = atMatch.index || 0;
         const newText = 
             message.substring(0, atIndex) +
-            `${roomName.replace(' ', '')} @` +
+            `${roomName.replace(/ /g, '')} @` +
             message.substring(caretPosition);
         
         form.setValue("message", newText);

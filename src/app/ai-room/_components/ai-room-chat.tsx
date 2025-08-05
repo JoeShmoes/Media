@@ -25,7 +25,7 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useToast } from "@/hooks/use-toast"
 import { Skeleton } from "@/components/ui/skeleton"
-import { Icons } from "@/components/icons"
+import { Icons } from "@/components/ui/icons"
 import { Textarea } from "@/components/ui/textarea"
 import {
   Popover,
@@ -300,7 +300,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full overflow-hidden">
         <ScrollArea className="flex-1" ref={scrollAreaRef}>
         <div className="space-y-6 p-4 max-w-4xl mx-auto w-full">
             {messages.map((message, index) => (
@@ -388,7 +388,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
             )}
         </div>
         </ScrollArea>
-        <div className="p-4 bg-background">
+        <div className="p-4 bg-transparent border-t">
           <div className="max-w-4xl mx-auto">
             <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="relative">

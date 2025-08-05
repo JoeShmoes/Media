@@ -5,50 +5,122 @@ import * as React from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
+import { Calendar as CalendarIcon, CheckCircle } from "lucide-react"
+import {
+  Calendar as BigCalendar,
+  momentLocalizer,
+} from 'react-big-calendar'
+import moment from 'moment'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
+
+const localizer = momentLocalizer(moment)
+
+const sampleEvents = [
+  {
+    title: 'Team Standup',
+    start: new Date(new Date().setHours(9, 0, 0)),
+    end: new Date(new Date().setHours(9, 15, 0)),
+  },
+  {
+    title: 'Client Call: Synergy Corp',
+    start: new Date(new Date().setHours(11, 0, 0)),
+    end: new Date(new Date().setHours(11, 45, 0)),
+  },
+  {
+    title: 'Lunch Break',
+    start: new Date(new Date().setHours(12, 30, 0)),
+    end: new Date(new Date().setHours(13, 30, 0)),
+  },
+  {
+    title: 'Focus Work: Project Phoenix',
+    start: new Date(new Date().setHours(14, 0, 0)),
+    end: new Date(new Date().setHours(16, 30, 0)),
+  },
+]
+
 
 export default function CalendarPage() {
     const { toast } = useToast()
+    const [isMounted, setIsMounted] = React.useState(false)
+    const [connectedService, setConnectedService] = React.useState<"google" | "notion" | null>(null)
 
-    const handleConnect = (service: string) => {
+    React.useEffect(() => {
+        setIsMounted(true)
+        const savedService = localStorage.getItem("calendarConnectedService") as "google" | "notion" | null;
+        if (savedService) {
+            setConnectedService(savedService)
+        }
+    }, [])
+    
+    const handleConnect = (service: "google" | "notion") => {
+        setConnectedService(service)
+        localStorage.setItem("calendarConnectedService", service)
         toast({
-            title: `Connecting to ${service}`,
-            description: "This integration is coming soon!",
+            title: `Connected to ${service === 'google' ? "Google" : "Notion"} Calendar!`,
+            description: "Your calendar events will now be synced.",
         })
     }
-  
+    
+    const handleDisconnect = () => {
+        const serviceName = connectedService === 'google' ? "Google" : "Notion";
+        setConnectedService(null);
+        localStorage.removeItem("calendarConnectedService");
+        toast({
+            title: `Disconnected from ${serviceName} Calendar`,
+        });
+    }
+
+    if (!isMounted) {
+        return null;
+    }
+
+    if (!connectedService) {
+        return (
+            <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+                 <div className="grid gap-6 md:grid-cols-2">
+                    <Card className="glassmorphic">
+                        <CardHeader>
+                            <CardTitle>Google Calendar</CardTitle>
+                            <CardDescription>Connect your Google Calendar to sync your events and meetings automatically.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <Button onClick={() => handleConnect('google')}>Connect Google Calendar</Button>
+                        </CardContent>
+                    </Card>
+                    <Card className="glassmorphic">
+                        <CardHeader>
+                            <CardTitle>Notion Calendar</CardTitle>
+                            <CardDescription>Connect your Notion Calendar to bring your tasks and events into one view.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <Button onClick={() => handleConnect('notion')}>Connect Notion Calendar</Button>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+        )
+    }
+
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
-        <div className="grid gap-6 md:grid-cols-2">
-            <Card className="glassmorphic">
-                <CardHeader>
-                    <CardTitle>Google Calendar</CardTitle>
-                    <CardDescription>Connect your Google Calendar to sync your events and meetings automatically.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Button onClick={() => handleConnect('Google Calendar')}>Connect Google Calendar</Button>
-                </CardContent>
-            </Card>
-            <Card className="glassmorphic">
-                <CardHeader>
-                    <CardTitle>Notion Calendar</CardTitle>
-                    <CardDescription>Connect your Notion Calendar to bring your tasks and events into one view.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                     <Button onClick={() => handleConnect('Notion Calendar')}>Connect Notion Calendar</Button>
-                </CardContent>
-            </Card>
-        </div>
-        
-        <Card className="glassmorphic mt-8">
-             <CardHeader>
-                <CardTitle>Your Calendar</CardTitle>
-                <CardDescription>Once connected, your events will appear here.</CardDescription>
-            </CardHeader>
-            <CardContent className="p-6">
-                <div className="flex flex-col items-center justify-center text-center py-24 border-2 border-dashed rounded-lg">
-                    <h3 className="text-xl font-semibold">Your Calendar is Empty</h3>
-                    <p className="text-muted-foreground mt-2 mb-4">Connect a calendar service to see your events here.</p>
+        <Card className="glassmorphic">
+             <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                    <CardTitle className="flex items-center gap-2"><CheckCircle className="text-green-500" /> Connected to {connectedService === 'google' ? "Google" : "Notion"} Calendar</CardTitle>
+                    <CardDescription>Displaying a sample schedule. Future updates will show your real events.</CardDescription>
                 </div>
+                <Button variant="outline" onClick={handleDisconnect}>Disconnect</Button>
+            </CardHeader>
+            <CardContent className="p-6 h-[600px]">
+                 <BigCalendar
+                    localizer={localizer}
+                    events={sampleEvents}
+                    startAccessor="start"
+                    endAccessor="end"
+                    style={{ height: '100%' }}
+                    views={['day', 'week', 'month']}
+                    defaultView="week"
+                />
             </CardContent>
         </Card>
     </div>

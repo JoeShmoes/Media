@@ -2,7 +2,7 @@
 "use client"
 
 import * as React from "react";
-import { List, Kanban, GanttChartSquare } from "lucide-react";
+import { List, Kanban, GanttChartSquare, Loader2 } from "lucide-react";
 
 import { useSettings } from "@/hooks/use-settings";
 import { TaskList } from "./_components/task-list";
@@ -14,9 +14,12 @@ import { GanttChart } from "./_components/gantt-chart";
 import { PageHeader } from "@/components/page-header";
 
 export default function TasksPage() {
-  const { settings, setSetting } = useSettings();
+  const { settings } = useSettings();
   const [isMounted, setIsMounted] = React.useState(false);
   const [board, setBoard] = React.useState<{ groups: TaskGroup[] }>({ groups: [] });
+  const [viewLoading, setViewLoading] = React.useState(false);
+  const previousView = React.useRef(settings.tasksDefaultView);
+
 
   React.useEffect(() => {
     setIsMounted(true);
@@ -40,6 +43,17 @@ export default function TasksPage() {
       localStorage.setItem("tasks", JSON.stringify(board));
     }
   }, [board, isMounted]);
+  
+  React.useEffect(() => {
+    if (previousView.current !== settings.tasksDefaultView) {
+      setViewLoading(true);
+      const timer = setTimeout(() => {
+        setViewLoading(false);
+        previousView.current = settings.tasksDefaultView;
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [settings.tasksDefaultView]);
 
   const handleAddTask = (task: Omit<Task, 'id' | 'completed'>, targetGroupId: string) => {
     setBoard(prev => {
@@ -170,10 +184,9 @@ export default function TasksPage() {
   };
 
   const pageTitles = {
-    list: "List View",
-    board: "Board View",
-    gantt: "Gantt View",
-    calendar: "Calendar View"
+    list: { title: "List View", description: "A simple, compact view of your tasks." },
+    board: { title: "Board View", description: "A Kanban-style board to visualize your workflow." },
+    gantt: { title: "Gantt View", description: "A timeline view to track project schedules." },
   }
 
   if (!isMounted) return null;
@@ -181,15 +194,21 @@ export default function TasksPage() {
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6 h-full flex flex-col">
        <PageHeader
-        title={pageTitles[settings.tasksDefaultView] || "Tasks"}
-        description="Create and manage your tasks and to-do lists."
+        title={pageTitles[settings.tasksDefaultView]?.title || "Tasks"}
+        description={pageTitles[settings.tasksDefaultView]?.description}
       >
         <AddTaskDialog onAddTask={handleAddTask} groups={board.groups} />
         <AddGroupDialog onAddGroup={handleAddGroup} />
       </PageHeader>
       
       <div className="flex-1 overflow-y-auto">
-        {renderContent()}
+        {viewLoading ? (
+            <div className="flex flex-col items-center justify-center h-full text-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+                <h3 className="text-xl font-semibold">Switching to {pageTitles[settings.tasksDefaultView].title}</h3>
+                <p className="text-muted-foreground">{pageTitles[settings.tasksDefaultView].description}</p>
+            </div>
+        ) : renderContent()}
       </div>
     </div>
   )

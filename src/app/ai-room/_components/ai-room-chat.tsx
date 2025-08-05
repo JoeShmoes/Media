@@ -161,7 +161,7 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
     const textBeforeCaret = message.substring(0, caretPosition);
     const atMatch = textBeforeCaret.match(/@(\w*)$/);
 
-    if (atMatch) {
+    if (atMatch && textareaRef.current) {
         const atIndex = atMatch.index || 0;
         const mentionText = `@[${roomName}] `;
         const newText =
@@ -169,6 +169,7 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
           mentionText +
           message.substring(caretPosition);
         
+        textareaRef.current.value = newText;
         form.setValue("message", newText);
         setMentionMenuOpen(false);
         
@@ -203,7 +204,7 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
 
       if(session.messages.length === 0) {
         // This is the first message pair, let's set a title
-        const titleResult = await getBusinessAdvice({ question: `Give a very short, 3-4 word title for this conversation: User: "${data.message}" Assistant: "${result.advice}"`, businessContext: "", storedConversations: ""});
+        const titleResult = await getBusinessAdvice({ question: `Give a very short, 3-4 word title for this conversation: User: "${data.message}" Assistant: "${result.advice}"`, businessContext: "", storedConversations: "", ...allDataContext});
         newTitle = titleResult.advice.replace(/"/g, ''); // remove quotes from title
       }
       
@@ -379,3 +380,5 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
     </div>
   )
 }
+
+    

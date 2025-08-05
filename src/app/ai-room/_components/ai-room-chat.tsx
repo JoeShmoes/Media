@@ -68,15 +68,6 @@ const mentionableRooms = [
     { name: "Goals", icon: <Target className="mr-2 h-4 w-4" /> },
 ];
 
-const crifohayFeatures = [
-    { name: "AI Workflow Builder", icon: <Zap className="mr-2 h-4 w-4 text-yellow-500" /> },
-    { name: "Idea Engine", icon: <Lightbulb className="mr-2 h-4 w-4 text-blue-500" /> },
-    { name: "Multi-Agent Simulator", icon: <UsersRound className="mr-2 h-4 w-4 text-purple-500" /> },
-    { name: "Task Commander", icon: <ListTodo className="mr-2 h-4 w-4 text-green-500" /> },
-    { name: "KPI Generator & Analyzer", icon: <BarChart className="mr-2 h-4 w-4 text-pink-500" /> },
-    { name: "Mentions", icon: <MessageCircleCode className="mr-2 h-4 w-4 text-indigo-500" />, action: (form: any) => { form.setValue('question', form.getValues('question') + '@'); } },
-    { name: "Use other chats", icon: <GitMerge className="mr-2 h-4 w-4 text-gray-500" /> },
-]
 
 export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMessage }: AiRoomChatProps) {
   const [isLoading, setIsLoading] = React.useState(false)
@@ -94,7 +85,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
   const [personas, setPersonas] = React.useState<Persona[]>([]);
   const [goals, setGoals] = React.useState<Goal[]>([]);
   const [notes, setNotes] = React.useState<Note[]>([]);
-  const [clients, setClients] = React.useState<Client[]>([]);
+  const [clients, setClients] = React.useState<Client[]>(([]);
   const [transactions, setTransactions] = React.useState<Transaction[]>([]);
 
   React.useEffect(() => {
@@ -143,6 +134,23 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
     resolver: zodResolver(formSchema),
     defaultValues: { question: "" },
   })
+  
+    const showComingSoon = () => {
+        toast({
+            title: "Feature Coming Soon",
+            description: "This feature is currently under development.",
+        });
+    };
+    
+    const crifohayFeatures = [
+        { name: "AI Workflow Builder", icon: <Zap className="mr-2 h-4 w-4 text-yellow-500" />, action: showComingSoon },
+        { name: "Idea Engine", icon: <Lightbulb className="mr-2 h-4 w-4 text-blue-500" />, action: () => form.setValue('question', 'Generate 5 ideas for: ') },
+        { name: "Multi-Agent Simulator", icon: <UsersRound className="mr-2 h-4 w-4 text-purple-500" />, action: showComingSoon },
+        { name: "Task Commander", icon: <ListTodo className="mr-2 h-4 w-4 text-green-500" />, action: () => form.setValue('question', 'Create a list of tasks for: ') },
+        { name: "KPI Generator & Analyzer", icon: <BarChart className="mr-2 h-4 w-4 text-pink-500" />, action: () => form.setValue('question', 'Generate 3 KPIs for: ') },
+        { name: "Mentions", icon: <MessageCircleCode className="mr-2 h-4 w-4 text-indigo-500" />, action: () => { form.setValue('question', form.getValues('question') + '@'); } },
+        { name: "Use other chats", icon: <GitMerge className="mr-2 h-4 w-4 text-gray-500" />, action: showComingSoon },
+    ]
   
   const messages = session?.messages ?? []
 
@@ -385,7 +393,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
                     <PopoverContent className="w-64 p-2 mb-2 max-h-96 overflow-y-auto" align="start">
                         <ScrollArea className="h-full">
                             {crifohayFeatures.map(feature => (
-                               <Button key={feature.name} variant="ghost" className="w-full justify-start" onClick={feature.action ? () => feature.action?.(form) : undefined}>
+                               <Button key={feature.name} variant="ghost" className="w-full justify-start" onClick={feature.action}>
                                    {feature.icon} {feature.name}
                                </Button>
                             ))}
@@ -434,3 +442,5 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
     </div>
   )
 }
+
+    

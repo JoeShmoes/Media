@@ -56,6 +56,15 @@ interface AiRoomChatProps {
   onDeleteMessage: (messageIndex: number) => void;
 }
 
+const mentionableRooms = [
+    "Project Board", "Pipeline Tracker", "Tasks", "Offer Builder", 
+    "Brand Room", "Cortex Room", "Notes", "Client Command Center", 
+    "Finance Room", "Dashboard"
+];
+
+const roomsForMenu = navLinks.filter(link => mentionableRooms.includes(link.label));
+
+
 export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, onDeleteMessage }: AiRoomChatProps) {
   const { toast } = useToast()
   const { settings } = useSettings()
@@ -340,7 +349,7 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
                         <Textarea
                           {...form.register("message")}
                           ref={textareaRef}
-                          placeholder="Message Nexaris AI... (try @Projects or @Deals)"
+                          placeholder="Message Nexaris AI... (try @[Projects] or @[Deals])"
                           onChange={handleInputChange}
                           onKeyDown={(e) => {
                               if (e.key === 'Enter' && !e.shiftKey) {
@@ -358,7 +367,7 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
                           <CommandInput placeholder="Search rooms..." value={mentionQuery} onValueChange={setMentionQuery} />
                            <CommandList>
                             <CommandGroup>
-                               {navLinks.filter(l => l.label.toLowerCase().includes(mentionQuery.toLowerCase())).map(link => (
+                               {roomsForMenu.filter(l => l.label.toLowerCase().includes(mentionQuery.toLowerCase())).map(link => (
                                    <CommandItem key={link.href} value={link.label} onSelect={() => handleMentionSelect(link.label)}>
                                        <link.icon className="mr-2 h-4 w-4"/>
                                        <span>{link.label}</span>
@@ -380,5 +389,3 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
     </div>
   )
 }
-
-    

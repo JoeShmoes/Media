@@ -116,18 +116,6 @@ const getOffersTool = ai.defineTool(
     { name: 'getOffers', description: 'Get a list of all created offers.', outputSchema: z.array(OfferSchema), },
      async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.offers || []
 );
-const getClientsTool = ai.defineTool(
-    { name: 'getClients', description: 'Get a list of all clients.', outputSchema: z.array(ClientSchema), },
-     async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.clients || []
-);
-const getFinanceTool = ai.defineTool(
-    { name: 'getFinance', description: 'Get a list of all financial transactions.', outputSchema: z.array(TransactionSchema), },
-     async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.transactions || []
-);
-const getNotesTool = ai.defineTool(
-    { name: 'getNotes', description: 'Get a list of all notes.', outputSchema: z.array(NoteSchema), },
-     async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.notes || []
-);
 const getPersonasTool = ai.defineTool(
     { name: 'getPersonas', description: 'Get a list of all customer personas.', outputSchema: z.array(PersonaSchema), },
      async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.personas || []
@@ -135,6 +123,18 @@ const getPersonasTool = ai.defineTool(
 const getGoalsTool = ai.defineTool(
     { name: 'getGoals', description: 'Get a list of all business goals.', outputSchema: z.array(GoalSchema), },
      async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.goals || []
+);
+const getNotesTool = ai.defineTool(
+    { name: 'getNotes', description: 'Get a list of all notes.', outputSchema: z.array(NoteSchema), },
+     async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.notes || []
+);
+const getClientsTool = ai.defineTool(
+    { name: 'getClients', description: 'Get a list of all clients.', outputSchema: z.array(ClientSchema), },
+     async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.clients || []
+);
+const getFinanceTool = ai.defineTool(
+    { name: 'getFinance', description: 'Get a list of all financial transactions.', outputSchema: z.array(TransactionSchema), },
+     async (_, flow) => flow.state.get<GetBusinessAdviceInput>()?.transactions || []
 );
 
 
@@ -150,15 +150,15 @@ const prompt = ai.definePrompt({
   prompt: `You are a business advisor providing real-time, custom-trained advice based on the business context and stored conversations.
   Your responses should be well-formatted using Markdown. Use bolding for emphasis, italics for nuance, and bullet points for lists to make your advice clear and actionable. Leave a blank line between paragraphs.
   The user's question might contain an @-mention in the format @[Room Name] to specify a data context. Use the corresponding tool to get the most up-to-date information before answering.
-  - @[Projects]: Use getProjectsTool
-  - @[Deals]: Use getDealsTool
+  - @[Project Board]: Use getProjectsTool
+  - @[Pipeline Tracker]: Use getDealsTool
   - @[Tasks]: Use getTasksTool
-  - @[Offers]: Use getOffersTool
-  - @[Personas]: Use getPersonasTool
-  - @[Goals]: Use getGoalsTool
+  - @[Offer Builder]: Use getOffersTool
+  - @[Brand Room]: Use getPersonasTool
+  - @[Cortex Room]: Use getGoalsTool
   - @[Notes]: Use getNotesTool
-  - @[Clients]: Use getClientsTool
-  - @[Finance]: Use getFinanceTool
+  - @[Client Command Center]: Use getClientsTool
+  - @[Finance Room]: Use getFinanceTool
   - @[Dashboard]: Use all available tools to get a full business overview.
   If the user just asks a general question, answer it based on the business context and conversation history.
 

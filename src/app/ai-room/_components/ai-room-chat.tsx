@@ -138,24 +138,29 @@ export function AiRoomChat({ session, onMessagesChange }: AiRoomChatProps) {
       </ScrollArea>
       <div className="px-4 py-4 bg-background border-t">
         <div className="max-w-4xl mx-auto">
-            <form onSubmit={form.handleSubmit(onSubmit)} className="relative">
-                 <TextareaAutosize
-                    placeholder="Message Nexaris AI..."
-                    {...form.register("message")}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            form.handleSubmit(onSubmit)();
-                        }
-                    }}
-                    rows={1}
-                    maxRows={5}
-                    className="w-full resize-none p-3 pr-20 overflow-y-auto"
-                    disabled={isLoading}
+             <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="relative"
+            >
+              <div className="relative flex w-full items-center">
+                <TextareaAutosize
+                  placeholder="Message Nexaris AI..."
+                  {...form.register("message")}
+                  onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          form.handleSubmit(onSubmit)();
+                      }
+                  }}
+                  rows={1}
+                  maxRows={5}
+                  className="w-full resize-none rounded-2xl border border-input bg-background p-3 pr-20 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  disabled={isLoading}
                 />
-                <Button type="submit" size="icon" className="absolute right-3 top-1/2 -translate-y-1/2" disabled={isLoading}>
+                <Button type="submit" size="icon" className="absolute right-3" disabled={isLoading}>
                     <Send className="h-4 w-4" />
                 </Button>
+              </div>
             </form>
         </div>
       </div>

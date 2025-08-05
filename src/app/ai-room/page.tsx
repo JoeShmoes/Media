@@ -4,11 +4,16 @@
 import * as React from "react"
 import { ChatSidebar } from "./_components/chat-sidebar"
 import { AiRoomChat } from "./_components/ai-room-chat"
-import type { ChatSession } from "@/lib/types"
+import type { ChatSession, ChatMessage } from "@/lib/types"
+import { getBusinessAdvice } from "@/ai/flows/get-business-advice"
+import { useToast } from "@/hooks/use-toast"
+import { useSettings } from "@/hooks/use-settings"
 
 export default function AiRoomPage() {
   const [sessions, setSessions] = React.useState<ChatSession[]>([]);
   const [activeSession, setActiveSession] = React.useState<ChatSession | null>(null);
+  const { toast } = useToast()
+  const { settings } = useSettings()
 
   // For now, let's use some dummy data and localStorage
   React.useEffect(() => {
@@ -58,7 +63,7 @@ export default function AiRoomPage() {
     setActiveSession(newSession);
   }
   
-  const handleUpdateSession = (sessionId: string, updatedMessages: any[], newTitle?: string) => {
+  const handleUpdateSession = (sessionId: string, updatedMessages: ChatMessage[], newTitle?: string) => {
       setSessions(prev => prev.map(session => {
           if(session.id === sessionId) {
               const title = newTitle && session.title === "New Chat" ? newTitle : session.title;
@@ -75,6 +80,51 @@ export default function AiRoomPage() {
           });
       }
   }
+
+  const handleDeleteMessage = (messageIndex: number) => {
+    if (!activeSession) return;
+    
+    const newMessages = [...activeSession.messages];
+    // We delete the user message and the following AI response
+    newMessages.splice(messageIndex, 2);
+    
+    handleUpdateSession(activeSession.id, newMessages);
+  }
+
+  const handleRegenerateResponse = async (messageIndex: number) => {
+    if (!activeSession) return;
+    
+    const newMessages = activeSession.messages.slice(0, messageIndex + 1);
+    
+    const userMessage = newMessages[messageIndex];
+    if (userMessage.role !== 'user') return;
+    
+    handleUpdateSession(activeSession.id, newMessages);
+
+    try {
+      const storedConversations = newMessages.slice(0, -1).map(m => `${m.role}: ${m.content}`).join("\n");
+      
+      const result = await getBusinessAdvice({
+        question: userMessage.content,
+        businessContext: settings.tagline,
+        storedConversations
+      })
+      
+      const assistantMessage: ChatMessage = { role: "assistant", content: result.advice }
+      
+      handleUpdateSession(activeSession.id, [...newMessages, assistantMessage]);
+
+    } catch (error) {
+      console.error(error)
+      toast({
+        variant: "destructive",
+        title: "Error Getting Advice",
+        description: "There was an issue getting a response from the AI.",
+      })
+      // Revert to messages before regeneration attempt
+      handleUpdateSession(activeSession.id, activeSession.messages);
+    }
+  };
   
   const handleDeleteSession = (sessionId: string) => {
     let newActiveSession = activeSession;
@@ -123,6 +173,8 @@ export default function AiRoomPage() {
                     key={activeSession.id}
                     session={activeSession}
                     onMessagesChange={(messages, newTitle) => handleUpdateSession(activeSession.id, messages, newTitle)}
+                    onRegenerateResponse={handleRegenerateResponse}
+                    onDeleteMessage={handleDeleteMessage}
                 />
             ) : (
                  <div className="flex-1 flex items-center justify-center text-muted-foreground">

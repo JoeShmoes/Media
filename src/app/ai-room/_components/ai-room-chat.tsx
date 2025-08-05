@@ -2,12 +2,11 @@
 "use client"
 
 import * as React from "react"
-import { Bot, User, Send, Loader2, Plus, Sparkles } from "lucide-react"
+import { Bot, User, Send, Loader2, Sparkles, Edit, Trash2, Check, X } from "lucide-react"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import Markdown from "react-markdown"
-import TextareaAutosize from 'react-textarea-autosize';
 
 import type { ChatSession, ChatMessage } from "@/lib/types"
 import { getBusinessAdvice } from "@/ai/flows/get-business-advice"
@@ -18,6 +17,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useSettings } from "@/hooks/use-settings"
 import { Icons } from "@/components/icons"
 import { cn } from "@/lib/utils"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 const chatSchema = z.object({
   message: z.string().min(1, "Message cannot be empty"),
@@ -27,13 +38,17 @@ type ChatFormValues = z.infer<typeof chatSchema>
 interface AiRoomChatProps {
   session: ChatSession,
   onMessagesChange: (messages: ChatMessage[], newTitle?: string) => void;
+  onRegenerateResponse: (messageIndex: number) => void;
+  onDeleteMessage: (messageIndex: number) => void;
 }
 
-export function AiRoomChat({ session, onMessagesChange }: AiRoomChatProps) {
+export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, onDeleteMessage }: AiRoomChatProps) {
   const { toast } = useToast()
   const { settings } = useSettings()
   const [isLoading, setIsLoading] = React.useState(false)
   const scrollAreaRef = React.useRef<HTMLDivElement>(null)
+  const [editingIndex, setEditingIndex] = React.useState<number | null>(null);
+  const [editingText, setEditingText] = React.useState("");
 
   const form = useForm<ChatFormValues>({
     resolver: zodResolver(chatSchema),
@@ -92,6 +107,31 @@ export function AiRoomChat({ session, onMessagesChange }: AiRoomChatProps) {
     }
   }
 
+  const handleStartEdit = (index: number) => {
+      setEditingIndex(index);
+      setEditingText(session.messages[index].content);
+  }
+
+  const handleCancelEdit = () => {
+      setEditingIndex(null);
+      setEditingText("");
+  }
+
+  const handleSaveEdit = async () => {
+      if (editingIndex === null) return;
+      
+      const updatedMessages = [...session.messages];
+      updatedMessages[editingIndex].content = editingText;
+
+      onMessagesChange(updatedMessages);
+      setEditingIndex(null);
+      setEditingText("");
+      
+      // Regenerate AI response
+      await onRegenerateResponse(editingIndex);
+  }
+
+
   return (
     <div className="flex flex-col h-full">
       <ScrollArea className="flex-1" ref={scrollAreaRef}>
@@ -104,7 +144,7 @@ export function AiRoomChat({ session, onMessagesChange }: AiRoomChatProps) {
             </div>
         ) : (
             session.messages.map((message, index) => (
-                <div key={index} className={cn("flex items-start gap-4 mb-8", message.role === "user" ? "justify-end" : "justify-start")}>
+                <div key={index} className={cn("flex items-start gap-4 mb-8 group", message.role === "user" ? "justify-end" : "justify-start")}>
                    {message.role === 'assistant' && (
                        <Avatar className="h-8 w-8">
                            <AvatarFallback>
@@ -113,15 +153,50 @@ export function AiRoomChat({ session, onMessagesChange }: AiRoomChatProps) {
                        </Avatar>
                    )}
                    <div className="max-w-2xl">
+                    {editingIndex === index ? (
+                        <div className="space-y-2 w-full">
+                            <Textarea 
+                                value={editingText}
+                                onChange={(e) => setEditingText(e.target.value)}
+                                className="w-full"
+                                rows={4}
+                            />
+                            <div className="flex gap-2">
+                                <Button size="sm" onClick={handleSaveEdit}>Save</Button>
+                                <Button size="sm" variant="ghost" onClick={handleCancelEdit}>Cancel</Button>
+                            </div>
+                        </div>
+                    ) : (
                       <div className={cn("p-4 rounded-lg", message.role === 'assistant' ? "bg-muted" : "bg-primary text-black")}>
                          <Markdown className="prose prose-sm dark:prose-invert max-w-none">{message.content}</Markdown>
                       </div>
+                    )}
                    </div>
                     {message.role === 'user' && (
-                       <Avatar className="h-8 w-8">
-                           <AvatarImage src={settings.userAvatar || undefined} />
-                           <AvatarFallback><User /></AvatarFallback>
-                       </Avatar>
+                        <div className="flex items-center gap-2">
+                           <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
+                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleStartEdit(index)}><Edit className="h-4 w-4"/></Button>
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="h-7 w-7"><Trash2 className="h-4 w-4"/></Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Delete Message?</AlertDialogTitle>
+                                            <AlertDialogDescription>This will delete the message and the AI's response. This action cannot be undone.</AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => onDeleteMessage(index)}>Delete</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
+                           </div>
+                           <Avatar className="h-8 w-8">
+                               <AvatarImage src={settings.userAvatar || undefined} />
+                               <AvatarFallback><User /></AvatarFallback>
+                           </Avatar>
+                        </div>
                    )}
                 </div>
             ))
@@ -143,7 +218,7 @@ export function AiRoomChat({ session, onMessagesChange }: AiRoomChatProps) {
               className="relative"
             >
               <div className="relative flex w-full items-center">
-                <TextareaAutosize
+                <Textarea
                   placeholder="Message Nexaris AI..."
                   {...form.register("message")}
                   onKeyDown={(e) => {
@@ -153,7 +228,6 @@ export function AiRoomChat({ session, onMessagesChange }: AiRoomChatProps) {
                       }
                   }}
                   rows={1}
-                  maxRows={5}
                   className="w-full resize-none rounded-2xl border border-input bg-background p-3 pr-20 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   disabled={isLoading}
                 />

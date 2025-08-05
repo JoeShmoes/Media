@@ -164,7 +164,7 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
         const atIndex = atMatch.index || 0;
         const newText = 
             message.substring(0, atIndex) +
-            `@${roomName} ` +
+            `${roomName.replace(' ', '')} @` +
             message.substring(caretPosition);
         
         form.setValue("message", newText);
@@ -356,7 +356,7 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
                            <CommandList>
                             <CommandGroup>
                                {navLinks.filter(l => l.label.toLowerCase().includes(mentionQuery.toLowerCase())).map(link => (
-                                   <CommandItem key={link.href} value={link.label} onSelect={() => handleMentionSelect(link.label.replace(' ', ''))}>
+                                   <CommandItem key={link.href} value={link.label} onSelect={() => handleMentionSelect(link.label)}>
                                        <link.icon className="mr-2 h-4 w-4"/>
                                        <span>{link.label}</span>
                                    </CommandItem>

@@ -112,8 +112,10 @@ export default function DashboardPage() {
       setIsMounted(true);
       loadData();
       
-      const handleStorageChange = () => {
-        loadData();
+      const handleStorageChange = (event: StorageEvent) => {
+        if (event.key) { // Check if a specific key was changed
+            loadData();
+        }
       };
 
       window.addEventListener('storage', handleStorageChange);
@@ -155,7 +157,7 @@ export default function DashboardPage() {
     }
     fetchInsights();
 
-  }, [isMounted, user, activeProjects, deals, tasks, offers, brandVoice, personas, goals, notes, clients, transactions]);
+  }, [isMounted, user]);
 
   const kpiData = [
     { metric: "Revenue", value: `$${totalRevenue.toLocaleString()}`, change: "+20.1%", icon: <DollarSign/> },

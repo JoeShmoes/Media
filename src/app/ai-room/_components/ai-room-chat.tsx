@@ -143,13 +143,13 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
     };
     
     const crifohayFeatures = [
-        { name: "AI Workflow Builder", icon: <Zap className="mr-2 h-4 w-4 text-yellow-500" />, action: showComingSoon },
+        { name: "AI Workflow Builder", icon: <Zap className="mr-2 h-4 w-4 text-yellow-500" />, action: () => form.setValue('question', 'Automate the following process for me: ') },
         { name: "Idea Engine", icon: <Lightbulb className="mr-2 h-4 w-4 text-blue-500" />, action: () => form.setValue('question', 'Generate 5 ideas for: ') },
-        { name: "Multi-Agent Simulator", icon: <UsersRound className="mr-2 h-4 w-4 text-purple-500" />, action: showComingSoon },
+        { name: "Multi-Agent Simulator", icon: <UsersRound className="mr-2 h-4 w-4 text-purple-500" />, action: () => form.setValue('question', 'Simulate a conversation between a customer and a support agent about: ') },
         { name: "Task Commander", icon: <ListTodo className="mr-2 h-4 w-4 text-green-500" />, action: () => form.setValue('question', 'Create a list of tasks for: ') },
         { name: "KPI Generator & Analyzer", icon: <BarChart className="mr-2 h-4 w-4 text-pink-500" />, action: () => form.setValue('question', 'Generate 3 KPIs for: ') },
         { name: "Mentions", icon: <MessageCircleCode className="mr-2 h-4 w-4 text-indigo-500" />, action: () => { form.setValue('question', form.getValues('question') + '@'); } },
-        { name: "Use other chats", icon: <GitMerge className="mr-2 h-4 w-4 text-gray-500" />, action: showComingSoon },
+        { name: "Use other chats", icon: <GitMerge className="mr-2 h-4 w-4 text-gray-500" />, action: () => form.setValue('question', 'Based on my previous chat about [topic], what should I do next? ') },
     ]
   
   const messages = session?.messages ?? []

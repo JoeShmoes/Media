@@ -2,7 +2,7 @@
 "use client"
 
 import * as React from "react";
-import { List, Kanban, Calendar, GanttChartSquare } from "lucide-react";
+import { List, Kanban, GanttChartSquare } from "lucide-react";
 
 import { useSettings } from "@/hooks/use-settings";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -11,6 +11,7 @@ import { TaskBoard } from "./_components/task-board";
 import { AddTaskDialog } from "./_components/add-task-dialog";
 import { AddGroupDialog } from "./_components/add-group-dialog";
 import type { Task, TaskGroup } from "@/lib/types";
+import { GanttChart } from "./_components/gantt-chart";
 
 export default function TasksPage() {
   const { settings, setSetting } = useSettings();
@@ -126,6 +127,8 @@ export default function TasksPage() {
     setBoard(prev => ({ groups: [...prev.groups, newGroup]}));
   }
   
+  const allTasks = React.useMemo(() => board.groups.flatMap(g => g.tasks), [board.groups]);
+
   if (!isMounted) return null;
 
   return (
@@ -139,8 +142,7 @@ export default function TasksPage() {
             <TabsList>
                 <TabsTrigger value="list"><List className="mr-2 h-4 w-4"/>List</TabsTrigger>
                 <TabsTrigger value="board"><Kanban className="mr-2 h-4 w-4"/>Board</TabsTrigger>
-                <TabsTrigger value="calendar" disabled><Calendar className="mr-2 h-4 w-4"/>Calendar</TabsTrigger>
-                <TabsTrigger value="gantt" disabled><GanttChartSquare className="mr-2 h-4 w-4"/>Gantt</TabsTrigger>
+                <TabsTrigger value="gantt"><GanttChartSquare className="mr-2 h-4 w-4"/>Gantt</TabsTrigger>
             </TabsList>
              <div className="flex gap-2">
                 <AddTaskDialog onAddTask={handleAddTask} groups={board.groups} />
@@ -167,11 +169,8 @@ export default function TasksPage() {
                 onRemoveGroup={handleRemoveGroup}
             />
         </TabsContent>
-        <TabsContent value="calendar" className="mt-4">
-            <div className="text-center text-muted-foreground p-12 border-2 border-dashed rounded-lg">Calendar view coming soon.</div>
-        </TabsContent>
-        <TabsContent value="gantt" className="mt-4">
-            <div className="text-center text-muted-foreground p-12 border-2 border-dashed rounded-lg">Gantt chart view coming soon.</div>
+        <TabsContent value="gantt" className="mt-4 flex-1 overflow-hidden">
+           <GanttChart tasks={allTasks} />
         </TabsContent>
       </Tabs>
     </div>

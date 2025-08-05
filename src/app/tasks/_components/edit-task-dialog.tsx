@@ -5,7 +5,8 @@ import * as React from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus } from "lucide-react";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -34,8 +35,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import type { Task, TaskGroup, DayOfWeek } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 const daysOfWeek: DayOfWeek[] = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -43,9 +46,19 @@ const taskDialogSchema = z.object({
     name: z.string().min(1, "Task name is required"),
     description: z.string().optional(),
     renew: z.union([z.literal("Never"), z.literal("Everyday"), z.array(z.string())]).default("Never"),
-    notifications: z.boolean().default(false),
     groupId: z.string().optional(),
-})
+    startDate: z.date().optional(),
+    endDate: z.date().optional(),
+}).refine(data => {
+    if (data.startDate && data.endDate) {
+        return data.endDate >= data.startDate;
+    }
+    return true;
+}, {
+    message: "End date must be after start date.",
+    path: ["endDate"],
+});
+
 
 type TaskDialogFormValues = z.infer<typeof taskDialogSchema>;
 
@@ -59,8 +72,9 @@ export function EditTaskDialog({ task, groups, currentGroupId, onUpdateTask, tri
           name: task.name,
           description: task.description,
           renew: task.renew,
-          notifications: task.notifications,
           groupId: currentGroupId,
+          startDate: task.startDate ? new Date(task.startDate) : undefined,
+          endDate: task.endDate ? new Date(task.endDate) : undefined,
       }
   });
 
@@ -68,7 +82,12 @@ export function EditTaskDialog({ task, groups, currentGroupId, onUpdateTask, tri
   
   const onSubmit = (data: TaskDialogFormValues) => {
     const { groupId, ...taskData } = data;
-    onUpdateTask(taskData, groupId);
+    const finalTaskData = {
+        ...taskData,
+        startDate: data.startDate?.toISOString(),
+        endDate: data.endDate?.toISOString(),
+    }
+    onUpdateTask(finalTaskData, groupId);
     setOpen(false);
   }
 
@@ -104,6 +123,85 @@ export function EditTaskDialog({ task, groups, currentGroupId, onUpdateTask, tri
                         </FormItem>
                     )}
                 />
+                
+                <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                        control={form.control}
+                        name="startDate"
+                        render={({ field }) => (
+                           <FormItem className="flex flex-col">
+                            <FormLabel>Start Date</FormLabel>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                <FormControl>
+                                    <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                        "w-full pl-3 text-left font-normal",
+                                        !field.value && "text-muted-foreground"
+                                    )}
+                                    >
+                                    {field.value ? (
+                                        format(field.value, "PPP")
+                                    ) : (
+                                        <span>Pick a date</span>
+                                    )}
+                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                    </Button>
+                                </FormControl>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                    mode="single"
+                                    selected={field.value}
+                                    onSelect={field.onChange}
+                                    initialFocus
+                                />
+                                </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="endDate"
+                        render={({ field }) => (
+                           <FormItem className="flex flex-col">
+                            <FormLabel>End Date</FormLabel>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                <FormControl>
+                                    <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                        "w-full pl-3 text-left font-normal",
+                                        !field.value && "text-muted-foreground"
+                                    )}
+                                    >
+                                    {field.value ? (
+                                        format(field.value, "PPP")
+                                    ) : (
+                                        <span>Pick a date</span>
+                                    )}
+                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                    </Button>
+                                </FormControl>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                    mode="single"
+                                    selected={field.value}
+                                    onSelect={field.onChange}
+                                    initialFocus
+                                />
+                                </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
 
                 <FormField
                     control={form.control}
@@ -185,19 +283,6 @@ export function EditTaskDialog({ task, groups, currentGroupId, onUpdateTask, tri
                     />
                 )}
                 
-                <FormField
-                    control={form.control}
-                    name="notifications"
-                    render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                            <div className="space-y-0.5">
-                                <FormLabel>Enable Notifications</FormLabel>
-                            </div>
-                            <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
-                        </FormItem>
-                    )}
-                />
-
                 <DialogFooter>
                     <Button type="submit">Save Changes</Button>
                 </DialogFooter>

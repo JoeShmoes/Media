@@ -131,10 +131,11 @@ export type Task = {
   name: string;
   description?: string;
   renew?: "Never" | "Everyday" | DayOfWeek[];
-  notifications: boolean;
   completed: boolean;
   groupId?: string;
   dueDate?: string;
+  startDate?: string;
+  endDate?: string;
 };
 
 export type TaskGroup = {

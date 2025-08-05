@@ -136,6 +136,7 @@ export type Task = {
   dueDate?: string;
   startDate?: string;
   endDate?: string;
+  notifications?: boolean;
 };
 
 export type TaskGroup = {

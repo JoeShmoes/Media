@@ -163,17 +163,16 @@ export default function DashboardPage() {
         }
     }
     
-    // Only fetch insights on mount
     fetchInsights();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMounted, user]);
 
   const kpiData = [
-    { metric: "Revenue", value: `$${totalRevenue.toLocaleString()}`, change: "+20.1%", icon: <DollarSign/> },
-    { metric: "Active Projects", value: `+${activeProjectsCount}`, change: "+5 since last week", icon: <Briefcase/> },
-    { metric: "Open Deals", value: `${openDealsCount}`, change: "+12%", icon: <Users/> },
-    { metric: "Tasks Due", value: `${tasksDueCount}`, change: "3 urgent", icon: <ListTodo/> },
+    { metric: "Revenue", value: `$${totalRevenue.toLocaleString()}`, icon: <DollarSign/> },
+    { metric: "Active Projects", value: `${activeProjectsCount}`, icon: <Briefcase/> },
+    { metric: "Open Deals", value: `${openDealsCount}`, icon: <Users/> },
+    { metric: "Tasks Due", value: `${tasksDueCount}`, icon: <ListTodo/> },
   ]
   
   const performanceChartData = React.useMemo(() => {
@@ -226,7 +225,6 @@ export default function DashboardPage() {
                                   </CardHeader>
                                   <CardContent>
                                       <div className="text-2xl font-bold">{kpi.value}</div>
-                                      <p className="text-xs text-muted-foreground">{kpi.change}</p>
                                   </CardContent>
                               </Card>
                           ))}

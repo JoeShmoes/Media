@@ -1,5 +1,4 @@
 
-
 "use client"
 
 import * as React from "react";
@@ -60,10 +59,8 @@ export default function DashboardPage() {
   const [insights, setInsights] = React.useState<GenerateDashboardInsightsOutput | null>(null);
   const [isLoadingInsights, setIsLoadingInsights] = React.useState(true);
 
-
-  React.useEffect(() => {
-      setIsMounted(true);
-      try {
+  const loadData = React.useCallback(() => {
+    try {
         const savedTransactions = localStorage.getItem("transactions");
         if(savedTransactions) {
             const txns: Transaction[] = JSON.parse(savedTransactions);
@@ -110,6 +107,21 @@ export default function DashboardPage() {
           console.error("Failed to load dashboard data from local storage", error);
       }
   }, []);
+
+  React.useEffect(() => {
+      setIsMounted(true);
+      loadData();
+      
+      const handleStorageChange = () => {
+        loadData();
+      };
+
+      window.addEventListener('storage', handleStorageChange);
+
+      return () => {
+          window.removeEventListener('storage', handleStorageChange);
+      }
+  }, [loadData]);
   
   React.useEffect(() => {
     if (!isMounted || !user) return;

@@ -345,7 +345,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
                         className={cn(
                             "rounded-lg p-3 max-w-sm md:max-w-xl relative",
                             message.role === "user"
-                            ? "bg-gray-700 text-white"
+                            ? "bg-muted text-foreground"
                             : "bg-background"
                         )}
                         >

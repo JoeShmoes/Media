@@ -53,7 +53,7 @@ export function ChatSidebar({
                 className={cn(
                   "w-full text-left p-2 rounded-md truncate text-sm transition-colors",
                   activeSessionId === session.id
-                    ? "bg-primary text-primary-foreground"
+                    ? "bg-muted"
                     : "hover:bg-accent"
                 )}
               >
@@ -61,9 +61,7 @@ export function ChatSidebar({
                 <p
                   className={cn(
                     "text-xs",
-                    activeSessionId === session.id
-                      ? "text-primary-foreground/70"
-                      : "text-muted-foreground"
+                    "text-muted-foreground"
                   )}
                 >
                   {formatDistanceToNow(new Date(session.createdAt), { addSuffix: true })}

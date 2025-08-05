@@ -2,7 +2,6 @@
 "use client"
 
 import * as React from "react"
-import { PanelLeft } from "lucide-react"
 
 import { AiRoomChat } from "./_components/ai-room-chat"
 import { ChatSidebar } from "./_components/chat-sidebar"
@@ -10,7 +9,6 @@ import type { ChatMessage, ChatSession, Project, Deal, TaskGroup, Offer, BrandVo
 import { getBusinessAdvice } from "@/ai/flows/get-business-advice"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 
 export default function AiRoomPage() {
   const [sessions, setSessions] = React.useState<ChatSession[]>([])
@@ -221,14 +219,12 @@ export default function AiRoomPage() {
         </div>
       </div>
       <div className="flex-1 flex flex-col">
-          <div className="flex-1 overflow-hidden">
-            <AiRoomChat
-              session={activeSession ?? null}
-              onUpdateSession={handleUpdateSession}
-              onDeleteMessage={handleDeleteMessage}
-              onEditMessage={handleEditMessage}
-            />
-          </div>
+          <AiRoomChat
+            session={activeSession ?? null}
+            onUpdateSession={handleUpdateSession}
+            onDeleteMessage={handleDeleteMessage}
+            onEditMessage={handleEditMessage}
+          />
       </div>
     </div>
   )

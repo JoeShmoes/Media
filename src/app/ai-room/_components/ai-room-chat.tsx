@@ -388,7 +388,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
             )}
         </div>
         </ScrollArea>
-        <div className="px-4 pb-4">
+        <div className="p-4 bg-background">
           <div className="max-w-4xl mx-auto">
             <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="relative">

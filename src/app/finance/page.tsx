@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Line, LineChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts"
 import { format, parseISO } from "date-fns"
-import { PlusCircle, TrendingDown, TrendingUp, DollarSign, Download } from "lucide-react"
+import { PlusCircle, TrendingDown, TrendingUp, DollarSign, Download, MoreHorizontal, Trash2 } from "lucide-react"
 import { CSVLink } from "react-csv";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -22,6 +22,8 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { useSettings } from "@/hooks/use-settings"
 import { useToast } from "@/hooks/use-toast"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 
 const chartConfig = {
   profit: {
@@ -53,10 +55,7 @@ export default function FinancePage() {
             if (savedTransactions) {
                 setTransactions(JSON.parse(savedTransactions));
             } else {
-                // If there are no saved transactions, it's a new user or cleared storage.
-                // We set the flag to indicate the finance room has been initialized.
-                // This ensures they start at $0 without being prompted.
-                 localStorage.setItem("hasInitializedFinance", "true");
+                localStorage.setItem("hasInitializedFinance", "true");
             }
         } catch (error) {
             console.error("Failed to load data from local storage", error);
@@ -81,6 +80,10 @@ export default function FinancePage() {
         setTransactions(prev => [...prev, newTransaction].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     }
     
+    const handleDeleteTransaction = (transactionId: string) => {
+        setTransactions(transactions.filter(t => t.id !== transactionId));
+    }
+
     const handleExport = () => {
         const format = settings.exportOptions;
         if (format === 'csv') {
@@ -219,6 +222,7 @@ export default function FinancePage() {
                         <TableHead>Description</TableHead>
                         <TableHead>Date</TableHead>
                         <TableHead className="text-right">Amount</TableHead>
+                        <TableHead><span className="sr-only">Actions</span></TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -234,11 +238,42 @@ export default function FinancePage() {
                                     {t.type === 'income' ? '+' : '-'}${t.amount.toFixed(2)}
                                 </Badge>
                             </TableCell>
+                             <TableCell className="text-right">
+                                 <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" className="h-8 w-8 p-0">
+                                            <span className="sr-only">Open menu</span>
+                                            <MoreHorizontal className="h-4 w-4" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <AlertDialog>
+                                          <AlertDialogTrigger asChild>
+                                            <DropdownMenuItem onSelect={e => e.preventDefault()} className="text-destructive">
+                                                <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                            </DropdownMenuItem>
+                                          </AlertDialogTrigger>
+                                          <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                              <AlertDialogDescription>
+                                                This will permanently delete this transaction. This action cannot be undone.
+                                              </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                              <AlertDialogAction onClick={() => handleDeleteTransaction(t.id)}>Delete</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                          </AlertDialogContent>
+                                        </AlertDialog>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                             </TableCell>
                         </TableRow>
                     ))}
                      {transactions.length === 0 && (
                         <TableRow>
-                            <TableCell colSpan={3} className="text-center h-24 text-muted-foreground">
+                            <TableCell colSpan={4} className="text-center h-24 text-muted-foreground">
                                 No transactions yet.
                             </TableCell>
                         </TableRow>
@@ -251,3 +286,5 @@ export default function FinancePage() {
     </div>
   )
 }
+
+    

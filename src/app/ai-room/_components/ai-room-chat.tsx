@@ -163,7 +163,7 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
 
     if (atMatch) {
         const atIndex = atMatch.index || 0;
-        const mentionText = `@${roomName.replace(/ /g, '')} `;
+        const mentionText = `@[${roomName}] `;
         const newText =
           message.substring(0, atIndex) +
           mentionText +
@@ -379,5 +379,7 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
     </div>
   )
 }
+
+    
 
     

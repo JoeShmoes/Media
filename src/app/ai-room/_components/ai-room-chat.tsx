@@ -162,17 +162,18 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
 
     if (atMatch) {
         const atIndex = atMatch.index || 0;
-        const newText = 
-            message.substring(0, atIndex) +
-            `${roomName.replace(/ /g, '')} @` +
-            message.substring(caretPosition);
+        const mentionText = `@${roomName.replace(/ /g, '')} `;
+        const newText =
+          message.substring(0, atIndex) +
+          mentionText +
+          message.substring(caretPosition);
         
         form.setValue("message", newText);
         setMentionMenuOpen(false);
         
         setTimeout(() => {
              textareaRef.current?.focus();
-             const newCaretPosition = atIndex + roomName.length + 2;
+             const newCaretPosition = atIndex + mentionText.length;
              textareaRef.current?.setSelectionRange(newCaretPosition, newCaretPosition);
         }, 0);
     }

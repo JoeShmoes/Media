@@ -9,7 +9,6 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, db } from '@/lib/firebase';
 import { doc, getDoc } from "firebase/firestore";
 import { signOut } from '@/lib/auth';
-import { useFirestorePersistence } from "@/hooks/use-firestore-persistence";
 
 
 import {
@@ -191,7 +190,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [deals, setDeals] = React.useState<Deal[]>([]);
   const [notes, setNotes] = React.useState<Note[]>([]);
   
-  useFirestorePersistence();
 
 
   React.useEffect(() => {

@@ -205,8 +205,8 @@ export default function TasksPage() {
         {viewLoading ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
                 <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-                <h3 className="text-xl font-semibold">Switching to {pageTitles[settings.tasksDefaultView].title}</h3>
-                <p className="text-muted-foreground">{pageTitles[settings.tasksDefaultView].description}</p>
+                <h3 className="text-lg font-semibold">{pageTitles[settings.tasksDefaultView].title}</h3>
+                <p className="text-sm text-muted-foreground">{pageTitles[settings.tasksDefaultView].description}</p>
             </div>
         ) : renderContent()}
       </div>

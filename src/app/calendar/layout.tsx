@@ -1,7 +1,7 @@
 
 import AppLayout from "../(app)/layout";
 
-export default function GmPageLayout({
+export default function CalendarPageLayout({
   children,
 }: {
   children: React.ReactNode

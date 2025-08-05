@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import * as React from "react";
@@ -8,7 +9,8 @@ export type RoomBackground = "solid" | "blur" | "custom";
 export type TimeFormat = "12hr" | "24hr";
 export type SettingCategory = 
   | 'universal' | 'profile' | 'notifications'
-  | 'cortex' | 'tasks' | 'research' | 'gm' | 'clients' | 'projects' | 'outreach'
+  | 'cortex' | 'tasks' | 'research'
+  | 'clients' | 'projects' | 'outreach'
   | 'finance' | 'offer-builder' | 'asset-tracker' | 'brand-room'
   | 'pipeline-tracker' | 'autodocs' | 'template-builder' | 'integration-hub'
   | 'content' | 'youtube-studio' | 'thumbnail';
@@ -44,9 +46,6 @@ export type Settings = {
   tasksDefaultView: 'list' | 'board' | 'gantt';
   autoRollover: boolean;
   
-  // GM
-  gmShowTimestamps: boolean;
-
   // Outreach
   defaultOutreachLength: 'Short' | 'Long';
 
@@ -87,9 +86,6 @@ const defaultSettings: Settings = {
   // Tasks
   tasksDefaultView: "list",
   autoRollover: true,
-
-  // GM
-  gmShowTimestamps: true,
 
   // Outreach
   defaultOutreachLength: 'Long',

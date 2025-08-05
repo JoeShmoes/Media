@@ -1,9 +1,10 @@
 
+
 "use client"
 
 import * as React from "react"
 import { useTheme } from "next-themes"
-import { Sun, Moon, Laptop, Palette, Shield, Code, Bell, User, LayoutDashboard, ListTodo, Notebook, Search, MessageSquare, Users, KanbanSquare, SendHorizonal, CircleDollarSign, Package, Archive, View, BrainCircuit, Workflow, Blocks, FileText, LayoutTemplate, Youtube, PenSquare, HelpCircle, Wrench, Target, Upload, Trash2, Image as ImageIcon, GanttChartSquare } from "lucide-react"
+import { Sun, Moon, Laptop, Palette, Shield, Code, Bell, User, LayoutDashboard, ListTodo, Notebook, Search, MessageSquare, Users, KanbanSquare, SendHorizonal, CircleDollarSign, Package, Archive, View, BrainCircuit, Workflow, Blocks, FileText, LayoutTemplate, Youtube, PenSquare, HelpCircle, Wrench, Target, Upload, Trash2, Image as ImageIcon, GanttChartSquare, Calendar } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
@@ -47,7 +48,6 @@ const roomSettingCategories: { id: SettingCategory, label: string, icon: React.R
     { id: 'cortex', label: 'Cortex Room', icon: <BrainCircuit/> },
     { id: 'tasks', label: 'Tasks', icon: <ListTodo/> },
     { id: 'research', label: 'Research', icon: <Search/> },
-    { id: 'gm', label: 'GM Room', icon: <MessageSquare/> },
     { id: 'outreach', label: 'Outreach', icon: <SendHorizonal/> },
     { id: 'finance', label: 'Finance', icon: <CircleDollarSign/> },
     { id: 'youtube-studio', label: 'YouTube Studio', icon: <Youtube/> },
@@ -270,20 +270,6 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                         <CardHeader><CardTitle>Research Assistant</CardTitle></CardHeader>
                         <CardContent>
                            <p className="text-sm text-muted-foreground">No specific settings for this room yet.</p>
-                        </CardContent>
-                    </Card>
-                </div>
-            )
-        case 'gm':
-            return (
-                <div className="space-y-6">
-                    <Card>
-                        <CardHeader><CardTitle>GM Room</CardTitle></CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="flex items-center justify-between">
-                                <Label htmlFor="show-timestamps">Show Timestamps</Label>
-                                <Switch id="show-timestamps" checked={settings.gmShowTimestamps} onCheckedChange={(c) => setSetting('gmShowTimestamps', c)} />
-                            </div>
                         </CardContent>
                     </Card>
                 </div>

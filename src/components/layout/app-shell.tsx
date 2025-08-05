@@ -60,6 +60,7 @@ import {
   HelpCircle,
   User,
   Image as ImageIcon,
+  Calendar,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import {
@@ -90,7 +91,7 @@ export const navLinks = [
     { href: "/ai-room", icon: BrainCircuit, label: "AI Room", description: "Your custom-trained AI business advisor." },
     { href: "/tasks", icon: ListTodo, label: "Tasks", description: "Create and manage your tasks and to-do lists." },
     { href: "/notes", icon: Notebook, label: "Notes", description: "Create and manage your notes. They are saved automatically." },
-    { href: "/gm", icon: MessageSquare, label: "GM Room", description: "Say GM to the community. Your message will be visible to all users." },
+    { href: "/calendar", icon: Calendar, label: "Calendar", description: "Connect and view your calendars." },
     { href: "/clients", icon: Users, label: "Client Command Center", description: "A mini-CRM to manage your clients and their status." },
     { href: "/projects", icon: KanbanSquare, label: "Project Board", description: "Kanban-style task management for your projects." },
     { href: "/outreach", icon: SendHorizonal, label: "AI Outreach Engine", description: "Generate high-converting cold outreach copy." },
@@ -119,7 +120,7 @@ const mainNavItems = [
     { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { href: "/tasks", icon: ListTodo, label: "Tasks" },
     { href: "/notes", icon: Notebook, label: "Notes" },
-    { href: "/gm", icon: MessageSquare, label: "GM" },
+    { href: "/calendar", icon: Calendar, label: "Calendar" },
     { href: "/clients", icon: Users, label: "Client" },
     { href: "/projects", icon: KanbanSquare, label: "Projects" },
     { href: "/outreach", icon: SendHorizonal, label: "Outreach" },

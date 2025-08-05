@@ -135,21 +135,15 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
     defaultValues: { question: "" },
   })
   
-    const showComingSoon = () => {
-        toast({
-            title: "Feature Coming Soon",
-            description: "This feature is currently under development.",
-        });
-    };
     
     const crifohayFeatures = [
-        { name: "AI Workflow Builder", icon: <Zap className="mr-2 h-4 w-4 text-yellow-500" />, action: () => form.setValue('question', 'Automate the following process for me: ') },
-        { name: "Idea Engine", icon: <Lightbulb className="mr-2 h-4 w-4 text-blue-500" />, action: () => form.setValue('question', 'Generate 5 ideas for: ') },
-        { name: "Multi-Agent Simulator", icon: <UsersRound className="mr-2 h-4 w-4 text-purple-500" />, action: () => form.setValue('question', 'Simulate a conversation between a customer and a support agent about: ') },
-        { name: "Task Commander", icon: <ListTodo className="mr-2 h-4 w-4 text-green-500" />, action: () => form.setValue('question', 'Create a list of tasks for: ') },
-        { name: "KPI Generator & Analyzer", icon: <BarChart className="mr-2 h-4 w-4 text-pink-500" />, action: () => form.setValue('question', 'Generate 3 KPIs for: ') },
-        { name: "Mentions", icon: <MessageCircleCode className="mr-2 h-4 w-4 text-indigo-500" />, action: () => { form.setValue('question', form.getValues('question') + '@'); } },
-        { name: "Use other chats", icon: <GitMerge className="mr-2 h-4 w-4 text-gray-500" />, action: () => form.setValue('question', 'Based on my previous chat about [topic], what should I do next? ') },
+        { name: "AI Workflow Builder", prompt: "Automate the following process for me: ", icon: <Zap className="mr-2 h-4 w-4 text-yellow-500" /> },
+        { name: "Idea Engine", prompt: "Generate 5 ideas for: ", icon: <Lightbulb className="mr-2 h-4 w-4 text-blue-500" /> },
+        { name: "Multi-Agent Simulator", prompt: "Simulate a conversation between a customer and a support agent about: ", icon: <UsersRound className="mr-2 h-4 w-4 text-purple-500" /> },
+        { name: "Task Commander", prompt: "Create a list of tasks for: ", icon: <ListTodo className="mr-2 h-4 w-4 text-green-500" /> },
+        { name: "KPI Generator & Analyzer", prompt: "Generate 3 KPIs for: ", icon: <BarChart className="mr-2 h-4 w-4 text-pink-500" /> },
+        { name: "Mentions", prompt: "@", icon: <MessageCircleCode className="mr-2 h-4 w-4 text-indigo-500" /> },
+        { name: "Use other chats", prompt: "Based on my previous chat about [topic], what should I do next? ", icon: <GitMerge className="mr-2 h-4 w-4 text-gray-500" /> },
     ]
   
   const messages = session?.messages ?? []
@@ -207,7 +201,14 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
         transactions: transactions.slice(0, 10).map(t => ({ id: t.id, type: t.type, amount: t.amount, category: t.category })),
       })
 
-      const formattedAdvice = result.advice
+      const usedFeature = crifohayFeatures.find(f => userMessageContent.startsWith(f.prompt));
+      let finalAdvice = result.advice;
+
+      if(usedFeature) {
+        finalAdvice = `### ${usedFeature.name}\n\n---\n\n${result.advice}`;
+      }
+
+      const formattedAdvice = finalAdvice
         .replace(/\n\s*\*/g, '\n\n*') 
         .replace(/\n\s*(\d+\.)/g, '\n\n$1'); 
 
@@ -279,6 +280,16 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
     // Timeout to allow the popover to close before focusing
     setTimeout(() => form.setFocus('question'), 0);
   }
+  
+  const handleFeatureSelect = (feature: typeof crifohayFeatures[number]) => {
+    if (feature.name === 'Mentions') {
+       form.setValue('question', form.getValues('question') + '@');
+    } else {
+       form.setValue('question', feature.prompt);
+    }
+    setTimeout(() => form.setFocus('question'), 0);
+  }
+
 
   if (!session) {
     return (
@@ -393,7 +404,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
                     <PopoverContent className="w-64 p-2 mb-2 max-h-96 overflow-y-auto" align="start">
                         <ScrollArea className="h-full">
                             {crifohayFeatures.map(feature => (
-                               <Button key={feature.name} variant="ghost" className="w-full justify-start" onClick={feature.action}>
+                               <Button key={feature.name} variant="ghost" className="w-full justify-start" onClick={() => handleFeatureSelect(feature)}>
                                    {feature.icon} {feature.name}
                                </Button>
                             ))}

@@ -5,13 +5,13 @@ import * as React from "react";
 import { List, Kanban, GanttChartSquare } from "lucide-react";
 
 import { useSettings } from "@/hooks/use-settings";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { TaskList } from "./_components/task-list";
 import { TaskBoard } from "./_components/task-board";
 import { AddTaskDialog } from "./_components/add-task-dialog";
 import { AddGroupDialog } from "./_components/add-group-dialog";
 import type { Task, TaskGroup } from "@/lib/types";
 import { GanttChart } from "./_components/gantt-chart";
+import { PageHeader } from "@/components/page-header";
 
 export default function TasksPage() {
   const { settings, setSetting } = useSettings();
@@ -129,50 +129,68 @@ export default function TasksPage() {
   
   const allTasks = React.useMemo(() => board.groups.flatMap(g => g.tasks), [board.groups]);
 
+  const renderContent = () => {
+    switch (settings.tasksDefaultView) {
+      case "list":
+        return (
+          <TaskList
+            groups={board.groups}
+            onUpdateTask={handleUpdateTask}
+            onToggleTask={handleToggleTask}
+            onRemoveTask={handleRemoveTask}
+            onRenameGroup={handleRenameGroup}
+            onRemoveGroup={handleRemoveGroup}
+          />
+        );
+      case "board":
+        return (
+          <TaskBoard
+            groups={board.groups}
+            onUpdateTask={handleUpdateTask}
+            onToggleTask={handleToggleTask}
+            onRemoveTask={handleRemoveTask}
+            onRenameGroup={handleRenameGroup}
+            onRemoveGroup={handleRemoveGroup}
+          />
+        );
+      case "gantt":
+        return <GanttChart tasks={allTasks} />;
+      default:
+        return (
+           <TaskList
+            groups={board.groups}
+            onUpdateTask={handleUpdateTask}
+            onToggleTask={handleToggleTask}
+            onRemoveTask={handleRemoveTask}
+            onRenameGroup={handleRenameGroup}
+            onRemoveGroup={handleRemoveGroup}
+          />
+        );
+    }
+  };
+
+  const pageTitles = {
+    list: "List View",
+    board: "Board View",
+    gantt: "Gantt View",
+    calendar: "Calendar View"
+  }
+
   if (!isMounted) return null;
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6 h-full flex flex-col">
-      <Tabs 
-        value={settings.tasksDefaultView} 
-        onValueChange={(v) => setSetting('tasksDefaultView', v as any)}
-        className="flex flex-col flex-1"
+       <PageHeader
+        title={pageTitles[settings.tasksDefaultView] || "Tasks"}
+        description="Create and manage your tasks and to-do lists."
       >
-        <div className="flex justify-between items-center">
-            <TabsList>
-                <TabsTrigger value="list"><List className="mr-2 h-4 w-4"/>List</TabsTrigger>
-                <TabsTrigger value="board"><Kanban className="mr-2 h-4 w-4"/>Board</TabsTrigger>
-                <TabsTrigger value="gantt"><GanttChartSquare className="mr-2 h-4 w-4"/>Gantt</TabsTrigger>
-            </TabsList>
-             <div className="flex gap-2">
-                <AddTaskDialog onAddTask={handleAddTask} groups={board.groups} />
-                <AddGroupDialog onAddGroup={handleAddGroup} />
-             </div>
-        </div>
-        <TabsContent value="list" className="mt-4 flex-1 overflow-y-auto">
-            <TaskList 
-                groups={board.groups}
-                onUpdateTask={handleUpdateTask}
-                onToggleTask={handleToggleTask}
-                onRemoveTask={handleRemoveTask}
-                onRenameGroup={handleRenameGroup}
-                onRemoveGroup={handleRemoveGroup}
-            />
-        </TabsContent>
-        <TabsContent value="board" className="mt-4 flex-1 overflow-hidden">
-            <TaskBoard
-                groups={board.groups}
-                onUpdateTask={handleUpdateTask}
-                onToggleTask={handleToggleTask}
-                onRemoveTask={handleRemoveTask}
-                onRenameGroup={handleRenameGroup}
-                onRemoveGroup={handleRemoveGroup}
-            />
-        </TabsContent>
-        <TabsContent value="gantt" className="mt-4 flex-1 overflow-hidden">
-           <GanttChart tasks={allTasks} />
-        </TabsContent>
-      </Tabs>
+        <AddTaskDialog onAddTask={handleAddTask} groups={board.groups} />
+        <AddGroupDialog onAddGroup={handleAddGroup} />
+      </PageHeader>
+      
+      <div className="flex-1 overflow-y-auto">
+        {renderContent()}
+      </div>
     </div>
   )
 }

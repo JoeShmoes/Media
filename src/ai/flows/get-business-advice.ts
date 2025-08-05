@@ -159,6 +159,7 @@ const prompt = ai.definePrompt({
   - @[Notes]: Use getNotesTool
   - @[Clients]: Use getClientsTool
   - @[Finance]: Use getFinanceTool
+  - @[Dashboard]: Use all available tools to get a full business overview.
   If the user just asks a general question, answer it based on the business context and conversation history.
 
   Business Context: {{{businessContext}}}
@@ -179,5 +180,3 @@ const getBusinessAdviceFlow = ai.defineFlow(
     return output!;
   }
 );
-
-    

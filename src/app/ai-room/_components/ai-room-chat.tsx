@@ -379,7 +379,3 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
     </div>
   )
 }
-
-    
-
-    

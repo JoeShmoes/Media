@@ -20,7 +20,6 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { InitialBalanceDialog } from "./_components/initial-balance-dialog"
 import { useSettings } from "@/hooks/use-settings"
 import { useToast } from "@/hooks/use-toast"
 
@@ -42,7 +41,6 @@ const chartConfig = {
 export default function FinancePage() {
     const [transactions, setTransactions] = React.useState<Transaction[]>([]);
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-    const [isInitialBalanceDialogOpen, setIsInitialBalanceDialogOpen] = React.useState(false);
     const [isMounted, setIsMounted] = React.useState(false);
     const csvLinkRef = React.useRef<any>(null);
     const { settings } = useSettings();
@@ -54,13 +52,12 @@ export default function FinancePage() {
             const savedTransactions = localStorage.getItem("transactions");
             if (savedTransactions) {
                 setTransactions(JSON.parse(savedTransactions));
+            } else {
+                // If there are no saved transactions, it's a new user or cleared storage.
+                // We set the flag to indicate the finance room has been initialized.
+                // This ensures they start at $0 without being prompted.
+                 localStorage.setItem("hasInitializedFinance", "true");
             }
-
-            const hasSetInitialBalance = localStorage.getItem("hasSetInitialBalance");
-            if (!hasSetInitialBalance) {
-                setIsInitialBalanceDialogOpen(true);
-            }
-
         } catch (error) {
             console.error("Failed to load data from local storage", error);
         }
@@ -82,23 +79,6 @@ export default function FinancePage() {
             id: `txn-${Date.now()}`
         }
         setTransactions(prev => [...prev, newTransaction].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
-    }
-    
-    const handleSetInitialBalance = (balance: number) => {
-        const initialTransaction: Omit<Transaction, 'id'> = {
-            type: 'income',
-            amount: balance,
-            date: new Date().toISOString(),
-            category: 'Initial Balance',
-            description: 'Starting bank balance',
-        };
-        handleAddTransaction(initialTransaction);
-        try {
-            localStorage.setItem("hasSetInitialBalance", "true");
-        } catch (error) {
-            console.error("Failed to set initial balance flag in local storage", error);
-        }
-        setIsInitialBalanceDialogOpen(false);
     }
     
     const handleExport = () => {
@@ -174,12 +154,6 @@ export default function FinancePage() {
         onOpenChange={setIsDialogOpen}
         onSave={handleAddTransaction}
       />
-
-       <InitialBalanceDialog
-        open={isInitialBalanceDialogOpen}
-        onOpenChange={setIsInitialBalanceDialogOpen}
-        onSave={handleSetInitialBalance}
-       />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card className="glassmorphic">

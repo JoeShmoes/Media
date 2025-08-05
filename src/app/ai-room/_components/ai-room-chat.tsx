@@ -85,7 +85,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
   const [personas, setPersonas] = React.useState<Persona[]>([]);
   const [goals, setGoals] = React.useState<Goal[]>([]);
   const [notes, setNotes] = React.useState<Note[]>([]);
-  const [clients, setClients] = React.useState<Client[]>(([]);
+  const [clients, setClients] = React.useState<Client[]>([]);
   const [transactions, setTransactions] = React.useState<Transaction[]>([]);
 
   React.useEffect(() => {
@@ -442,5 +442,3 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
     </div>
   )
 }
-
-    

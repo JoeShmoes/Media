@@ -301,11 +301,6 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
 
   return (
     <div className="flex flex-col h-full">
-        <header className="p-4 border-b flex items-center justify-center">
-             <h1 className="text-xl font-semibold text-center">
-                Crifohay
-             </h1>
-        </header>
         <ScrollArea className="flex-1" ref={scrollAreaRef}>
         <div className="space-y-6 p-4 max-w-4xl mx-auto w-full">
             {messages.map((message, index) => (
@@ -339,7 +334,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
                         className={cn(
                             "rounded-lg p-3 max-w-sm md:max-w-xl relative",
                             message.role === "user"
-                            ? "bg-primary text-primary-foreground"
+                            ? "bg-muted text-foreground"
                             : "bg-background"
                         )}
                         >
@@ -396,10 +391,10 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
         <div className="px-4 pb-4">
           <div className="max-w-4xl mx-auto">
             <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="flex w-full items-center space-x-2">
-                 <Popover>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="relative">
+                <Popover>
                     <PopoverTrigger asChild>
-                        <Button variant="ghost" size="icon"><Plus className="h-4 w-4"/></Button>
+                        <Button variant="ghost" size="icon" className="absolute left-2.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full"><Plus className="h-4 w-4"/></Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-64 p-2 mb-2 max-h-96 overflow-y-auto" align="start">
                         <ScrollArea className="h-full">
@@ -437,14 +432,14 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
                 render={({ field }) => (
                     <FormItem className="flex-1">
                     <FormControl>
-                        <Input placeholder="Ask 'How do I scale this?' or type @..." {...field} disabled={isLoading} autoComplete="off" />
+                        <Textarea placeholder="Ask 'How do I scale this?' or type @..." {...field} disabled={isLoading} className="rounded-2xl pl-12 pr-12 py-3 min-h-[52px] resize-none" autoComplete="off" />
                     </FormControl>
                     <FormMessage />
                     </FormItem>
                 )}
                 />
-                <Button type="submit" disabled={isLoading}>
-                <Send className="h-4 w-4" />
+                <Button type="submit" size="icon" className="absolute right-2.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full" disabled={isLoading}>
+                    <Send className="h-4 w-4" />
                 </Button>
             </form>
             </Form>

@@ -221,16 +221,6 @@ export default function AiRoomPage() {
         </div>
       </div>
       <div className="flex-1 flex flex-col">
-          <header className="flex items-center gap-4 p-4 border-b">
-             <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                >
-                <PanelLeft />
-                <span className="sr-only">Toggle sidebar</span>
-             </Button>
-          </header>
           <div className="flex-1 overflow-hidden">
             <AiRoomChat
               session={activeSession ?? null}

@@ -45,8 +45,10 @@ export default function DashboardPage() {
   
   // State for all dashboard data
   const [totalRevenue, setTotalRevenue] = React.useState(0);
-  const [activeProjects, setActiveProjects] = React.useState<Project[]>([]);
-  const [deals, setDeals] = React.useState<Deal[]>([]);
+  const [activeProjectsCount, setActiveProjectsCount] = React.useState(0);
+  const [openDealsCount, setOpenDealsCount] = React.useState(0);
+  const [tasksDueCount, setTasksDueCount] = React.useState(0);
+
   const [tasks, setTasks] = React.useState<Task[]>([]);
   const [offers, setOffers] = React.useState<Offer[]>([]);
   const [brandVoice, setBrandVoice] = React.useState<BrandVoice | null>(null);
@@ -55,6 +57,8 @@ export default function DashboardPage() {
   const [notes, setNotes] = React.useState<Note[]>([]);
   const [clients, setClients] = React.useState<Client[]>([]);
   const [transactions, setTransactions] = React.useState<Transaction[]>([]);
+  const [projects, setProjects] = React.useState<Project[]>([]);
+  const [deals, setDeals] = React.useState<Deal[]>([]);
   
   const [insights, setInsights] = React.useState<GenerateDashboardInsightsOutput | null>(null);
   const [isLoadingInsights, setIsLoadingInsights] = React.useState(true);
@@ -65,24 +69,30 @@ export default function DashboardPage() {
         if(savedTransactions) {
             const txns: Transaction[] = JSON.parse(savedTransactions);
             setTransactions(txns);
-            const income = txns.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+            const income = txns.filter(t => t.type === 'income').reduce((sum, t) => sum + Number(t.amount), 0);
             setTotalRevenue(income);
         }
 
         const savedProjects = localStorage.getItem("projects");
         if (savedProjects) {
             const projectsData: Project[] = Object.values(JSON.parse(savedProjects)).flat() as Project[];
-            setActiveProjects(projectsData.filter(p => p.status !== 'launch'));
+            setProjects(projectsData);
+            setActiveProjectsCount(projectsData.filter(p => p.status !== 'launch').length);
         }
         
         const savedDeals = localStorage.getItem("deals");
-        if (savedDeals) setDeals(JSON.parse(savedDeals));
+        if (savedDeals) {
+            const dealsData: Deal[] = JSON.parse(savedDeals);
+            setDeals(dealsData);
+            setOpenDealsCount(dealsData.filter(d => d.status !== 'closed-won' && d.status !== 'closed-lost').length);
+        }
         
         const savedTasks = localStorage.getItem("tasks");
         if (savedTasks) {
             const taskBoard: {groups: TaskGroup[]} = JSON.parse(savedTasks);
             const allTasks = taskBoard.groups.flatMap(g => g.tasks);
             setTasks(allTasks);
+            setTasksDueCount(allTasks.filter(t => !t.completed).length);
         }
         
         const savedOffers = localStorage.getItem("offers");
@@ -113,9 +123,7 @@ export default function DashboardPage() {
       loadData();
       
       const handleStorageChange = (event: StorageEvent) => {
-        if (event.key) { // Check if a specific key was changed
-            loadData();
-        }
+        loadData();
       };
 
       window.addEventListener('storage', handleStorageChange);
@@ -132,7 +140,7 @@ export default function DashboardPage() {
         setIsLoadingInsights(true);
         try {
             const result = await generateDashboardInsights({
-                projects: activeProjects.map(p => ({id: p.id, title: p.title, status: p.status, deadline: p.deadline})),
+                projects: projects.map(p => ({id: p.id, title: p.title, status: p.status, deadline: p.deadline})),
                 deals: deals.map(d => ({id: d.id, title: d.title, status: d.status, value: d.value, clientName: d.clientName})),
                 tasks: tasks.filter(t => !t.completed).map(t => ({id: t.id, name: t.name, completed: t.completed, dueDate: t.dueDate})),
                 offers: offers.map(o => ({ id: o.id, title: o.title, price: o.price })),
@@ -146,7 +154,6 @@ export default function DashboardPage() {
             setInsights(result);
         } catch (error) {
             console.error("Failed to generate dashboard insights", error);
-            // Set some default state on error
             setInsights({
                 suggestions: [{ text: "Could not load AI suggestions.", href: "#" }],
                 notifications: [{ text: "Error fetching AI insights.", level: "critical" }]
@@ -155,15 +162,18 @@ export default function DashboardPage() {
             setIsLoadingInsights(false);
         }
     }
+    
+    // Only fetch insights on mount
     fetchInsights();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMounted, user]);
 
   const kpiData = [
     { metric: "Revenue", value: `$${totalRevenue.toLocaleString()}`, change: "+20.1%", icon: <DollarSign/> },
-    { metric: "Active Projects", value: `+${activeProjects.length}`, change: "+5 since last week", icon: <Briefcase/> },
-    { metric: "Leads This Week", value: `${deals.filter(d => d.status === 'leads').length}`, change: "+12%", icon: <Users/> },
-    { metric: "Tasks Due", value: `${tasks.filter(t => !t.completed).length}`, change: "3 urgent", icon: <ListTodo/> },
+    { metric: "Active Projects", value: `+${activeProjectsCount}`, change: "+5 since last week", icon: <Briefcase/> },
+    { metric: "Open Deals", value: `${openDealsCount}`, change: "+12%", icon: <Users/> },
+    { metric: "Tasks Due", value: `${tasksDueCount}`, change: "3 urgent", icon: <ListTodo/> },
   ]
   
   const performanceChartData = React.useMemo(() => {
@@ -220,20 +230,6 @@ export default function DashboardPage() {
                                   </CardContent>
                               </Card>
                           ))}
-                      </CardContent>
-                      <CardContent className="grid gap-4 md:grid-cols-2">
-                          <Card className="bg-muted/30">
-                              <CardHeader><CardTitle className="text-base">Today's Calendar</CardTitle></CardHeader>
-                              <CardContent>
-                                  <div className="text-sm text-center text-muted-foreground py-8">Calendar view coming soon</div>
-                              </CardContent>
-                          </Card>
-                          <Card className="bg-muted/30">
-                              <CardHeader><CardTitle className="text-base">Daily Priorities</CardTitle></CardHeader>
-                              <CardContent>
-                                  <div className="text-sm text-center text-muted-foreground py-8">Drag & drop tasks here</div>
-                              </CardContent>
-                          </Card>
                       </CardContent>
                   </Card>
 
@@ -309,13 +305,6 @@ export default function DashboardPage() {
                                   </div>
                               ))
                           )}
-                      </CardContent>
-                  </Card>
-
-                  <Card className={cardClassName}>
-                      <CardHeader><CardTitle>Favourites</CardTitle></CardHeader>
-                      <CardContent>
-                          <div className="text-sm text-center text-muted-foreground py-8">Pin anything here</div>
                       </CardContent>
                   </Card>
               </div>

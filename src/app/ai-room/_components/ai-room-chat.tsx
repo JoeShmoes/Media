@@ -454,7 +454,7 @@ export function AiRoomChat({ session, onUpdateSession, onDeleteMessage, onEditMe
                             placeholder="Ask 'How do I scale this?' or type @..." 
                             {...otherFieldProps} 
                             disabled={isLoading} 
-                            className="rounded-2xl pl-12 pr-12 py-3 min-h-[52px] max-h-[200px] resize-none border-2 border-border focus-visible:ring-primary" 
+                            className="rounded-2xl pl-12 pr-12 py-3 min-h-[52px] resize-none border-2 border-border focus-visible:ring-primary" 
                             autoComplete="off"
                             rows={1}
                         />

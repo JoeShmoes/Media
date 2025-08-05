@@ -172,8 +172,8 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
         setMentionMenuOpen(false);
         
         setTimeout(() => {
-             textareaRef.current?.focus();
              const newCaretPosition = atIndex + mentionText.length;
+             textareaRef.current?.focus();
              textareaRef.current?.setSelectionRange(newCaretPosition, newCaretPosition);
         }, 0);
     }

@@ -2,7 +2,7 @@
 "use client"
 
 import * as React from "react"
-import { Bot, User, Send, Loader2, Sparkles, Edit, Trash2, Check, X } from "lucide-react"
+import { Bot, User, Send, Loader2, Edit, Trash2 } from "lucide-react"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -27,8 +27,21 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandItem,
+  CommandGroup,
+} from "@/components/ui/command"
+import { navLinks } from "@/components/layout/app-shell"
+
 
 const chatSchema = z.object({
   message: z.string().min(1, "Message cannot be empty"),
@@ -49,6 +62,11 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
   const scrollAreaRef = React.useRef<HTMLDivElement>(null)
   const [editingIndex, setEditingIndex] = React.useState<number | null>(null);
   const [editingText, setEditingText] = React.useState("");
+
+  // Mention menu state
+  const [mentionMenuOpen, setMentionMenuOpen] = React.useState(false)
+  const [mentionQuery, setMentionQuery] = React.useState("")
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
   const form = useForm<ChatFormValues>({
     resolver: zodResolver(chatSchema),
@@ -121,6 +139,44 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
     }
   }, [session.messages]);
   
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    const caretPosition = e.target.selectionStart;
+    const textBeforeCaret = value.substring(0, caretPosition);
+    const atMatch = textBeforeCaret.match(/@(\w*)$/);
+    
+    if (atMatch) {
+      setMentionMenuOpen(true);
+      setMentionQuery(atMatch[1]);
+    } else {
+      setMentionMenuOpen(false);
+    }
+     form.setValue("message", value);
+  };
+  
+  const handleMentionSelect = (roomName: string) => {
+    const message = form.getValues("message");
+    const caretPosition = textareaRef.current?.selectionStart || message.length;
+    const textBeforeCaret = message.substring(0, caretPosition);
+    const atMatch = textBeforeCaret.match(/@(\w*)$/);
+
+    if (atMatch) {
+        const atIndex = atMatch.index || 0;
+        const newText = 
+            message.substring(0, atIndex) +
+            `@${roomName} ` +
+            message.substring(caretPosition);
+        
+        form.setValue("message", newText);
+        setMentionMenuOpen(false);
+        
+        setTimeout(() => {
+             textareaRef.current?.focus();
+             const newCaretPosition = atIndex + roomName.length + 2;
+             textareaRef.current?.setSelectionRange(newCaretPosition, newCaretPosition);
+        }, 0);
+    }
+  }
 
   const onSubmit: SubmitHandler<ChatFormValues> = async (data) => {
     const userMessage: ChatMessage = { role: "user", content: data.message }
@@ -198,7 +254,7 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
             <div className="text-center">
                 <Icons.logo className="mx-auto h-12 w-12 text-muted-foreground" />
                 <h2 className="mt-2 text-xl font-semibold">Nexaris Media AI</h2>
-                <p className="text-muted-foreground">Ask me anything about your business.</p>
+                <p className="text-muted-foreground">Ask me anything about your business. Try typing @ to reference a room.</p>
             </div>
         ) : (
             session.messages.map((message, index) => (
@@ -276,19 +332,41 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
               className="relative"
             >
               <div className="relative flex w-full items-center">
-                <Textarea
-                  placeholder="Message Nexaris AI... (try @Projects or @Deals)"
-                  {...form.register("message")}
-                  onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          form.handleSubmit(onSubmit)();
-                      }
-                  }}
-                  rows={1}
-                  className="w-full resize-none rounded-2xl border border-input bg-background p-3 pr-20 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  disabled={isLoading}
-                />
+                <Popover open={mentionMenuOpen} onOpenChange={setMentionMenuOpen}>
+                    <PopoverTrigger asChild>
+                        <Textarea
+                          {...form.register("message")}
+                          ref={textareaRef}
+                          placeholder="Message Nexaris AI... (try @Projects or @Deals)"
+                          onChange={handleInputChange}
+                          onKeyDown={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey) {
+                                  e.preventDefault();
+                                  form.handleSubmit(onSubmit)();
+                              }
+                          }}
+                          rows={1}
+                          className="w-full resize-none rounded-2xl border border-input bg-background p-3 pr-20 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          disabled={isLoading}
+                        />
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[300px] p-0" align="start">
+                      <Command>
+                          <CommandInput placeholder="Search rooms..." value={mentionQuery} onValueChange={setMentionQuery} />
+                           <CommandList>
+                            <CommandGroup>
+                               {navLinks.filter(l => l.label.toLowerCase().includes(mentionQuery.toLowerCase())).map(link => (
+                                   <CommandItem key={link.href} value={link.label} onSelect={() => handleMentionSelect(link.label.replace(' ', ''))}>
+                                       <link.icon className="mr-2 h-4 w-4"/>
+                                       <span>{link.label}</span>
+                                   </CommandItem>
+                               ))}
+                            </CommandGroup>
+                           </CommandList>
+                      </Command>
+                    </PopoverContent>
+                </Popover>
+
                 <Button type="submit" size="icon" className="absolute right-3" disabled={isLoading}>
                     <Send className="h-4 w-4" />
                 </Button>

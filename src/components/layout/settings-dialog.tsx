@@ -259,7 +259,6 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     <CardContent className="space-y-4">
                         <div className="space-y-2"><Label>Default View</Label><Select value={settings.tasksDefaultView} onValueChange={(v) => setSetting('tasksDefaultView', v as any)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="list">List</SelectItem><SelectItem value="board">Board</SelectItem><SelectItem value="calendar">Calendar</SelectItem><SelectItem value="gantt">Gantt</SelectItem></SelectContent></Select></div>
                         <div className="flex items-center justify-between"><Label htmlFor="auto-rollover">Auto-Roll Over Incomplete Tasks</Label><Switch id="auto-rollover" checked={settings.autoRollover} onCheckedChange={(c) => setSetting('autoRollover', c)} /></div>
-                        <div className="flex items-center justify-between"><Label htmlFor="ai-suggestions">AI Task Suggestions</Label><Switch id="ai-suggestions" checked={settings.aiTaskSuggestions} onCheckedChange={(c) => setSetting('aiTaskSuggestions', c)} /></div>
                     </CardContent>
                 </Card>
             </div>
@@ -269,19 +268,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 <div className="space-y-6">
                     <Card>
                         <CardHeader><CardTitle>Research Assistant</CardTitle></CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="space-y-2">
-                                <Label>Default Search Engine</Label>
-                                <Select value={settings.defaultSearchEngine} onValueChange={(v) => setSetting('defaultSearchEngine', v as any)}>
-                                    <SelectTrigger><SelectValue/></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="wikipedia">Wikipedia</SelectItem>
-                                        <SelectItem value="google">Google</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </CardContent>
-                    </Card>
+                    </CardContent>
                 </div>
             )
         case 'gm':
@@ -292,7 +279,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                         <CardContent className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <Label htmlFor="show-timestamps">Show Timestamps</Label>
-                                <Switch id="show-timestamps" checked={settings.showTimestamps} onCheckedChange={(c) => setSetting('showTimestamps', c)} />
+                                <Switch id="show-timestamps" checked={settings.gmShowTimestamps} onCheckedChange={(c) => setSetting('gmShowTimestamps', c)} />
                             </div>
                         </CardContent>
                     </Card>
@@ -340,7 +327,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                         <CardContent className="space-y-4">
                              <div className="space-y-2">
                                 <Label>Default Image Style</Label>
-                                <Select value={settings.defaultImagePromptStyle} onValueChange={(v) => setSetting('defaultImagePromptStyle', v as any)}>
+                                <Select value={settings.youtubeDefaultImageStyle} onValueChange={(v) => setSetting('youtubeDefaultImageStyle', v as any)}>
                                     <SelectTrigger><SelectValue/></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="cinematic">Cinematic</SelectItem>

@@ -43,7 +43,6 @@ export type Settings = {
   // Tasks
   tasksDefaultView: 'list' | 'board' | 'calendar' | 'gantt';
   autoRollover: boolean;
-  aiTaskSuggestions: boolean;
   
   // GM
   gmShowTimestamps: boolean;
@@ -88,7 +87,6 @@ const defaultSettings: Settings = {
   // Tasks
   tasksDefaultView: "list",
   autoRollover: true,
-  aiTaskSuggestions: true,
 
   // GM
   gmShowTimestamps: true,

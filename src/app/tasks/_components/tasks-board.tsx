@@ -266,16 +266,6 @@ function TaskBoardForm({ boardData, setBoardData }: { boardData: FormValues, set
       </div>
 
       <div className="space-y-6">
-        {settings.aiTaskSuggestions && (
-            <Card className="glassmorphic border-primary/50">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Bot className="text-primary"/> AI Task Suggestions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-muted-foreground text-sm">AI-powered task suggestions will appear here soon, based on your projects and goals.</p>
-                </CardContent>
-            </Card>
-        )}
         {groups.map((group, groupIdx) => {
           const sortedTasks = [...group.tasks].sort((a, b) => {
               if (a.completed && !b.completed) return 1;

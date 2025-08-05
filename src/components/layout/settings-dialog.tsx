@@ -268,7 +268,10 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                 <div className="space-y-6">
                     <Card>
                         <CardHeader><CardTitle>Research Assistant</CardTitle></CardHeader>
-                    </CardContent>
+                        <CardContent>
+                           {/* Research settings can go here */}
+                        </CardContent>
+                    </Card>
                 </div>
             )
         case 'gm':

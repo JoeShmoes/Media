@@ -14,7 +14,6 @@ export default function AiRoomPage() {
   const [sessions, setSessions] = React.useState<ChatSession[]>([])
   const [activeSessionId, setActiveSessionId] = React.useState<string | null>(null)
   const [isMounted, setIsMounted] = React.useState(false)
-  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true)
   const { toast } = useToast()
   
   // State to hold data from all rooms
@@ -202,21 +201,14 @@ export default function AiRoomPage() {
 
   return (
     <div className="flex h-full">
-      <div
-        className={cn(
-          "transition-all duration-300 ease-in-out",
-          isSidebarOpen ? "w-72" : "w-0"
-        )}
-      >
-        <div className={cn("h-full", isSidebarOpen ? "w-72" : "w-0 overflow-hidden")}>
-           <ChatSidebar
+      <div className="w-72 hidden md:block">
+        <ChatSidebar
             sessions={sessions}
             activeSessionId={activeSessionId}
             onNewChat={handleNewChat}
             onSelectChat={handleSelectChat}
             onDeleteChat={handleDeleteChat}
-          />
-        </div>
+        />
       </div>
       <div className="flex-1 flex flex-col">
           <AiRoomChat
@@ -229,3 +221,5 @@ export default function AiRoomPage() {
     </div>
   )
 }
+
+    

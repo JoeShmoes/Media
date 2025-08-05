@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -42,40 +43,40 @@
   }
 
   .dark {
-    --background: 224 14% 13%;
+    --background: 240 10% 4%;
     --foreground: 0 0% 98%;
-    --card: 224 14% 13%;
+    --card: 240 10% 4%;
     --card-foreground: 0 0% 98%;
-    --popover: 224 14% 13%;
+    --popover: 240 10% 4%;
     --popover-foreground: 0 0% 98%;
-    --primary: 221 44% 41%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4% 26%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 33% 17%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 4% 26%;
-    --muted-foreground: 240 5% 65%;
-    --accent: 240 4% 18%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 33% 17%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 63% 31%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 4% 26%;
-    --input: 240 4% 26%;
-    --ring: 221 44% 41%;
-    --chart-1: 221 44% 41%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 215 28% 92%;
+    --chart-1: 210 40% 98%;
     --chart-2: 175 43% 50%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
 
     /* macOS-inspired theme */
-    --sidebar-background: 226 13% 9%;
+    --sidebar-background: 240 10% 4%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 221 44% 41%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4% 18%;
+    --sidebar-primary: 210 40% 98%;
+    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-accent: 217 33% 17%;
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 4% 26%;
-    --sidebar-ring: 221 44% 41%;
+    --sidebar-border: 217 33% 17%;
+    --sidebar-ring: 215 28% 92%;
   }
 }
 

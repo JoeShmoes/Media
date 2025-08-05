@@ -148,6 +148,7 @@ const prompt = ai.definePrompt({
   output: {schema: GetBusinessAdviceOutputSchema},
   tools: [getProjectsTool, getDealsTool, getTasksTool, getOffersTool, getPersonasTool, getGoalsTool, getNotesTool, getClientsTool, getFinanceTool],
   prompt: `You are a business advisor providing real-time, custom-trained advice based on the business context and stored conversations.
+  Your responses should be well-formatted using Markdown. Use bolding for emphasis, italics for nuance, and bullet points for lists to make your advice clear and actionable. Leave a blank line between paragraphs.
   The user's question might contain an @-mention to specify a data context. Use the corresponding tool to get the most up-to-date information before answering.
   - @Projects: Use getProjectsTool
   - @Deals: Use getDealsTool

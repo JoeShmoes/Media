@@ -41,7 +41,7 @@ export type Settings = {
   promptStyle: 'formal' | 'casual' | 'tactical' | 'copywriting';
 
   // Tasks
-  tasksDefaultView: 'list' | 'board' | 'calendar' | 'gantt';
+  tasksDefaultView: 'list' | 'board' | 'gantt';
   autoRollover: boolean;
   
   // GM
@@ -125,7 +125,12 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     try {
       const savedSettings = localStorage.getItem("appSettings");
       if (savedSettings) {
-        setSettings(prev => ({...prev, ...JSON.parse(savedSettings)}));
+        const parsedSettings = JSON.parse(savedSettings);
+        // Ensure tasksDefaultView is valid, reset if not
+        if (!['list', 'board', 'gantt'].includes(parsedSettings.tasksDefaultView)) {
+            parsedSettings.tasksDefaultView = 'list';
+        }
+        setSettings(prev => ({...prev, ...parsedSettings}));
       }
     } catch (error) {
       console.error("Failed to load settings from local storage", error);

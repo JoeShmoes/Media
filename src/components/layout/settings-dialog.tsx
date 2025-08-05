@@ -3,7 +3,7 @@
 
 import * as React from "react"
 import { useTheme } from "next-themes"
-import { Sun, Moon, Laptop, Palette, Shield, Code, Bell, User, LayoutDashboard, ListTodo, Notebook, Search, MessageSquare, Users, KanbanSquare, SendHorizonal, CircleDollarSign, Package, Archive, View, BrainCircuit, Workflow, Blocks, FileText, LayoutTemplate, Youtube, PenSquare, HelpCircle, Wrench, Target, Upload, Trash2, Image as ImageIcon } from "lucide-react"
+import { Sun, Moon, Laptop, Palette, Shield, Code, Bell, User, LayoutDashboard, ListTodo, Notebook, Search, MessageSquare, Users, KanbanSquare, SendHorizonal, CircleDollarSign, Package, Archive, View, BrainCircuit, Workflow, Blocks, FileText, LayoutTemplate, Youtube, PenSquare, HelpCircle, Wrench, Target, Upload, Trash2, Image as ImageIcon, GanttChartSquare } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
@@ -257,7 +257,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                  <Card>
                     <CardHeader><CardTitle>Task Management</CardTitle></CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="space-y-2"><Label>Default View</Label><Select value={settings.tasksDefaultView} onValueChange={(v) => setSetting('tasksDefaultView', v as any)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="list">List</SelectItem><SelectItem value="board">Board</SelectItem><SelectItem value="calendar">Calendar</SelectItem><SelectItem value="gantt">Gantt</SelectItem></SelectContent></Select></div>
+                        <div className="space-y-2"><Label>Default View</Label><Select value={settings.tasksDefaultView} onValueChange={(v) => setSetting('tasksDefaultView', v as any)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="list">List</SelectItem><SelectItem value="board">Board</SelectItem><SelectItem value="gantt">Gantt</SelectItem></SelectContent></Select></div>
                         <div className="flex items-center justify-between"><Label htmlFor="auto-rollover">Auto-Roll Over Incomplete Tasks</Label><Switch id="auto-rollover" checked={settings.autoRollover} onCheckedChange={(c) => setSetting('autoRollover', c)} /></div>
                     </CardContent>
                 </Card>
@@ -269,7 +269,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                     <Card>
                         <CardHeader><CardTitle>Research Assistant</CardTitle></CardHeader>
                         <CardContent>
-                           {/* Research settings can go here */}
+                           <p className="text-sm text-muted-foreground">No specific settings for this room yet.</p>
                         </CardContent>
                     </Card>
                 </div>

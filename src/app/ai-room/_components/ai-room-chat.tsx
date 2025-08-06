@@ -7,6 +7,7 @@ import { useForm, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import Markdown from "react-markdown"
+import { useAuthState } from "react-firebase-hooks/auth";
 
 import type { ChatSession, ChatMessage, Project, Deal, Task, Offer, Persona, Goal, Note, Client, Transaction, TaskGroup } from "@/lib/types"
 import { getBusinessAdvice } from "@/ai/flows/get-business-advice"
@@ -43,6 +44,7 @@ import {
   CommandGroup,
 } from "@/components/ui/command"
 import { navLinks } from "@/components/layout/app-shell"
+import { auth } from "@/lib/firebase"
 
 
 const chatSchema = z.object({
@@ -69,6 +71,7 @@ const roomsForMenu = navLinks.filter(link => mentionableRooms.includes(link.labe
 export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, onDeleteMessage }: AiRoomChatProps) {
   const { toast } = useToast()
   const { settings } = useSettings()
+  const [user] = useAuthState(auth);
   const [isLoading, setIsLoading] = React.useState(false)
   const scrollAreaRef = React.useRef<HTMLDivElement>(null)
   const [editingIndex, setEditingIndex] = React.useState<number | null>(null);
@@ -96,37 +99,38 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
   const [transactions, setTransactions] = React.useState<Transaction[]>([]);
 
   React.useEffect(() => {
+    if (!user) return;
     // Load all necessary data from local storage
     const loadData = () => {
         try {
-            const savedProjects = localStorage.getItem("projects");
+            const savedProjects = localStorage.getItem(`projects_${user.uid}`);
             if(savedProjects) setProjects(Object.values(JSON.parse(savedProjects)).flat() as Project[]);
             
-            const savedDeals = localStorage.getItem("deals");
+            const savedDeals = localStorage.getItem(`deals_${user.uid}`);
             if(savedDeals) setDeals(JSON.parse(savedDeals));
 
-            const savedTasks = localStorage.getItem("tasks");
+            const savedTasks = localStorage.getItem(`tasks_${user.uid}`);
              if(savedTasks) {
                 const board: {groups: TaskGroup[]} = JSON.parse(savedTasks);
                 setTasks(board.groups.flatMap(g => g.tasks));
             }
             
-            const savedOffers = localStorage.getItem("offers");
+            const savedOffers = localStorage.getItem(`offers_${user.uid}`);
             if(savedOffers) setOffers(JSON.parse(savedOffers));
 
-            const savedPersonas = localStorage.getItem("brandPersonas");
+            const savedPersonas = localStorage.getItem(`brandPersonas_${user.uid}`);
             if(savedPersonas) setPersonas(JSON.parse(savedPersonas));
 
-            const savedGoals = localStorage.getItem("cortex-goals");
+            const savedGoals = localStorage.getItem(`cortex-goals_${user.uid}`);
             if(savedGoals) setGoals(JSON.parse(savedGoals));
 
-            const savedNotes = localStorage.getItem("notes");
+            const savedNotes = localStorage.getItem(`notes_${user.uid}`);
             if(savedNotes) setNotes(JSON.parse(savedNotes));
             
-            const savedClients = localStorage.getItem("clients");
+            const savedClients = localStorage.getItem(`clients_${user.uid}`);
             if(savedClients) setClients(JSON.parse(savedClients));
 
-            const savedTransactions = localStorage.getItem("transactions");
+            const savedTransactions = localStorage.getItem(`transactions_${user.uid}`);
             if(savedTransactions) setTransactions(JSON.parse(savedTransactions));
 
         } catch (error) {
@@ -134,7 +138,7 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
         }
     }
     loadData();
-  }, []);
+  }, [user]);
   
   const allDataContext = {
     projects, deals, tasks, offers, personas, goals, notes, clients, transactions
@@ -156,8 +160,8 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
 
     const caretPosition = e.target.selectionStart;
     const textBeforeCaret = value.substring(0, caretPosition);
-    const atMatch = textBeforeCaret.match(/@(\w*)$/);
-
+    const atMatch = textBeforeCaret.match(/(?:\s|^)@(\w*)$/);
+    
     if (atMatch) {
       setMentionMenuOpen(true);
       setMentionQuery(atMatch[1]);

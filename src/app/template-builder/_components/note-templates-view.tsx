@@ -1,3 +1,4 @@
+
 "use client"
 import * as React from "react"
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { NoteTemplatePreviewDialog } from "./note-template-preview-dialog";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/lib/firebase";
 
 export function NoteTemplatesView() {
   const [templates, setTemplates] = React.useState<NoteTemplate[]>([]);
@@ -25,24 +28,26 @@ export function NoteTemplatesView() {
   const [previewingTemplate, setPreviewingTemplate] = React.useState<NoteTemplate | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
   const [isMounted, setIsMounted] = React.useState(false);
+  const [user] = useAuthState(auth);
   
   React.useEffect(() => {
     setIsMounted(true);
+    if (!user) return;
     try {
-      const savedTemplates = localStorage.getItem("noteTemplates");
+      const savedTemplates = localStorage.getItem(`noteTemplates_${user.uid}`);
       if (savedTemplates) {
         setTemplates(JSON.parse(savedTemplates));
       }
     } catch (error) {
       console.error("Failed to load note templates", error);
     }
-  }, []);
+  }, [user]);
 
   React.useEffect(() => {
-    if (isMounted) {
-      localStorage.setItem("noteTemplates", JSON.stringify(templates));
+    if (isMounted && user) {
+      localStorage.setItem(`noteTemplates_${user.uid}`, JSON.stringify(templates));
     }
-  }, [templates, isMounted]);
+  }, [templates, isMounted, user]);
 
   const handleAddTemplate = () => {
     setEditingTemplate(null);

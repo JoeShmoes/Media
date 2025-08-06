@@ -3,24 +3,27 @@
 
 import * as React from "react"
 import { Plus } from "lucide-react"
-import { useDebounce } from "use-debounce"
 
 import type { Note } from "@/lib/types"
 import { NotesList } from "./_components/notes-list"
 import { NoteEditor } from "./_components/note-editor"
 import { Button } from "@/components/ui/button"
+import { useAuthState } from "react-firebase-hooks/auth"
+import { auth } from "@/lib/firebase"
 
 export default function NotesPage() {
   const [notes, setNotes] = React.useState<Note[]>([])
   const [activeNote, setActiveNote] = React.useState<Note | null>(null)
   const [isMounted, setIsMounted] = React.useState(false)
   const [isEditorOpen, setIsEditorOpen] = React.useState(false)
+  const [user] = useAuthState(auth);
 
   // Load from local storage on mount
   React.useEffect(() => {
     setIsMounted(true)
+    if (!user) return;
     try {
-      const savedNotes = localStorage.getItem("notes")
+      const savedNotes = localStorage.getItem(`notes_${user.uid}`)
       if (savedNotes) {
         const parsedNotes: Note[] = JSON.parse(savedNotes);
         setNotes(parsedNotes)
@@ -28,18 +31,18 @@ export default function NotesPage() {
     } catch (error) {
       console.error("Failed to load notes from local storage", error)
     }
-  }, [])
+  }, [user])
 
   // Save to local storage on change
   React.useEffect(() => {
-    if (isMounted) {
+    if (isMounted && user) {
       try {
-        localStorage.setItem("notes", JSON.stringify(notes))
+        localStorage.setItem(`notes_${user.uid}`, JSON.stringify(notes))
       } catch (error) {
         console.error("Failed to save notes to local storage", error)
       }
     }
-  }, [notes, isMounted])
+  }, [notes, isMounted, user])
 
   const handleSelectNote = (note: Note) => {
     setActiveNote(note);

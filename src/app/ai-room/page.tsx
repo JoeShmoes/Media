@@ -11,18 +11,22 @@ import { useToast } from "@/hooks/use-toast"
 import { useSettings } from "@/hooks/use-settings"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/lib/firebase";
 
 export default function AiRoomPage() {
   const [sessions, setSessions] = React.useState<ChatSession[]>([]);
   const [activeSession, setActiveSession] = React.useState<ChatSession | null>(null);
+  const [user] = useAuthState(auth);
   const { toast } = useToast()
   const { settings } = useSettings()
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
 
   // For now, let's use some dummy data and localStorage
   React.useEffect(() => {
+    if (!user) return;
     try {
-      const savedSessions = localStorage.getItem("chatSessions");
+      const savedSessions = localStorage.getItem(`chatSessions_${user.uid}`);
       if (savedSessions) {
         const parsed = JSON.parse(savedSessions);
         setSessions(parsed);
@@ -43,17 +47,20 @@ export default function AiRoomPage() {
     } catch (error) {
       console.error("Failed to load chat sessions", error);
     }
-  }, []);
+  }, [user]);
 
   React.useEffect(() => {
+    if (!user) return;
      try {
         if (sessions.length > 0) {
-            localStorage.setItem("chatSessions", JSON.stringify(sessions));
+            localStorage.setItem(`chatSessions_${user.uid}`, JSON.stringify(sessions));
+        } else {
+            localStorage.removeItem(`chatSessions_${user.uid}`);
         }
      } catch (error) {
          console.error("Failed to save chat sessions", error);
      }
-  }, [sessions]);
+  }, [sessions, user]);
 
 
   const handleNewChat = () => {

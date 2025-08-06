@@ -15,13 +15,15 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { OfferDetailsDialog } from "./_components/offer-details-dialog";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/lib/firebase";
 
 
 export default function OfferBuilderPage() {
   const [isMounted, setIsMounted] = React.useState(false);
+  const [user] = useAuthState(auth);
   const [offers, setOffers] = React.useState<Offer[]>([]);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [editingOffer, setEditingOffer] = React.useState<Offer | null>(null);
@@ -30,25 +32,26 @@ export default function OfferBuilderPage() {
   
   React.useEffect(() => {
     setIsMounted(true);
+    if (!user) return;
     try {
-        const savedOffers = localStorage.getItem("offers");
+        const savedOffers = localStorage.getItem(`offers_${user.uid}`);
         if (savedOffers) {
             setOffers(JSON.parse(savedOffers));
         }
     } catch (error) {
         console.error("Failed to load offers from local storage", error);
     }
-  }, []);
+  }, [user]);
   
   React.useEffect(() => {
-      if(isMounted) {
+      if(isMounted && user) {
           try {
-              localStorage.setItem("offers", JSON.stringify(offers));
+              localStorage.setItem(`offers_${user.uid}`, JSON.stringify(offers));
           } catch(error) {
               console.error("Failed to save offers to local storage", error);
           }
       }
-  }, [offers, isMounted]);
+  }, [offers, isMounted, user]);
 
   const handleAddOffer = () => {
     setEditingOffer(null);

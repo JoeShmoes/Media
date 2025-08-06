@@ -1,3 +1,4 @@
+
 "use client"
 import * as React from "react"
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { OfferTemplatePreviewDialog } from "./offer-template-preview-dialog";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/lib/firebase";
 
 export function OfferTemplatesView() {
   const [templates, setTemplates] = React.useState<OfferTemplate[]>([]);
@@ -25,24 +28,26 @@ export function OfferTemplatesView() {
   const [previewingTemplate, setPreviewingTemplate] = React.useState<OfferTemplate | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
   const [isMounted, setIsMounted] = React.useState(false);
+  const [user] = useAuthState(auth);
   
   React.useEffect(() => {
     setIsMounted(true);
+    if (!user) return;
     try {
-      const savedTemplates = localStorage.getItem("offerTemplates");
+      const savedTemplates = localStorage.getItem(`offerTemplates_${user.uid}`);
       if (savedTemplates) {
         setTemplates(JSON.parse(savedTemplates));
       }
     } catch (error) {
       console.error("Failed to load offer templates", error);
     }
-  }, []);
+  }, [user]);
 
   React.useEffect(() => {
-    if (isMounted) {
-      localStorage.setItem("offerTemplates", JSON.stringify(templates));
+    if (isMounted && user) {
+      localStorage.setItem(`offerTemplates_${user.uid}`, JSON.stringify(templates));
     }
-  }, [templates, isMounted]);
+  }, [templates, isMounted, user]);
 
   const handleAddTemplate = () => {
     setEditingTemplate(null);

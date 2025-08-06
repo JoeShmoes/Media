@@ -5,6 +5,7 @@ import { Line, LineChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Tool
 import { format, parseISO } from "date-fns"
 import { PlusCircle, TrendingDown, TrendingUp, DollarSign, Download, MoreHorizontal, Trash2 } from "lucide-react"
 import { CSVLink } from "react-csv";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
@@ -24,6 +25,7 @@ import { useSettings } from "@/hooks/use-settings"
 import { useToast } from "@/hooks/use-toast"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
+import { auth } from "@/lib/firebase";
 
 const chartConfig = {
   profit: {
@@ -44,33 +46,33 @@ export default function FinancePage() {
     const [transactions, setTransactions] = React.useState<Transaction[]>([]);
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
     const [isMounted, setIsMounted] = React.useState(false);
+    const [user] = useAuthState(auth);
     const csvLinkRef = React.useRef<any>(null);
     const { settings } = useSettings();
     const { toast } = useToast();
 
     React.useEffect(() => {
         setIsMounted(true);
+        if (!user) return;
         try {
-            const savedTransactions = localStorage.getItem("transactions");
+            const savedTransactions = localStorage.getItem(`transactions_${user.uid}`);
             if (savedTransactions) {
                 setTransactions(JSON.parse(savedTransactions));
-            } else {
-                localStorage.setItem("hasInitializedFinance", "true");
             }
         } catch (error) {
             console.error("Failed to load data from local storage", error);
         }
-    }, []);
+    }, [user]);
 
     React.useEffect(() => {
-        if (isMounted) {
+        if (isMounted && user) {
             try {
-                localStorage.setItem("transactions", JSON.stringify(transactions));
+                localStorage.setItem(`transactions_${user.uid}`, JSON.stringify(transactions));
             } catch (error) {
                 console.error("Failed to save transactions to local storage", error);
             }
         }
-    }, [transactions, isMounted]);
+    }, [transactions, isMounted, user]);
 
     const handleAddTransaction = (data: Omit<Transaction, 'id'>) => {
         const newTransaction: Transaction = {

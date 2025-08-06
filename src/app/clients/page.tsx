@@ -4,6 +4,7 @@
 import * as React from "react"
 import { MoreHorizontal, PlusCircle, Download } from "lucide-react"
 import { CSVLink } from "react-csv"
+import { useAuthState } from "react-firebase-hooks/auth";
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -32,6 +33,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useSettings } from "@/hooks/use-settings"
 import { useToast } from "@/hooks/use-toast"
+import { auth } from "@/lib/firebase";
 
 const statusVariant: { [key: string]: "default" | "secondary" | "outline" | "destructive" | null | undefined } = {
   Active: "default",
@@ -47,28 +49,30 @@ export default function ClientsPage() {
   const csvLinkRef = React.useRef<any>(null);
   const { settings } = useSettings();
   const { toast } = useToast();
+  const [user] = useAuthState(auth);
 
   React.useEffect(() => {
     setIsMounted(true);
+    if (!user) return;
     try {
-      const savedClients = localStorage.getItem("clients");
+      const savedClients = localStorage.getItem(`clients_${user.uid}`);
       if (savedClients) {
         setClients(JSON.parse(savedClients));
       }
     } catch (error) {
         console.error("Failed to load clients from local storage", error);
     }
-  }, []);
+  }, [user]);
 
   React.useEffect(() => {
-      if (isMounted) {
+      if (isMounted && user) {
           try {
-              localStorage.setItem("clients", JSON.stringify(clients));
+              localStorage.setItem(`clients_${user.uid}`, JSON.stringify(clients));
           } catch(error) {
               console.error("Failed to save clients to local storage", error);
           }
       }
-  }, [clients, isMounted]);
+  }, [clients, isMounted, user]);
 
 
   const handleAddClient = () => {

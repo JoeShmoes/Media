@@ -65,8 +65,9 @@ export default function DashboardPage() {
   const [isLoadingInsights, setIsLoadingInsights] = React.useState(true);
 
   const loadData = React.useCallback(() => {
+    if (!user) return;
     try {
-        const savedTransactions = localStorage.getItem("transactions");
+        const savedTransactions = localStorage.getItem(`transactions_${user.uid}`);
         if(savedTransactions) {
             const txns: Transaction[] = JSON.parse(savedTransactions);
             setTransactions(txns);
@@ -74,21 +75,21 @@ export default function DashboardPage() {
             setTotalRevenue(income);
         }
 
-        const savedProjects = localStorage.getItem("projects");
+        const savedProjects = localStorage.getItem(`projects_${user.uid}`);
         if (savedProjects) {
             const projectsData: Project[] = Object.values(JSON.parse(savedProjects)).flat() as Project[];
             setProjects(projectsData);
             setActiveProjectsCount(projectsData.filter(p => p.status !== 'launch').length);
         }
         
-        const savedDeals = localStorage.getItem("deals");
+        const savedDeals = localStorage.getItem(`deals_${user.uid}`);
         if (savedDeals) {
             const dealsData: Deal[] = JSON.parse(savedDeals);
             setDeals(dealsData);
             setOpenDealsCount(dealsData.filter(d => d.status !== 'closed-won' && d.status !== 'closed-lost').length);
         }
         
-        const savedTasks = localStorage.getItem("tasks");
+        const savedTasks = localStorage.getItem(`tasks_${user.uid}`);
         if (savedTasks) {
             const taskBoard: {groups: TaskGroup[]} = JSON.parse(savedTasks);
             const allTasks = taskBoard.groups.flatMap(g => g.tasks);
@@ -96,28 +97,28 @@ export default function DashboardPage() {
             setTasksDueCount(allTasks.filter(t => !t.completed).length);
         }
         
-        const savedOffers = localStorage.getItem("offers");
+        const savedOffers = localStorage.getItem(`offers_${user.uid}`);
         if (savedOffers) setOffers(JSON.parse(savedOffers));
 
-        const savedBrandVoice = localStorage.getItem("brandVoice");
+        const savedBrandVoice = localStorage.getItem(`brandVoice_${user.uid}`);
         if (savedBrandVoice) setBrandVoice(JSON.parse(savedBrandVoice));
 
-        const savedPersonas = localStorage.getItem("brandPersonas");
+        const savedPersonas = localStorage.getItem(`brandPersonas_${user.uid}`);
         if (savedPersonas) setPersonas(JSON.parse(savedPersonas));
 
-        const savedGoals = localStorage.getItem("cortex-goals");
+        const savedGoals = localStorage.getItem(`cortex-goals_${user.uid}`);
         if (savedGoals) setGoals(JSON.parse(savedGoals));
 
-        const savedNotes = localStorage.getItem("notes");
+        const savedNotes = localStorage.getItem(`notes_${user.uid}`);
         if (savedNotes) setNotes(JSON.parse(savedNotes));
 
-        const savedClients = localStorage.getItem("clients");
+        const savedClients = localStorage.getItem(`clients_${user.uid}`);
         if (savedClients) setClients(JSON.parse(savedClients));
 
       } catch (error) {
           console.error("Failed to load dashboard data from local storage", error);
       }
-  }, []);
+  }, [user]);
 
   React.useEffect(() => {
       setIsMounted(true);

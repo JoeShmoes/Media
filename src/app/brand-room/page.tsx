@@ -5,10 +5,13 @@ import type { BrandVoice, BrandColor, BrandLogo, Persona } from "@/lib/types";
 import { BrandVoiceForm } from "./_components/brand-voice-form";
 import { VisualIdentity } from "./_components/visual-identity";
 import { PersonaManager } from "./_components/persona-manager";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/lib/firebase";
 
 
 export default function BrandRoomPage() {
     const [isMounted, setIsMounted] = React.useState(false);
+    const [user] = useAuthState(auth);
 
     // State for Brand Voice
     const [brandVoice, setBrandVoice] = React.useState<BrandVoice>({ tone: '', style: '', examples: '' });
@@ -23,36 +26,37 @@ export default function BrandRoomPage() {
     // Load data from localStorage
     React.useEffect(() => {
         setIsMounted(true);
+        if (!user) return;
         try {
-            const savedVoice = localStorage.getItem("brandVoice");
+            const savedVoice = localStorage.getItem(`brandVoice_${user.uid}`);
             if (savedVoice) setBrandVoice(JSON.parse(savedVoice));
 
-            const savedColors = localStorage.getItem("brandColors");
+            const savedColors = localStorage.getItem(`brandColors_${user.uid}`);
             if (savedColors) setColors(JSON.parse(savedColors));
 
-            const savedLogos = localStorage.getItem("brandLogos");
+            const savedLogos = localStorage.getItem(`brandLogos_${user.uid}`);
             if (savedLogos) setLogos(JSON.parse(savedLogos));
 
-            const savedPersonas = localStorage.getItem("brandPersonas");
+            const savedPersonas = localStorage.getItem(`brandPersonas_${user.uid}`);
             if (savedPersonas) setPersonas(JSON.parse(savedPersonas));
         } catch (error) {
             console.error("Failed to load brand data from local storage", error);
         }
-    }, []);
+    }, [user]);
 
     // Save data to localStorage
     React.useEffect(() => {
-        if (isMounted) {
+        if (isMounted && user) {
             try {
-                localStorage.setItem("brandVoice", JSON.stringify(brandVoice));
-                localStorage.setItem("brandColors", JSON.stringify(colors));
-                localStorage.setItem("brandLogos", JSON.stringify(logos));
-                localStorage.setItem("brandPersonas", JSON.stringify(personas));
+                localStorage.setItem(`brandVoice_${user.uid}`, JSON.stringify(brandVoice));
+                localStorage.setItem(`brandColors_${user.uid}`, JSON.stringify(colors));
+                localStorage.setItem(`brandLogos_${user.uid}`, JSON.stringify(logos));
+                localStorage.setItem(`brandPersonas_${user.uid}`, JSON.stringify(personas));
             } catch (error) {
                 console.error("Failed to save brand data to local storage", error);
             }
         }
-    }, [brandVoice, colors, logos, personas, isMounted]);
+    }, [brandVoice, colors, logos, personas, isMounted, user]);
 
     if (!isMounted) return null;
 

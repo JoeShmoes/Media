@@ -1,3 +1,4 @@
+
 "use client"
 import * as React from "react"
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { ProjectTemplatePreviewDialog } from "./project-template-preview-dialog";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/lib/firebase";
 
 export function ProjectTemplatesView() {
   const [templates, setTemplates] = React.useState<ProjectTemplate[]>([]);
@@ -25,24 +28,26 @@ export function ProjectTemplatesView() {
   const [previewingTemplate, setPreviewingTemplate] = React.useState<ProjectTemplate | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
   const [isMounted, setIsMounted] = React.useState(false);
+  const [user] = useAuthState(auth);
   
   React.useEffect(() => {
     setIsMounted(true);
+    if (!user) return;
     try {
-      const savedTemplates = localStorage.getItem("projectTemplates");
+      const savedTemplates = localStorage.getItem(`projectTemplates_${user.uid}`);
       if (savedTemplates) {
         setTemplates(JSON.parse(savedTemplates));
       }
     } catch (error) {
       console.error("Failed to load project templates", error);
     }
-  }, []);
+  }, [user]);
 
   React.useEffect(() => {
-    if (isMounted) {
-      localStorage.setItem("projectTemplates", JSON.stringify(templates));
+    if (isMounted && user) {
+      localStorage.setItem(`projectTemplates_${user.uid}`, JSON.stringify(templates));
     }
-  }, [templates, isMounted]);
+  }, [templates, isMounted, user]);
 
   const handleAddTemplate = () => {
     setEditingTemplate(null);

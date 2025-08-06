@@ -11,6 +11,8 @@ import { DealDialog } from "./_components/deal-dialog";
 import { DealDetailsDialog } from "./_components/deal-details-dialog";
 import { useSettings } from "@/hooks/use-settings"
 import { useToast } from "@/hooks/use-toast"
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/lib/firebase";
 
 const columnOrder: DealStatus[] = ["leads", "needs-analysis", "proposal", "negotiation", "closed-won", "closed-lost"];
 
@@ -25,6 +27,7 @@ const columnTitles: Record<DealStatus, string> = {
 
 export default function PipelineTrackerPage() {
   const [isMounted, setIsMounted] = React.useState(false);
+  const [user] = useAuthState(auth);
   const [deals, setDeals] = React.useState<Deal[]>([]);
   const [isDealDialogOpen, setIsDealDialogOpen] = React.useState(false);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = React.useState(false);
@@ -37,25 +40,26 @@ export default function PipelineTrackerPage() {
 
   React.useEffect(() => {
     setIsMounted(true);
+    if (!user) return;
     try {
-      const savedDeals = localStorage.getItem("deals");
+      const savedDeals = localStorage.getItem(`deals_${user.uid}`);
       if (savedDeals) {
         setDeals(JSON.parse(savedDeals));
       }
     } catch (error) {
       console.error("Failed to load deals from local storage", error);
     }
-  }, []);
+  }, [user]);
 
   React.useEffect(() => {
-    if (isMounted) {
+    if (isMounted && user) {
       try {
-        localStorage.setItem("deals", JSON.stringify(deals));
+        localStorage.setItem(`deals_${user.uid}`, JSON.stringify(deals));
       } catch (error) {
         console.error("Failed to save deals to local storage", error);
       }
     }
-  }, [deals, isMounted]);
+  }, [deals, isMounted, user]);
 
   const handleAddDeal = () => {
     setEditingDeal(null);

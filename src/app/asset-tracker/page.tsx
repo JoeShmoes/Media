@@ -16,10 +16,13 @@ import { LegalDocList } from "./_components/legal-doc-list";
 import type { Domain, DesignAsset, LegalDocument, SearchAssetsOutput } from "@/lib/types";
 import { searchAssets } from "@/ai/flows/search-assets";
 import { useToast } from "@/hooks/use-toast";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/lib/firebase";
 
 
 export default function AssetTrackerPage() {
   const [isMounted, setIsMounted] = React.useState(false);
+  const [user] = useAuthState(auth);
   const { toast } = useToast();
   
   // State for domains
@@ -52,32 +55,33 @@ export default function AssetTrackerPage() {
   // Load data from localStorage
   React.useEffect(() => {
     setIsMounted(true);
+    if (!user) return;
     try {
-      const savedDomains = localStorage.getItem("domains");
+      const savedDomains = localStorage.getItem(`domains_${user.uid}`);
       if (savedDomains) setDomains(JSON.parse(savedDomains));
 
-      const savedDesignAssets = localStorage.getItem("designAssets");
+      const savedDesignAssets = localStorage.getItem(`designAssets_${user.uid}`);
       if (savedDesignAssets) setDesignAssets(JSON.parse(savedDesignAssets));
 
-      const savedLegalDocs = localStorage.getItem("legalDocs");
+      const savedLegalDocs = localStorage.getItem(`legalDocs_${user.uid}`);
       if (savedLegalDocs) setLegalDocs(JSON.parse(savedLegalDocs));
     } catch (error) {
       console.error("Failed to load assets from local storage", error);
     }
-  }, []);
+  }, [user]);
 
   // Save data to localStorage
   React.useEffect(() => {
-    if (isMounted) {
+    if (isMounted && user) {
       try {
-        localStorage.setItem("domains", JSON.stringify(domains));
-        localStorage.setItem("designAssets", JSON.stringify(designAssets));
-        localStorage.setItem("legalDocs", JSON.stringify(legalDocs));
+        localStorage.setItem(`domains_${user.uid}`, JSON.stringify(domains));
+        localStorage.setItem(`designAssets_${user.uid}`, JSON.stringify(designAssets));
+        localStorage.setItem(`legalDocs_${user.uid}`, JSON.stringify(legalDocs));
       } catch (error) {
         console.error("Failed to save assets to local storage", error);
       }
     }
-  }, [domains, designAssets, legalDocs, isMounted]);
+  }, [domains, designAssets, legalDocs, isMounted, user]);
   
   // AI Search Effect
   React.useEffect(() => {

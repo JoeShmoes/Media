@@ -1,3 +1,4 @@
+
 "use client"
 import * as React from "react"
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { OutreachTemplatePreviewDialog } from "./outreach-template-preview-dialog";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/lib/firebase";
 
 export function OutreachTemplatesView() {
   const [templates, setTemplates] = React.useState<OutreachTemplate[]>([]);
@@ -25,24 +28,26 @@ export function OutreachTemplatesView() {
   const [previewingTemplate, setPreviewingTemplate] = React.useState<OutreachTemplate | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
   const [isMounted, setIsMounted] = React.useState(false);
+  const [user] = useAuthState(auth);
   
   React.useEffect(() => {
     setIsMounted(true);
+    if (!user) return;
     try {
-      const savedTemplates = localStorage.getItem("outreachTemplates");
+      const savedTemplates = localStorage.getItem(`outreachTemplates_${user.uid}`);
       if (savedTemplates) {
         setTemplates(JSON.parse(savedTemplates));
       }
     } catch (error) {
       console.error("Failed to load outreach templates", error);
     }
-  }, []);
+  }, [user]);
 
   React.useEffect(() => {
-    if (isMounted) {
-      localStorage.setItem("outreachTemplates", JSON.stringify(templates));
+    if (isMounted && user) {
+      localStorage.setItem(`outreachTemplates_${user.uid}`, JSON.stringify(templates));
     }
-  }, [templates, isMounted]);
+  }, [templates, isMounted, user]);
 
   const handleAddTemplate = () => {
     setEditingTemplate(null);

@@ -24,6 +24,8 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useSettings } from "@/hooks/use-settings"
 import { useToast } from "@/hooks/use-toast"
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/lib/firebase";
 
 const initialBoardData: ProjectBoard = {
   discovery: [],
@@ -53,21 +55,25 @@ export default function ProjectsPage() {
   const csvLinkRef = React.useRef<any>(null);
   const { settings } = useSettings();
   const { toast } = useToast();
+  const [user] = useAuthState(auth);
 
   React.useEffect(() => {
+    if (!user) return;
     try {
-      const savedProjects = localStorage.getItem("projects");
+      const savedProjects = localStorage.getItem(`projects_${user.uid}`);
       if (savedProjects) {
         setBoardData(JSON.parse(savedProjects));
       }
     } catch(e) {
       console.error(e)
     }
-  }, [])
+  }, [user])
 
   React.useEffect(() => {
-    localStorage.setItem("projects", JSON.stringify(boardData));
-  }, [boardData])
+    if (user) {
+        localStorage.setItem(`projects_${user.uid}`, JSON.stringify(boardData));
+    }
+  }, [boardData, user])
 
   const handleAddProject = () => {
     setEditingProject(null)

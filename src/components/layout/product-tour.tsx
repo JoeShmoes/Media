@@ -4,19 +4,22 @@
 import * as React from "react"
 import Joyride, { type Step } from 'react-joyride';
 import { useTheme } from "next-themes";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/lib/firebase";
 
 export function ProductTour() {
   const [runTour, setRunTour] = React.useState(false);
   const [isMounted, setIsMounted] = React.useState(false);
   const { theme } = useTheme();
+  const [user] = useAuthState(auth);
 
   React.useEffect(() => {
     setIsMounted(true);
   }, []);
 
   React.useEffect(() => {
-    if (isMounted) {
-        const hasCompletedTour = localStorage.getItem('hasCompletedTour');
+    if (isMounted && user) {
+        const hasCompletedTour = localStorage.getItem(`hasCompletedTour_${user.uid}`);
         if (!hasCompletedTour) {
             // Add a small delay to ensure all DOM elements are mounted
             setTimeout(() => {
@@ -24,14 +27,16 @@ export function ProductTour() {
             }, 200);
         }
     }
-  }, [isMounted]);
+  }, [isMounted, user]);
 
   const handleCallback = (data: any) => {
     const { status } = data;
     const finishedStatuses: string[] = ['finished', 'skipped'];
     if (finishedStatuses.includes(status)) {
       setRunTour(false);
-      localStorage.setItem('hasCompletedTour', 'true');
+      if (user) {
+        localStorage.setItem(`hasCompletedTour_${user.uid}`, 'true');
+      }
     }
   };
 

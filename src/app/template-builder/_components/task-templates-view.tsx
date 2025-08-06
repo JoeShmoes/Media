@@ -1,3 +1,4 @@
+
 "use client"
 import * as React from "react"
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { TaskTemplatePreviewDialog } from "./task-template-preview-dialog";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/lib/firebase";
 
 export function TaskTemplatesView() {
   const [templates, setTemplates] = React.useState<TaskTemplate[]>([]);
@@ -25,24 +28,26 @@ export function TaskTemplatesView() {
   const [previewingTemplate, setPreviewingTemplate] = React.useState<TaskTemplate | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
   const [isMounted, setIsMounted] = React.useState(false);
+  const [user] = useAuthState(auth);
   
   React.useEffect(() => {
     setIsMounted(true);
+    if (!user) return;
     try {
-      const savedTemplates = localStorage.getItem("taskTemplates");
+      const savedTemplates = localStorage.getItem(`taskTemplates_${user.uid}`);
       if (savedTemplates) {
         setTemplates(JSON.parse(savedTemplates));
       }
     } catch (error) {
       console.error("Failed to load task templates", error);
     }
-  }, []);
+  }, [user]);
 
   React.useEffect(() => {
-    if (isMounted) {
-      localStorage.setItem("taskTemplates", JSON.stringify(templates));
+    if (isMounted && user) {
+      localStorage.setItem(`taskTemplates_${user.uid}`, JSON.stringify(templates));
     }
-  }, [templates, isMounted]);
+  }, [templates, isMounted, user]);
 
   const handleAddTemplate = () => {
     setEditingTemplate(null);

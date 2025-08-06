@@ -7,11 +7,14 @@ import { PlusCircle, Target, Gauge } from "lucide-react";
 import type { Goal, Project, Task, TaskGroup, ProjectBoard } from "@/lib/types";
 import { GoalList } from "./_components/goal-list";
 import { GoalDialog } from "./_components/goal-dialog";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "@/lib/firebase";
 
 export default function CortexRoomPage() {
   const [goals, setGoals] = React.useState<Goal[]>([]);
   const [projects, setProjects] = React.useState<Project[]>([]);
   const [taskGroups, setTaskGroups] = React.useState<TaskGroup[]>([]);
+  const [user] = useAuthState(auth);
   
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [editingGoal, setEditingGoal] = React.useState<Goal | null>(null);
@@ -19,19 +22,20 @@ export default function CortexRoomPage() {
 
   React.useEffect(() => {
     setIsMounted(true);
+    if (!user) return;
     try {
-      const savedGoals = localStorage.getItem("cortex-goals");
+      const savedGoals = localStorage.getItem(`cortex-goals_${user.uid}`);
       if (savedGoals) {
         setGoals(JSON.parse(savedGoals));
       }
       
-      const savedProjects = localStorage.getItem("projects");
+      const savedProjects = localStorage.getItem(`projects_${user.uid}`);
        if (savedProjects) {
         const board: ProjectBoard = JSON.parse(savedProjects);
         setProjects(Object.values(board).flat());
       }
       
-      const savedTasks = localStorage.getItem("tasks");
+      const savedTasks = localStorage.getItem(`tasks_${user.uid}`);
       if(savedTasks) {
           const board = JSON.parse(savedTasks);
           setTaskGroups(board.groups);
@@ -40,17 +44,17 @@ export default function CortexRoomPage() {
     } catch (error) {
       console.error("Failed to load data from local storage", error);
     }
-  }, []);
+  }, [user]);
 
   React.useEffect(() => {
-    if (isMounted) {
+    if (isMounted && user) {
       try {
-        localStorage.setItem("cortex-goals", JSON.stringify(goals));
+        localStorage.setItem(`cortex-goals_${user.uid}`, JSON.stringify(goals));
       } catch (error) {
         console.error("Failed to save goals to local storage", error);
       }
     }
-  }, [goals, isMounted]);
+  }, [goals, isMounted, user]);
 
 
   const handleAddGoal = () => {

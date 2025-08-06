@@ -3,6 +3,7 @@
 
 import * as React from "react";
 import { List, Kanban, GanttChartSquare, Loader2 } from "lucide-react";
+import { useAuthState } from "react-firebase-hooks/auth";
 
 import { useSettings } from "@/hooks/use-settings";
 import { TaskList } from "./_components/task-list";
@@ -12,10 +13,12 @@ import { AddGroupDialog } from "./_components/add-group-dialog";
 import type { Task, TaskGroup } from "@/lib/types";
 import { GanttChart } from "./_components/gantt-chart";
 import { PageHeader } from "@/components/page-header";
+import { auth } from "@/lib/firebase";
 
 export default function TasksPage() {
   const { settings } = useSettings();
   const [isMounted, setIsMounted] = React.useState(false);
+  const [user] = useAuthState(auth);
   const [board, setBoard] = React.useState<{ groups: TaskGroup[] }>({ groups: [] });
   const [viewLoading, setViewLoading] = React.useState(false);
   const previousView = React.useRef(settings.tasksDefaultView);
@@ -23,8 +26,9 @@ export default function TasksPage() {
 
   React.useEffect(() => {
     setIsMounted(true);
+    if (!user) return;
     try {
-      const savedTasks = localStorage.getItem("tasks");
+      const savedTasks = localStorage.getItem(`tasks_${user.uid}`);
       if (savedTasks) {
         const parsed = JSON.parse(savedTasks);
         if (parsed && Array.isArray(parsed.groups)) {
@@ -36,13 +40,13 @@ export default function TasksPage() {
       console.error("Failed to load tasks", error);
     }
     setBoard({ groups: [{ id: "default", name: "My Tasks", tasks: [] }] });
-  }, []);
+  }, [user]);
 
   React.useEffect(() => {
-    if (isMounted) {
-      localStorage.setItem("tasks", JSON.stringify(board));
+    if (isMounted && user) {
+      localStorage.setItem(`tasks_${user.uid}`, JSON.stringify(board));
     }
-  }, [board, isMounted]);
+  }, [board, isMounted, user]);
   
   React.useEffect(() => {
     if (previousView.current !== settings.tasksDefaultView) {

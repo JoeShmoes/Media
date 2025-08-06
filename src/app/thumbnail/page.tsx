@@ -22,6 +22,8 @@ import { useToast } from "@/hooks/use-toast"
 import { Skeleton } from "@/components/ui/skeleton"
 import { generateThumbnail } from "@/ai/flows/generate-thumbnail"
 import { Input } from "@/components/ui/input"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { cn } from "@/lib/utils"
 
 const mainPromptSchema = z.object({
   prompt: z.string().min(10, "Please provide a more detailed prompt."),
@@ -35,7 +37,8 @@ type IterationPromptFormValues = z.infer<typeof iterationPromptSchema>
 
 
 export default function ThumbnailPage() {
-  const [generatedImage, setGeneratedImage] = React.useState<string | null>(null)
+  const [imageHistory, setImageHistory] = React.useState<string[]>([])
+  const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
   const [isGenerating, setIsGenerating] = React.useState(false)
   const [isIterating, setIsIterating] = React.useState(false)
   const { toast } = useToast()
@@ -51,16 +54,21 @@ export default function ThumbnailPage() {
     resolver: zodResolver(iterationPromptSchema),
     defaultValues: { prompt: "" },
   })
+  
+  const activeImage = activeIndex !== null ? imageHistory[activeIndex] : null;
 
   const handleGeneration = async ({ prompt, baseImage }: { prompt: string, baseImage?: string }) => {
     if (baseImage) {
         setIsIterating(true)
     } else {
         setIsGenerating(true)
+        setImageHistory([])
+        setActiveIndex(null)
     }
     try {
       const result = await generateThumbnail({ prompt, baseImage })
-      setGeneratedImage(result.image)
+      setImageHistory(prev => [...prev, result.image]);
+      setActiveIndex(imageHistory.length);
     } catch (error) {
       console.error(error)
       toast({
@@ -79,15 +87,15 @@ export default function ThumbnailPage() {
   }
   
   const onIterateSubmit = (data: IterationPromptFormValues) => {
-    if(!generatedImage) return;
-    handleGeneration({ prompt: data.prompt, baseImage: generatedImage });
+    if(!activeImage) return;
+    handleGeneration({ prompt: data.prompt, baseImage: activeImage });
     iterationForm.reset();
   }
   
   const downloadImage = () => {
-    if(!generatedImage) return;
+    if(!activeImage) return;
     const a = document.createElement('a');
-    a.href = generatedImage;
+    a.href = activeImage;
     a.download = 'thumbnail.png';
     document.body.appendChild(a);
     a.click();
@@ -135,9 +143,9 @@ export default function ThumbnailPage() {
                 <CardContent className="space-y-4">
                    {isGenerating ? (
                        <Skeleton className="w-full aspect-video rounded-md" />
-                   ) : generatedImage ? (
+                   ) : activeImage ? (
                        <div className="relative group">
-                           <Image src={generatedImage} alt="Generated Thumbnail" width={1280} height={720} className="rounded-md w-full aspect-video object-cover" />
+                           <Image src={activeImage} alt="Generated Thumbnail" width={1280} height={720} className="rounded-md w-full aspect-video object-cover" />
                            {isIterating && <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-md"><Loader2 className="animate-spin text-white h-10 w-10"/></div>}
                             <Button size="sm" onClick={downloadImage} className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <Download className="mr-2 h-4 w-4"/> Download
@@ -146,6 +154,22 @@ export default function ThumbnailPage() {
                    ) : (
                        <div className="w-full aspect-video rounded-md bg-muted flex items-center justify-center">
                            <ImageIcon className="h-16 w-16 text-muted-foreground" />
+                       </div>
+                   )}
+                   
+                   {imageHistory.length > 1 && (
+                       <div>
+                           <Label>History</Label>
+                           <ScrollArea className="w-full whitespace-nowrap rounded-md">
+                               <div className="flex w-max space-x-2 p-2">
+                                   {imageHistory.map((image, index) => (
+                                       <button key={index} onClick={() => setActiveIndex(index)} className={cn("rounded-md overflow-hidden ring-2 ring-transparent", activeIndex === index && "ring-primary")}>
+                                           <Image src={image} alt={`Version ${index + 1}`} width={100} height={56} className="object-cover h-14 w-auto"/>
+                                       </button>
+                                   ))}
+                               </div>
+                               <ScrollBar orientation="horizontal" />
+                           </ScrollArea>
                        </div>
                    )}
 
@@ -159,8 +183,8 @@ export default function ThumbnailPage() {
                                         <FormLabel>Request Changes</FormLabel>
                                         <FormControl>
                                              <div className="relative">
-                                                <Input placeholder="e.g., Make the text bigger, change the background to red..." {...field} disabled={!generatedImage || isGenerating || isIterating} />
-                                                <Button type="submit" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8" disabled={!generatedImage || isGenerating || isIterating}>
+                                                <Input placeholder="e.g., Make the text bigger, change the background to red..." {...field} disabled={!activeImage || isGenerating || isIterating} />
+                                                <Button type="submit" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8" disabled={!activeImage || isGenerating || isIterating}>
                                                      {isIterating ? <Loader2 className="animate-spin" /> : <Send className="h-4 w-4" />}
                                                 </Button>
                                              </div>

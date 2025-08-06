@@ -7,14 +7,24 @@ import { useTheme } from "next-themes";
 
 export function ProductTour() {
   const [runTour, setRunTour] = React.useState(false);
+  const [isMounted, setIsMounted] = React.useState(false);
   const { theme } = useTheme();
 
   React.useEffect(() => {
-    const hasCompletedTour = localStorage.getItem('hasCompletedTour');
-    if (!hasCompletedTour) {
-      setRunTour(true);
-    }
+    setIsMounted(true);
   }, []);
+
+  React.useEffect(() => {
+    if (isMounted) {
+        const hasCompletedTour = localStorage.getItem('hasCompletedTour');
+        if (!hasCompletedTour) {
+            // Add a small delay to ensure all DOM elements are mounted
+            setTimeout(() => {
+                setRunTour(true);
+            }, 200);
+        }
+    }
+  }, [isMounted]);
 
   const handleCallback = (data: any) => {
     const { status } = data;
@@ -67,6 +77,8 @@ export function ProductTour() {
       placement: 'center',
     },
   ];
+
+  if (!isMounted) return null;
 
   return (
     <Joyride

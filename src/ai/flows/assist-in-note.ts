@@ -33,7 +33,7 @@ export async function assistInNoteStream(input: AssistInNoteInput) {
   const { stream } = ai.generateStream({
     model: 'googleai/gemini-1.5-flash-latest',
     prompt: `You are an expert writing assistant embedded in a note-taking application.
-Your goal is to help the user with their note based on their prompt.
+Your goal is to help the user with their note based on their prompt, ensuring your output is always at least one full paragraph.
 
 The user's current note content is:
 ---
@@ -41,12 +41,14 @@ ${input.noteContent}
 ---
 
 The user's request is:
-"${input.prompt}"
+"S${input.prompt}"
 
-Based on the request, modify or add to the note content. Only return the new, complete content for the note.
-If the prompt asks a question about the content, answer it and then append the answer to the note.
-If the existing content is empty, generate new content based on the prompt.
-Do not wrap your response in markdown.
+Based *strictly* on the user's request, modify or add to the note content.
+- If the user asks you to continue writing, analyze the existing text and the context of the request to generate a logical continuation.
+- If the prompt asks a question about the content, answer it and then append the answer to the note.
+- If the existing content is empty, generate new content based on the prompt.
+- Your response must be at least one complete paragraph.
+- Only return the new, complete content for the note. Do not wrap your response in markdown.
 `,
   });
   return stream;
@@ -57,7 +59,7 @@ const prompt = ai.definePrompt({
   input: {schema: AssistInNoteInputSchema},
   output: {schema: AssistInNoteOutputSchema},
   prompt: `You are an expert writing assistant embedded in a note-taking application.
-Your goal is to help the user with their note based on their prompt.
+Your goal is to help the user with their note based on their prompt, ensuring your output is always at least one full paragraph.
 
 The user's current note content is:
 ---
@@ -67,9 +69,11 @@ The user's current note content is:
 The user's request is:
 "{{{prompt}}}"
 
-Based on the request, modify or add to the note content. Only return the new, complete content for the note.
-If the prompt asks a question about the content, answer it and then append the answer to the note.
-If the existing content is empty, generate new content based on the prompt.
+Based *strictly* on the user's request, modify or add to the note content.
+- If the user asks you to continue writing, analyze the existing text and the context of the request to generate a logical continuation.
+- If the prompt asks a question about the content, answer it and then append the answer to the note.
+- If the existing content is empty, generate new content based on the prompt.
+- Your response must be at least one complete paragraph.
 `,
 });
 

@@ -154,29 +154,22 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
     const value = e.target.value;
     form.setValue("message", value);
 
-    if (mentionMenuOpen) {
-      const caretPosition = e.target.selectionStart;
-      const textBeforeCaret = value.substring(0, caretPosition);
-      const atMatch = textBeforeCaret.match(/@(\w*)$/);
+    const caretPosition = e.target.selectionStart;
+    const textBeforeCaret = value.substring(0, caretPosition);
+    const atMatch = textBeforeCaret.match(/@(\w*)$/);
 
-      if (atMatch) {
-          setMentionQuery(atMatch[1]);
-      } else {
-          setMentionMenuOpen(false);
-      }
+    if (atMatch) {
+      setMentionMenuOpen(true);
+      setMentionQuery(atMatch[1]);
+    } else {
+      setMentionMenuOpen(false);
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === '@') {
-        setMentionMenuOpen(true);
-    }
-    
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === 'Enter' && !e.shiftKey && !mentionMenuOpen) {
         e.preventDefault();
-        if (!mentionMenuOpen) {
-          form.handleSubmit(onSubmit)();
-        }
+        form.handleSubmit(onSubmit)();
     }
   }
   

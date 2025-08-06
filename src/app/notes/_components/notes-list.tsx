@@ -3,110 +3,52 @@
 
 import * as React from "react"
 import { formatDistanceToNow } from "date-fns"
-import { Trash2, MoreHorizontal } from "lucide-react"
-
 import type { Note } from "@/lib/types"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 interface NotesListProps {
   notes: Note[]
-  activeNote: Note | null
   onSelectNote: (note: Note) => void
-  onDeleteNote: (id: string) => void
 }
 
-export function NotesList({ notes, activeNote, onSelectNote, onDeleteNote }: NotesListProps) {
+export function NotesList({ notes, onSelectNote }: NotesListProps) {
     
   if (notes.length === 0) {
     return (
-      <div className="text-center text-muted-foreground py-12">
-        <p>You have no notes yet. Create one to get started.</p>
+      <div className="text-center text-muted-foreground py-12 border-2 border-dashed rounded-lg">
+        <p className="text-lg font-semibold">You have no notes yet.</p>
+        <p className="mt-2">Click "New Note" to create one.</p>
       </div>
     )
   }
 
   return (
-    <ScrollArea className="h-full">
-      <div className="space-y-2">
-        {notes.map((note) => (
-          <div key={note.id} className="group relative">
-            <button
-              onClick={() => onSelectNote(note)}
-              className={cn(
-                "w-full text-left p-3 rounded-lg transition-colors",
-                note.color || 'bg-muted/50',
-                activeNote?.id === note.id
-                  ? "ring-2 ring-primary"
-                  : "hover:bg-muted"
-              )}
-            >
-              <h3 className="font-semibold truncate text-card-foreground">{note.title || "Untitled Note"}</h3>
-              <p className="text-sm text-card-foreground/70 truncate line-clamp-2 h-10">
-                {note.content || "No content"}
-              </p>
-              <p
-                className={cn(
-                  "text-xs mt-2 text-card-foreground/60"
-                )}
-              >
-                {formatDistanceToNow(new Date(note.updatedAt || note.createdAt), {
-                  addSuffix: true,
-                })}
-              </p>
-            </button>
-            <AlertDialog>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-2 right-2 h-7 w-7 text-muted-foreground opacity-0 group-hover:opacity-100"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                    <AlertDialogTrigger asChild>
-                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
-                           <Trash2 className="mr-2 h-4 w-4" /> Delete
-                        </DropdownMenuItem>
-                    </AlertDialogTrigger>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will permanently delete the note. This action cannot be
-                    undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => onDeleteNote(note.id)}>
-                    Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-        ))}
-      </div>
-    </ScrollArea>
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      {notes.map((note) => (
+        <button
+          key={note.id}
+          onClick={() => onSelectNote(note)}
+          className={cn(
+            "w-full text-left p-4 rounded-lg transition-colors h-48 flex flex-col",
+            note.color || 'bg-muted/50',
+            "hover:ring-2 hover:ring-primary"
+          )}
+        >
+          <h3 className="font-semibold truncate text-card-foreground">{note.title || "Untitled Note"}</h3>
+          <p className="text-sm text-card-foreground/70 truncate line-clamp-3 flex-1 py-2">
+            {note.content || "No content"}
+          </p>
+          <p
+            className={cn(
+              "text-xs mt-auto text-card-foreground/60"
+            )}
+          >
+            {formatDistanceToNow(new Date(note.updatedAt || note.createdAt), {
+              addSuffix: true,
+            })}
+          </p>
+        </button>
+      ))}
+    </div>
   )
 }

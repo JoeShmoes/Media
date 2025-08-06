@@ -13,6 +13,7 @@ export default function NotesPage() {
   const [notes, setNotes] = React.useState<Note[]>([])
   const [activeNote, setActiveNote] = React.useState<Note | null>(null)
   const [isMounted, setIsMounted] = React.useState(false)
+  const [isEditorOpen, setIsEditorOpen] = React.useState(false)
 
   React.useEffect(() => {
     setIsMounted(true)
@@ -21,9 +22,6 @@ export default function NotesPage() {
       if (savedNotes) {
         const parsedNotes: Note[] = JSON.parse(savedNotes);
         setNotes(parsedNotes)
-        if (parsedNotes.length > 0) {
-            setActiveNote(parsedNotes[0]);
-        }
       }
     } catch (error) {
       console.error("Failed to load notes from local storage", error)
@@ -40,6 +38,11 @@ export default function NotesPage() {
     }
   }, [notes, isMounted])
 
+  const handleSelectNote = (note: Note) => {
+    setActiveNote(note);
+    setIsEditorOpen(true);
+  }
+
   const addNote = () => {
     const newNote: Note = {
       id: `note-${Date.now()}`,
@@ -50,14 +53,15 @@ export default function NotesPage() {
     }
     const newNotes = [newNote, ...notes];
     setNotes(newNotes)
-    setActiveNote(newNote)
+    handleSelectNote(newNote);
   }
 
   const deleteNote = (id: string) => {
     const newNotes = notes.filter((note) => note.id !== id);
     setNotes(newNotes)
     if (activeNote?.id === id) {
-      setActiveNote(newNotes.length > 0 ? newNotes[0] : null)
+      setActiveNote(null)
+      setIsEditorOpen(false);
     }
   }
 
@@ -74,39 +78,30 @@ export default function NotesPage() {
   if (!isMounted) return null
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 grid md:grid-cols-[300px_1fr] h-full">
-        <div className="h-full flex flex-col border-r">
-          <div className="p-4 flex-shrink-0">
-             <Button onClick={addNote} className="w-full">
-              <Plus className="mr-2" /> New Note
-            </Button>
-          </div>
-          <div className="flex-1 overflow-y-auto px-2">
-            <NotesList
-                notes={notes}
-                activeNote={activeNote}
-                onSelectNote={setActiveNote}
-                onDeleteNote={deleteNote}
-            />
-          </div>
-        </div>
-        <div className="h-full overflow-y-auto">
-          {activeNote ? (
-            <NoteEditor 
-                key={activeNote.id} 
-                note={activeNote} 
-                onUpdate={updateNote} 
-                onDelete={deleteNote}
-            />
-          ) : (
-            <div className="flex justify-center items-center h-full text-muted-foreground flex-col text-center p-8">
-              <h2 className="text-xl font-semibold">Select a note</h2>
-              <p>Select a note from the list on the left, or create a new one to get started.</p>
+    <div className="flex flex-col h-full p-4 md:p-6">
+       <div className="flex items-center justify-between mb-4">
+            <div>
+                <h1 className="text-2xl font-bold">Notes</h1>
+                <p className="text-muted-foreground">Your personal space for ideas and thoughts.</p>
             </div>
-          )}
-        </div>
+            <Button onClick={addNote}>
+            <Plus className="mr-2" /> New Note
+            </Button>
       </div>
+      <div className="flex-1 overflow-y-auto">
+        <NotesList
+            notes={notes}
+            onSelectNote={handleSelectNote}
+        />
+      </div>
+
+       <NoteEditor 
+            note={activeNote} 
+            onUpdate={updateNote} 
+            onDelete={deleteNote}
+            open={isEditorOpen}
+            onOpenChange={setIsEditorOpen}
+        />
     </div>
   )
 }

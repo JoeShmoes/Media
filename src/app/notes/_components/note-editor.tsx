@@ -4,21 +4,27 @@
 import * as React from "react"
 import { useDebounce } from "use-debounce"
 import { format } from "date-fns"
-import { Palette, MoreVertical, Trash2 } from "lucide-react"
+import { Palette, Trash2, X } from "lucide-react"
 
 import type { Note } from "@/lib/types"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog"
 import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
@@ -27,9 +33,11 @@ import {
 import { cn } from "@/lib/utils"
 
 interface NoteEditorProps {
-  note: Note
+  note: Note | null
   onUpdate: (id: string, data: Partial<Omit<Note, 'id' | 'createdAt'>>) => void
   onDelete: (id: string) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 const noteColors = [
@@ -42,102 +50,108 @@ const noteColors = [
   { name: 'Purple', value: 'bg-purple-900/40' },
 ];
 
-export function NoteEditor({ note, onUpdate, onDelete }: NoteEditorProps) {
-  const [title, setTitle] = React.useState(note.title)
-  const [content, setContent] = React.useState(note.content)
+export function NoteEditor({ note, onUpdate, onDelete, open, onOpenChange }: NoteEditorProps) {
+  const [title, setTitle] = React.useState(note?.title || "")
+  const [content, setContent] = React.useState(note?.content || "")
 
   const [debouncedTitle] = useDebounce(title, 500)
   const [debouncedContent] = useDebounce(content, 500)
-
-  React.useEffect(() => {
-    setTitle(note.title);
-    setContent(note.content);
-  }, [note.id, note.title, note.content]);
   
+  React.useEffect(() => {
+    if (note) {
+      setTitle(note.title);
+      setContent(note.content);
+    }
+  }, [note]);
 
   React.useEffect(() => {
-    if (debouncedTitle !== note.title) {
+    if (note && debouncedTitle !== note.title) {
       onUpdate(note.id, { title: debouncedTitle })
     }
-  }, [debouncedTitle, note.id, note.title, onUpdate])
+  }, [debouncedTitle, note, onUpdate])
 
   React.useEffect(() => {
-    if (debouncedContent !== note.content) {
+    if (note && debouncedContent !== note.content) {
       onUpdate(note.id, { content: debouncedContent })
     }
-  }, [debouncedContent, note.id, note.content, onUpdate])
+  }, [debouncedContent, note, onUpdate])
 
-  const lastUpdated = format(
+  const lastUpdated = note ? format(
     new Date(note.updatedAt || note.createdAt),
     "MMMM d, yyyy 'at' h:mm a"
-  )
+  ) : ""
 
   const handleColorChange = (color: string) => {
-    onUpdate(note.id, { color });
+    if (note) {
+      onUpdate(note.id, { color });
+    }
   }
 
+  if (!note) return null;
+
   return (
-    <div className={cn("h-full flex flex-col rounded-lg p-4", note.color || "bg-card")}>
-      <div className="flex items-center justify-between p-2">
-         <p className="text-xs text-muted-foreground">
-          Last updated: {lastUpdated}
-        </p>
-         <div className="flex items-center gap-2">
-            <Popover>
-                <PopoverTrigger asChild>
-                    <Button variant="ghost" size="icon"><Palette /></Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto">
-                    <div className="flex gap-2">
-                        {noteColors.map(color => (
-                            <button 
-                                key={color.name} 
-                                aria-label={color.name}
-                                className={cn("h-8 w-8 rounded-full border", color.value)}
-                                onClick={() => handleColorChange(color.value)}
-                            />
-                        ))}
-                    </div>
-                </PopoverContent>
-            </Popover>
-            <AlertDialog>
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon"><MoreVertical /></Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                        <AlertDialogTrigger asChild>
-                            <DropdownMenuItem className="text-destructive">
-                                <Trash2 className="mr-2 h-4 w-4"/> Delete Note
-                            </DropdownMenuItem>
-                        </AlertDialogTrigger>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                        <AlertDialogDescription>This will permanently delete this note. This action cannot be undone.</AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => onDelete(note.id)}>Delete</AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-         </div>
-      </div>
-      <Input
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        className="text-2xl font-bold border-none shadow-none focus-visible:ring-0 !p-2 bg-transparent"
-        placeholder="Note Title"
-      />
-      <Textarea
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        className="flex-1 w-full border-none shadow-none focus-visible:ring-0 resize-none text-base bg-transparent !p-2"
-        placeholder="Start writing..."
-      />
-    </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className={cn("sm:max-w-2xl h-[80vh] flex flex-col", note.color || "bg-card")}>
+            <DialogHeader className="flex-row items-center justify-between">
+                <DialogTitle className="truncate">
+                    {title || "Untitled Note"}
+                </DialogTitle>
+                <div className="flex items-center gap-2">
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button variant="ghost" size="icon"><Palette /></Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto">
+                            <div className="flex gap-2">
+                                {noteColors.map(color => (
+                                    <button 
+                                        key={color.name} 
+                                        aria-label={color.name}
+                                        className={cn("h-8 w-8 rounded-full border", color.value)}
+                                        onClick={() => handleColorChange(color.value)}
+                                    />
+                                ))}
+                            </div>
+                        </PopoverContent>
+                    </Popover>
+                    <AlertDialog>
+                       <AlertDialogTrigger asChild>
+                         <Button variant="ghost" size="icon" className="text-destructive"><Trash2 /></Button>
+                       </AlertDialogTrigger>
+                       <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription>This will permanently delete this note. This action cannot be undone.</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => {onDelete(note.id); onOpenChange(false);}}>Delete</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                    <DialogClose asChild>
+                         <Button variant="ghost" size="icon"><X/></Button>
+                    </DialogClose>
+                </div>
+            </DialogHeader>
+             <div className="flex-1 flex flex-col min-h-0">
+                <Input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="text-2xl font-bold border-none shadow-none focus-visible:ring-0 !p-2 bg-transparent"
+                    placeholder="Note Title"
+                />
+                <Textarea
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    className="flex-1 w-full border-none shadow-none focus-visible:ring-0 resize-none text-base bg-transparent !p-2"
+                    placeholder="Start writing..."
+                />
+                 <p className="text-xs text-muted-foreground p-2 text-right">
+                    Last updated: {lastUpdated}
+                </p>
+             </div>
+        </DialogContent>
+    </Dialog>
   )
 }

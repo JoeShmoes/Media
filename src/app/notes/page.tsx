@@ -92,13 +92,14 @@ export default function NotesPage() {
         <NotesList
             notes={notes}
             onSelectNote={handleSelectNote}
+            onDelete={deleteNote}
+            onUpdate={updateNote}
         />
       </div>
 
        <NoteEditor 
             note={activeNote} 
             onUpdate={updateNote} 
-            onDelete={deleteNote}
             open={isEditorOpen}
             onOpenChange={setIsEditorOpen}
         />

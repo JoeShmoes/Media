@@ -110,18 +110,18 @@ export const navLinks = [
 
 
 const favouritesNavItems = [
-  { href: "/ai-room", icon: BrainCircuit, label: "Crifohay" },
-  { href: "/research", icon: Search, label: "Research" },
+  { href: "/ai-room", icon: BrainCircuit, label: "Crifohay", selector: "#tour-ai-room" },
+  { href: "/research", icon: Search, label: "Research", selector: "#tour-research" },
 ]
 
 const mainNavItems = [
-    { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-    { href: "/tasks", icon: ListTodo, label: "Tasks" },
-    { href: "/notes", icon: Notebook, label: "Notes" },
-    { href: "/clients", icon: Users, label: "Client" },
-    { href: "/projects", icon: KanbanSquare, label: "Projects" },
-    { href: "/outreach", icon: SendHorizonal, label: "Outreach" },
-    { href: "/finance", icon: CircleDollarSign, label: "Finance" },
+    { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard", selector: "#tour-dashboard" },
+    { href: "/tasks", icon: ListTodo, label: "Tasks", selector: "#tour-tasks" },
+    { href: "/notes", icon: Notebook, label: "Notes", selector: "#tour-notes" },
+    { href: "/clients", icon: Users, label: "Client", selector: "#tour-clients" },
+    { href: "/projects", icon: KanbanSquare, label: "Projects", selector: "#tour-projects" },
+    { href: "/outreach", icon: SendHorizonal, label: "Outreach", selector: "#tour-outreach" },
+    { href: "/finance", icon: CircleDollarSign, label: "Finance", selector: "#tour-finance" },
 ]
 
 const businessBuilderNavItems = [
@@ -288,7 +288,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
              <SidebarGroupLabel>Favourites</SidebarGroupLabel>
             <SidebarMenu>
               {favouritesNavItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
+                <SidebarMenuItem key={item.href} id={item.selector?.substring(1)}>
                   <Link href={item.href}>
                     <SidebarMenuButton
                       isActive={pathname === item.href}
@@ -306,7 +306,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <SidebarGroupLabel>Main</SidebarGroupLabel>
             <SidebarMenu>
               {mainNavItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
+                <SidebarMenuItem key={item.href} id={item.selector?.substring(1)}>
                   <Link href={item.href}>
                     <SidebarMenuButton
                       isActive={pathname === item.href}
@@ -442,7 +442,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <SidebarFooter>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="justify-start w-full h-auto p-2">
+              <Button variant="ghost" className="justify-start w-full h-auto p-2" id="tour-profile">
                  <div className="flex items-center gap-3">
                    <Avatar className="h-8 w-8">
                      <AvatarImage src={settings.userAvatar || undefined} />

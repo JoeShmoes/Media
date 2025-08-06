@@ -9,7 +9,8 @@ import { z } from "zod"
 import Markdown from "react-markdown"
 
 import type { ChatSession, ChatMessage, Project, Deal, Task, Offer, Persona, Goal, Note, Client, Transaction, TaskGroup } from "@/lib/types"
-import { getBusinessAdvice, type GetBusinessAdviceInput } from "@/ai/flows/get-business-advice"
+import { getBusinessAdvice } from "@/ai/flows/get-business-advice"
+import type { GetBusinessAdviceInput } from "@/ai/flows/get-business-advice"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -153,28 +154,29 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
     const value = e.target.value;
     form.setValue("message", value);
 
-    if (!mentionMenuOpen) return;
+    if (mentionMenuOpen) {
+      const caretPosition = e.target.selectionStart;
+      const textBeforeCaret = value.substring(0, caretPosition);
+      const atMatch = textBeforeCaret.match(/@(\w*)$/);
 
-    const caretPosition = e.target.selectionStart;
-    const textBeforeCaret = value.substring(0, caretPosition);
-    const atMatch = textBeforeCaret.match(/@(\w*)$/);
-
-    if (atMatch) {
-        setMentionQuery(atMatch[1]);
-    } else {
-        setMentionMenuOpen(false);
+      if (atMatch) {
+          setMentionQuery(atMatch[1]);
+      } else {
+          setMentionMenuOpen(false);
+      }
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === '@') {
         setMentionMenuOpen(true);
-        setMentionQuery('');
     }
     
     if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        form.handleSubmit(onSubmit)();
+        if (!mentionMenuOpen) {
+          form.handleSubmit(onSubmit)();
+        }
     }
   }
   
@@ -398,7 +400,3 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
     </div>
   )
 }
-
-    
-
-    

@@ -4,19 +4,13 @@
 import * as React from "react"
 import { useDebounce } from "use-debounce"
 import { format } from "date-fns"
-import { X } from "lucide-react"
 
 import type { Note } from "@/lib/types"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog"
 
 
@@ -64,28 +58,20 @@ export function NoteEditor({ note, onUpdate, open, onOpenChange }: NoteEditorPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className={cn("sm:max-w-4xl h-[80vh] flex flex-col", note.color || "bg-card")}>
-            <DialogHeader className="flex-row items-center justify-between">
-                <DialogTitle className="truncate">
-                    {title || "Untitled Note"}
-                </DialogTitle>
-                <div className="flex items-center gap-2">
-                    <DialogClose asChild>
-                         <Button variant="ghost" size="icon"><X/></Button>
-                    </DialogClose>
-                </div>
-            </DialogHeader>
-             <div className="flex-1 flex flex-col min-h-0">
-                <Input
+        <DialogContent className={cn("sm:max-w-4xl h-[80vh] flex flex-col p-0", note.color || "bg-card")}>
+            <div className="flex items-center justify-between p-2 border-b">
+                 <Input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="text-2xl font-bold border-none shadow-none focus-visible:ring-0 !p-2 bg-transparent"
+                    className="text-lg font-bold border-none shadow-none focus-visible:ring-0 !p-2 bg-transparent flex-1"
                     placeholder="Note Title"
                 />
+            </div>
+             <div className="flex-1 flex flex-col min-h-0">
                 <Textarea
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
-                    className="flex-1 w-full border-none shadow-none focus-visible:ring-0 resize-none text-base bg-transparent !p-2"
+                    className="flex-1 w-full border-none shadow-none focus-visible:ring-0 resize-none text-base bg-transparent !p-4"
                     placeholder="Start writing..."
                 />
                  <p className="text-xs text-muted-foreground p-2 text-right">

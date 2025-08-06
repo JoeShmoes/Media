@@ -8,7 +8,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import jsPDF from "jspdf";
 import autoTable from 'jspdf-autotable';
 import html2canvas from 'html2canvas';
-import { Document, Packer, Paragraph, Table as DocxTable, TableCell, TableRow, TextRun } from 'docx';
+import { Document, Packer, Paragraph, Table as DocxTable, TableRow, TextRun } from 'docx';
 import { saveAs } from 'file-saver';
 
 import { Button } from "@/components/ui/button"

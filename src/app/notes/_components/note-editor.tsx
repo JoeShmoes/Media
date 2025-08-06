@@ -59,11 +59,11 @@ export function NoteEditor({ note, onUpdate, open, onOpenChange }: NoteEditorPro
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className={cn("sm:max-w-4xl h-[80vh] flex flex-col p-0", note.color || "bg-card")}>
-            <div className="flex items-center justify-between p-2 border-b">
+            <div className="flex items-center justify-between p-4 border-b">
                  <Input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="text-lg font-bold border-none shadow-none focus-visible:ring-0 !p-2 bg-transparent flex-1"
+                    className="text-lg font-bold border-none shadow-none focus-visible:ring-0 !p-0 bg-transparent flex-1"
                     placeholder="Note Title"
                 />
             </div>
@@ -74,9 +74,11 @@ export function NoteEditor({ note, onUpdate, open, onOpenChange }: NoteEditorPro
                     className="flex-1 w-full border-none shadow-none focus-visible:ring-0 resize-none text-base bg-transparent !p-4"
                     placeholder="Start writing..."
                 />
-                 <p className="text-xs text-muted-foreground p-2 text-right">
-                    Last updated: {lastUpdated}
-                </p>
+                 <div className="p-2 border-t mt-auto">
+                    <p className="text-xs text-muted-foreground text-right">
+                        Last updated: {lastUpdated}
+                    </p>
+                </div>
              </div>
         </DialogContent>
     </Dialog>

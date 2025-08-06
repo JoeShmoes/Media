@@ -153,14 +153,6 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
     const value = e.target.value;
     form.setValue("message", value);
 
-    const isTypingAt = (e.nativeEvent instanceof InputEvent) && e.nativeEvent.data === '@';
-
-    if (isTypingAt) {
-      setMentionMenuOpen(true);
-      setMentionQuery('');
-      return;
-    }
-
     if (!mentionMenuOpen) return;
 
     const caretPosition = e.target.selectionStart;
@@ -168,17 +160,29 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
     const atMatch = textBeforeCaret.match(/@(\w*)$/);
 
     if (atMatch) {
-      setMentionQuery(atMatch[1]);
+        setMentionQuery(atMatch[1]);
     } else {
-      setMentionMenuOpen(false);
+        setMentionMenuOpen(false);
     }
   };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === '@') {
+        setMentionMenuOpen(true);
+        setMentionQuery('');
+    }
+    
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        form.handleSubmit(onSubmit)();
+    }
+  }
   
   const handleMentionSelect = (roomName: string) => {
     const message = form.getValues("message") || "";
     const caretPosition = textareaRef.current?.selectionStart || message.length;
     const textBeforeCaret = message.substring(0, caretPosition);
-    const atMatch = textBeforeCaret.match(/@(\w*)$/);
+    const atMatch = textBeforeCaret.match(/@\w*$/);
 
     if (atMatch && textareaRef.current) {
         const atIndex = atMatch.index || 0;
@@ -361,12 +365,7 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
                           ref={textareaRef}
                           placeholder="Message Nexaris AI... (try @[Projects] or @[Deals])"
                           onChange={handleInputChange}
-                          onKeyDown={(e) => {
-                              if (e.key === 'Enter' && !e.shiftKey) {
-                                  e.preventDefault();
-                                  form.handleSubmit(onSubmit)();
-                              }
-                          }}
+                          onKeyDown={handleKeyDown}
                           rows={1}
                           className="w-full resize-none rounded-2xl border border-input bg-background p-3 pr-20 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                           disabled={isLoading}
@@ -399,5 +398,7 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
     </div>
   )
 }
+
+    
 
     

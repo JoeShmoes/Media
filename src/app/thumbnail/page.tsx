@@ -24,6 +24,7 @@ import { generateThumbnail } from "@/ai/flows/generate-thumbnail"
 import { Input } from "@/components/ui/input"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
+import { Label } from "@/components/ui/label"
 
 const mainPromptSchema = z.object({
   prompt: z.string().min(10, "Please provide a more detailed prompt."),

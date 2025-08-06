@@ -43,6 +43,23 @@ export default function NotesPage() {
     }
   }, [debouncedNotes, isMounted])
 
+  // Save on exit
+  React.useEffect(() => {
+    const handleBeforeUnload = () => {
+        try {
+            localStorage.setItem("notes", JSON.stringify(notes));
+        } catch (error) {
+            console.error("Failed to save notes on before unload", error);
+        }
+    };
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+        window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [notes]);
+
   const handleSelectNote = (note: Note) => {
     setActiveNote(note);
     setIsEditorOpen(true);
@@ -106,7 +123,16 @@ export default function NotesPage() {
             note={activeNote} 
             onUpdate={updateNote} 
             open={isEditorOpen}
-            onOpenChange={setIsEditorOpen}
+            onOpenChange={(isOpen) => {
+                if (!isOpen) {
+                     try {
+                        localStorage.setItem("notes", JSON.stringify(notes));
+                    } catch (error) {
+                        console.error("Failed to save notes on editor close", error);
+                    }
+                }
+                setIsEditorOpen(isOpen)
+            }}
         />
     </div>
   )

@@ -45,9 +45,9 @@ export function NotesList({ notes, onSelectNote, onDelete, onUpdate }: NotesList
             <button
             onClick={() => onSelectNote(note)}
             className={cn(
-                "w-full text-left p-4 rounded-lg transition-colors h-48 flex flex-col",
+                "w-full text-left p-4 rounded-lg h-48 flex flex-col transition-all duration-200 ease-in-out",
                 note.color || 'bg-muted/50',
-                "hover:ring-2 hover:ring-primary"
+                "hover:scale-105"
             )}
             >
                 <h3 className="font-semibold truncate text-card-foreground">{note.title || "Untitled Note"}</h3>

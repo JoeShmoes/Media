@@ -67,8 +67,28 @@ export function ProductTour() {
       placement: 'bottom',
     },
     {
+      target: '#tour-tasks',
+      content: 'The Tasks room is where you can manage your to-do lists and recurring chores.',
+      placement: 'right',
+    },
+    {
+        target: '#tour-projects',
+        content: 'The Projects room provides a Kanban board to visualize and track your work.',
+        placement: 'right',
+    },
+     {
+        target: '#tour-clients',
+        content: 'Manage your client information and status in the Client Command Center.',
+        placement: 'right',
+    },
+    {
       target: '#tour-ai-room',
       content: 'The AI Room is your custom-trained business advisor. Ask it anything!',
+      placement: 'right',
+    },
+     {
+      target: '#tour-research',
+      content: 'Use the Research Assistant to get answers from Wikipedia or Google.',
       placement: 'right',
     },
     {

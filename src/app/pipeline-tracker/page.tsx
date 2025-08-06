@@ -81,15 +81,11 @@ export default function PipelineTrackerPage() {
   };
   
   const handleExport = () => {
-    const format = settings.exportOptions;
-    if (format === 'csv') {
-        csvLinkRef.current?.link.click();
-    } else {
-      toast({
-        title: "Export Not Implemented",
-        description: `Exporting as ${format.toUpperCase()} is not yet supported.`,
-      })
-    }
+    toast({
+        title: "Exporting Data",
+        description: `Your deals data is being downloaded as a .csv file.`,
+    });
+    csvLinkRef.current?.link.click();
   }
 
   const handleSaveDeal = (dealData: Omit<Deal, "id"> & { id?: string }) => {

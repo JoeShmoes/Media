@@ -87,15 +87,11 @@ export default function FinancePage() {
     }
 
     const handleExport = () => {
-        const format = settings.exportOptions;
-        if (format === 'csv') {
-            csvLinkRef.current?.link.click();
-        } else {
-          toast({
-            title: "Export Not Implemented",
-            description: `Exporting as ${format.toUpperCase()} is not yet supported.`,
-          })
-        }
+        toast({
+            title: "Exporting Data",
+            description: `Your transactions data is being downloaded as a .csv file.`,
+        });
+        csvLinkRef.current?.link.click();
     }
 
     const { totalIncome, totalExpenses, totalProfit, monthlyProfit, chartData } = React.useMemo(() => {
@@ -288,5 +284,3 @@ export default function FinancePage() {
     </div>
   )
 }
-
-    

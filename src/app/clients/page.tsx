@@ -90,15 +90,11 @@ export default function ClientsPage() {
   }
   
   const handleExport = () => {
-    const format = settings.exportOptions;
-    if (format === 'csv') {
-      csvLinkRef.current?.link.click();
-    } else {
-      toast({
-        title: "Export Not Implemented",
-        description: `Exporting as ${format.toUpperCase()} is not yet supported.`,
-      })
-    }
+    toast({
+        title: "Exporting Data",
+        description: `Your clients data is being downloaded as a .csv file.`,
+    });
+    csvLinkRef.current?.link.click();
   }
 
   const handleSaveClient = (clientData: Omit<Client, 'id' | 'lastContact'> & {id?: string}) => {

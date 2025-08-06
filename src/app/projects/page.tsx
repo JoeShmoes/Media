@@ -3,6 +3,12 @@
 
 import * as React from "react"
 import { CSVLink } from "react-csv"
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import html2canvas from 'html2canvas';
+import { Document, Packer, Paragraph, Table as DocxTable, TableCell, TableRow } from 'docx';
+import { saveAs } from 'file-saver';
+
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Clock, FileText, Framer, MoreHorizontal, PlusCircle, ExternalLink, Download } from "lucide-react"
@@ -25,6 +31,7 @@ import {
 import { useToast } from "@/hooks/use-toast"
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "@/lib/firebase";
+import { useSettings } from "@/hooks/use-settings";
 
 const initialBoardData: ProjectBoard = {
   discovery: [],
@@ -54,6 +61,8 @@ export default function ProjectsPage() {
   const csvLinkRef = React.useRef<any>(null);
   const { toast } = useToast();
   const [user] = useAuthState(auth);
+  const { settings } = useSettings();
+  const boardRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     if (!user) return;
@@ -122,12 +131,64 @@ export default function ProjectsPage() {
     return Object.values(boardData).flat();
   }, [boardData]);
   
-  const handleExport = () => {
+  const handleExport = async () => {
     toast({
         title: "Exporting Data",
-        description: `Your projects data is being downloaded as a .csv file.`,
+        description: `Your projects data is being downloaded as a .${settings.exportOptions} file.`,
     });
-    csvLinkRef.current?.link.click();
+
+     if (settings.exportOptions === 'csv') {
+      csvLinkRef.current?.link.click();
+      return;
+    }
+
+    if (settings.exportOptions === 'png' && boardRef.current) {
+        const canvas = await html2canvas(boardRef.current);
+        const dataUrl = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = 'projects.png';
+        link.click();
+        return;
+    }
+
+    const tableHeaders = ["Title", "Service", "Status", "Deadline"];
+    const tableBody = allProjects.map(p => [p.title, p.service, p.status, p.deadline || 'N/A']);
+    
+    if (settings.exportOptions === 'pdf') {
+        const doc = new jsPDF();
+        doc.text("Projects", 14, 16);
+        autoTable(doc, { head: [tableHeaders], body: tableBody });
+        doc.save('projects.pdf');
+        return;
+    }
+
+    if (settings.exportOptions === 'docx') {
+        const docx = new Document({
+            sections: [{
+                children: [
+                    new Paragraph({ text: "Projects", heading: 'Heading1' }),
+                    new DocxTable({
+                        rows: [
+                            new TableRow({ children: tableHeaders.map(h => new TableCell({ children: [new Paragraph({ text: h, bold: true })] })) }),
+                            ...allProjects.map(p => new TableRow({
+                                children: [
+                                    new TableCell({ children: [new Paragraph(p.title)] }),
+                                    new TableCell({ children: [new Paragraph(p.service)] }),
+                                    new TableCell({ children: [new Paragraph(p.status)] }),
+                                    new TableCell({ children: [new Paragraph(p.deadline || 'N/A')] }),
+                                ]
+                            }))
+                        ],
+                    }),
+                ],
+            }],
+        });
+
+        const blob = await Packer.toBlob(docx);
+        saveAs(blob, 'projects.docx');
+        return;
+    }
   }
 
   return (
@@ -137,7 +198,7 @@ export default function ProjectsPage() {
             <PlusCircle className="mr-2" /> New Project
           </Button>
            <Button variant="outline" onClick={handleExport}>
-              <Download className="mr-2"/> Export as CSV
+              <Download className="mr-2"/> Export as {settings.exportOptions.toUpperCase()}
           </Button>
           <CSVLink 
               data={allProjects} 
@@ -163,7 +224,7 @@ export default function ProjectsPage() {
          />
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start" ref={boardRef}>
         {(Object.keys(boardData) as ProjectBoardColumn[]).map((columnKey) => (
           <div key={columnKey} className="bg-muted/40 rounded-lg p-2">
             <h2 className="text-lg font-semibold mb-4 px-2">{columnTitles[columnKey]}</h2>

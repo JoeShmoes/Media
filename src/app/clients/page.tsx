@@ -5,6 +5,11 @@ import * as React from "react"
 import { MoreHorizontal, PlusCircle, Download } from "lucide-react"
 import { CSVLink } from "react-csv"
 import { useAuthState } from "react-firebase-hooks/auth";
+import jsPDF from "jspdf";
+import autoTable from 'jspdf-autotable';
+import html2canvas from 'html2canvas';
+import { Document, Packer, Paragraph, Table as DocxTable, TableCell, TableRow, TextRun } from 'docx';
+import { saveAs } from 'file-saver';
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -33,6 +38,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useToast } from "@/hooks/use-toast"
 import { auth } from "@/lib/firebase";
+import { useSettings } from "@/hooks/use-settings";
 
 const statusVariant: { [key: string]: "default" | "secondary" | "outline" | "destructive" | null | undefined } = {
   Active: "default",
@@ -48,6 +54,9 @@ export default function ClientsPage() {
   const csvLinkRef = React.useRef<any>(null);
   const { toast } = useToast();
   const [user] = useAuthState(auth);
+  const { settings } = useSettings();
+  const tableRef = React.useRef<HTMLTableElement>(null);
+
 
   React.useEffect(() => {
     setIsMounted(true);
@@ -87,12 +96,65 @@ export default function ClientsPage() {
     setClients(clients.filter(client => client.id !== clientId))
   }
   
-  const handleExport = () => {
+  const handleExport = async () => {
     toast({
         title: "Exporting Data",
-        description: `Your clients data is being downloaded as a .csv file.`,
+        description: `Your clients data is being downloaded as a .${settings.exportOptions} file.`,
     });
-    csvLinkRef.current?.link.click();
+
+    switch (settings.exportOptions) {
+        case 'csv':
+            csvLinkRef.current?.link.click();
+            break;
+        case 'pdf':
+            const doc = new jsPDF();
+            doc.text("Clients", 14, 16);
+            autoTable(doc, { html: '#clients-table' });
+            doc.save('clients.pdf');
+            break;
+        case 'png':
+             if (tableRef.current) {
+                const canvas = await html2canvas(tableRef.current);
+                const dataUrl = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = 'clients.png';
+                link.click();
+            }
+            break;
+        case 'docx':
+            const docx = new Document({
+                sections: [{
+                    children: [
+                        new Paragraph({ text: "Clients", heading: 'Heading1' }),
+                        new DocxTable({
+                            rows: [
+                                new TableRow({
+                                    children: [
+                                        new TableCell({ children: [new Paragraph({ text: "Client Name", bold: true })] }),
+                                        new TableCell({ children: [new Paragraph({ text: "Service", bold: true })] }),
+                                        new TableCell({ children: [new Paragraph({ text: "Status", bold: true })] }),
+                                        new TableCell({ children: [new Paragraph({ text: "Last Contact", bold: true })] }),
+                                    ],
+                                }),
+                                ...clients.map(client => new TableRow({
+                                    children: [
+                                        new TableCell({ children: [new Paragraph(client.name)] }),
+                                        new TableCell({ children: [new Paragraph(client.service)] }),
+                                        new TableCell({ children: [new Paragraph(client.status)] }),
+                                        new TableCell({ children: [new Paragraph(client.lastContact)] }),
+                                    ]
+                                }))
+                            ],
+                        }),
+                    ],
+                }],
+            });
+
+            const blob = await Packer.toBlob(docx);
+            saveAs(blob, 'clients.docx');
+            break;
+    }
   }
 
   const handleSaveClient = (clientData: Omit<Client, 'id' | 'lastContact'> & {id?: string}) => {
@@ -119,7 +181,7 @@ export default function ClientsPage() {
               <PlusCircle className="mr-2" /> Add Client
           </Button>
           <Button variant="outline" onClick={handleExport}>
-              <Download className="mr-2"/> Export as CSV
+              <Download className="mr-2"/> Export as {settings.exportOptions.toUpperCase()}
           </Button>
           <CSVLink 
               data={clients} 
@@ -140,7 +202,7 @@ export default function ClientsPage() {
           <CardTitle>All Clients</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
+          <Table id="clients-table" ref={tableRef}>
             <TableHeader>
               <TableRow>
                 <TableHead>Client Name</TableHead>

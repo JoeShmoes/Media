@@ -6,6 +6,11 @@ import { format, parseISO } from "date-fns"
 import { PlusCircle, TrendingDown, TrendingUp, DollarSign, Download, MoreHorizontal, Trash2 } from "lucide-react"
 import { CSVLink } from "react-csv";
 import { useAuthState } from "react-firebase-hooks/auth";
+import jsPDF from "jspdf";
+import autoTable from 'jspdf-autotable';
+import html2canvas from 'html2canvas';
+import { Document, Packer, Paragraph, Table as DocxTable, TableCell, TableRow } from 'docx';
+import { saveAs } from 'file-saver';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
@@ -50,6 +55,7 @@ export default function FinancePage() {
     const csvLinkRef = React.useRef<any>(null);
     const { settings } = useSettings();
     const { toast } = useToast();
+    const tableRef = React.useRef<HTMLTableElement>(null);
 
     React.useEffect(() => {
         setIsMounted(true);
@@ -86,12 +92,65 @@ export default function FinancePage() {
         setTransactions(transactions.filter(t => t.id !== transactionId));
     }
 
-    const handleExport = () => {
+    const handleExport = async () => {
         toast({
             title: "Exporting Data",
-            description: `Your transactions data is being downloaded as a .csv file.`,
+            description: `Your transactions data is being downloaded as a .${settings.exportOptions} file.`,
         });
-        csvLinkRef.current?.link.click();
+
+        switch (settings.exportOptions) {
+            case 'csv':
+                csvLinkRef.current?.link.click();
+                break;
+            case 'pdf':
+                const doc = new jsPDF();
+                doc.text("Transactions", 14, 16);
+                autoTable(doc, { html: '#transactions-table' });
+                doc.save('transactions.pdf');
+                break;
+            case 'png':
+                 if (tableRef.current) {
+                    const canvas = await html2canvas(tableRef.current);
+                    const dataUrl = canvas.toDataURL('image/png');
+                    const link = document.createElement('a');
+                    link.href = dataUrl;
+                    link.download = 'transactions.png';
+                    link.click();
+                }
+                break;
+            case 'docx':
+                 const docx = new Document({
+                    sections: [{
+                        children: [
+                            new Paragraph({ text: "Transactions", heading: 'Heading1' }),
+                            new DocxTable({
+                                rows: [
+                                    new TableRow({
+                                        children: [
+                                            new TableCell({ children: [new Paragraph({ text: "Description", bold: true })] }),
+                                            new TableCell({ children: [new Paragraph({ text: "Date", bold: true })] }),
+                                            new TableCell({ children: [new Paragraph({ text: "Amount", bold: true })] }),
+                                            new TableCell({ children: [new Paragraph({ text: "Type", bold: true })] }),
+                                        ],
+                                    }),
+                                    ...transactions.map(t => new TableRow({
+                                        children: [
+                                            new TableCell({ children: [new Paragraph(t.description)] }),
+                                            new TableCell({ children: [new Paragraph(format(parseISO(t.date), "dd MMM, yyyy"))] }),
+                                            new TableCell({ children: [new Paragraph(`$${t.amount.toFixed(2)}`)] }),
+                                            new TableCell({ children: [new Paragraph(t.type)] }),
+                                        ]
+                                    }))
+                                ],
+                            }),
+                        ],
+                    }],
+                });
+
+                const blob = await Packer.toBlob(docx);
+                saveAs(blob, 'transactions.docx');
+                break;
+        }
     }
 
     const { totalIncome, totalExpenses, totalProfit, monthlyProfit, chartData } = React.useMemo(() => {
@@ -139,7 +198,7 @@ export default function FinancePage() {
               <PlusCircle className="mr-2"/> Add Transaction
           </Button>
           <Button variant="outline" onClick={handleExport}>
-              <Download className="mr-2"/> Export as CSV
+              <Download className="mr-2"/> Export as {settings.exportOptions.toUpperCase()}
           </Button>
           <CSVLink 
               data={transactions} 
@@ -214,7 +273,7 @@ export default function FinancePage() {
             <CardDescription>Your last 5 transactions.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Table>
+            <Table id="transactions-table" ref={tableRef}>
                 <TableHeader>
                     <TableRow>
                         <TableHead>Description</TableHead>

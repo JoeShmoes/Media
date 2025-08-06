@@ -10,6 +10,8 @@ import { Textarea } from "@/components/ui/textarea"
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 
@@ -40,7 +42,6 @@ export function NoteEditor({ note, onUpdate, open, onOpenChange }: NoteEditorPro
   
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
-        // Ensure final state is saved on close
         handleBlur();
     }
     onOpenChange(isOpen);
@@ -56,6 +57,9 @@ export function NoteEditor({ note, onUpdate, open, onOpenChange }: NoteEditorPro
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className={cn("sm:max-w-4xl h-[80vh] flex flex-col p-0 gap-0", note.color || "bg-card")}>
+            <DialogHeader className="sr-only">
+              <DialogTitle>{title || "Note Editor"}</DialogTitle>
+            </DialogHeader>
             <div className="p-4 border-b">
                  <Input
                     value={title}

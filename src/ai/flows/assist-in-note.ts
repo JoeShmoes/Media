@@ -41,7 +41,7 @@ ${input.noteContent}
 ---
 
 The user's request is:
-"S${input.prompt}"
+"${input.prompt}"
 
 Based *strictly* on the user's request, modify or add to the note content.
 - If the user asks you to continue writing, analyze the existing text and the context of the request to generate a logical continuation.

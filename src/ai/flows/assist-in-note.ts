@@ -51,7 +51,16 @@ Based *strictly* on the user's request, modify or add to the note content.
 - Only return the new, complete content for the note. Do not wrap your response in markdown.
 `,
   });
-  return stream;
+  
+  // Create a new readable stream to forward the text chunks
+  return new ReadableStream({
+    async start(controller) {
+      for await (const chunk of stream) {
+        controller.enqueue(chunk.text);
+      }
+      controller.close();
+    },
+  });
 }
 
 const prompt = ai.definePrompt({

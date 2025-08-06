@@ -19,27 +19,32 @@ import { useToast } from "@/hooks/use-toast"
 import { assistInNoteStream } from "@/ai/flows/assist-in-note"
 import { cn } from "@/lib/utils"
 
-interface NoteEditorProps {
-  note: Note | null
-  onUpdate: (id: string, data: Partial<Omit<Note, 'id' | 'createdAt'>>) => void
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+interface AiAssistPopoverProps { 
+    noteContent: string;
+    onStreamStart: () => void;
+    onStreamChunk: (chunk: string) => void;
+    onStreamEnd: () => void;
 }
 
-function AiAssistPopover({ noteContent, onResult }: { noteContent: string, onResult: (newContent: string) => void }) {
+function AiAssistPopover({ noteContent, onStreamStart, onStreamChunk, onStreamEnd }: AiAssistPopoverProps) {
   const [prompt, setPrompt] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const { toast } = useToast();
 
   const handleAiAction = async (actionPrompt: string) => {
     setIsLoading(true);
+    onStreamStart();
     try {
       const stream = await assistInNoteStream({ noteContent, prompt: actionPrompt });
-      let streamedContent = "";
-      for await (const chunk of stream) {
-        streamedContent += chunk.text;
-        onResult(streamedContent)
+      const reader = stream.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        onStreamChunk(decoder.decode(value, { stream: true }));
       }
+
     } catch (error) {
       console.error(error);
       toast({
@@ -49,6 +54,8 @@ function AiAssistPopover({ noteContent, onResult }: { noteContent: string, onRes
       });
     } finally {
       setIsLoading(false);
+      onStreamEnd();
+      setPrompt("");
     }
   };
 
@@ -119,8 +126,16 @@ export function NoteEditor({ note, onUpdate, open, onOpenChange }: NoteEditorPro
     }
   }, [debouncedContent, note, onUpdate])
 
-  const handleAiResult = (newContent: string) => {
-    setContent(newContent);
+  const handleAiStreamStart = () => {
+    setContent(""); // Clear content when AI starts
+  }
+
+  const handleAiStreamChunk = (chunk: string) => {
+    setContent(prev => prev + chunk);
+  }
+
+  const handleAiStreamEnd = () => {
+    // The debounced effect will handle the final save
   }
 
   const lastUpdated = note ? format(
@@ -150,7 +165,12 @@ export function NoteEditor({ note, onUpdate, open, onOpenChange }: NoteEditorPro
                 />
              </div>
              <div className="p-2 border-t mt-auto flex justify-between items-center">
-                <AiAssistPopover noteContent={content} onResult={handleAiResult} />
+                <AiAssistPopover 
+                    noteContent={note.content} 
+                    onStreamStart={handleAiStreamStart}
+                    onStreamChunk={handleAiStreamChunk}
+                    onStreamEnd={handleAiStreamEnd}
+                />
                 <p className="text-xs text-muted-foreground text-right">
                     Last updated: {lastUpdated}
                 </p>

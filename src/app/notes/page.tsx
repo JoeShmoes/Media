@@ -3,6 +3,7 @@
 
 import * as React from "react"
 import { Plus } from "lucide-react"
+import { useDebounce } from "use-debounce"
 
 import type { Note } from "@/lib/types"
 import { NotesList } from "./_components/notes-list"
@@ -15,6 +16,9 @@ export default function NotesPage() {
   const [isMounted, setIsMounted] = React.useState(false)
   const [isEditorOpen, setIsEditorOpen] = React.useState(false)
 
+  const [debouncedNotes] = useDebounce(notes, 1000);
+
+  // Load from local storage on mount
   React.useEffect(() => {
     setIsMounted(true)
     try {
@@ -28,15 +32,16 @@ export default function NotesPage() {
     }
   }, [])
 
+  // Save to local storage on change (debounced)
   React.useEffect(() => {
     if (isMounted) {
       try {
-        localStorage.setItem("notes", JSON.stringify(notes))
+        localStorage.setItem("notes", JSON.stringify(debouncedNotes))
       } catch (error) {
         console.error("Failed to save notes to local storage", error)
       }
     }
-  }, [notes, isMounted])
+  }, [debouncedNotes, isMounted])
 
   const handleSelectNote = (note: Note) => {
     setActiveNote(note);
@@ -51,14 +56,12 @@ export default function NotesPage() {
       createdAt: new Date().toISOString(),
       color: "bg-card"
     }
-    const newNotes = [newNote, ...notes];
-    setNotes(newNotes)
+    setNotes(prev => [newNote, ...prev]);
     handleSelectNote(newNote);
   }
 
   const deleteNote = (id: string) => {
-    const newNotes = notes.filter((note) => note.id !== id);
-    setNotes(newNotes)
+    setNotes(prev => prev.filter((note) => note.id !== id));
     if (activeNote?.id === id) {
       setActiveNote(null)
       setIsEditorOpen(false);
@@ -66,13 +69,15 @@ export default function NotesPage() {
   }
 
   const updateNote = (id: string, updatedData: Partial<Omit<Note, 'id' | 'createdAt'>>) => {
-    const newNotes = notes.map((note) =>
-      note.id === id ? { ...note, ...updatedData, updatedAt: new Date().toISOString() } : note
-    )
-    setNotes(newNotes)
-    if (activeNote?.id === id) {
-      setActiveNote(newNotes.find(n => n.id === id) || null);
-    }
+    setNotes(prev => {
+        const newNotes = prev.map((note) =>
+            note.id === id ? { ...note, ...updatedData, updatedAt: new Date().toISOString() } : note
+        );
+         if (activeNote?.id === id) {
+            setActiveNote(newNotes.find(n => n.id === id) || null);
+        }
+        return newNotes;
+    });
   }
 
   if (!isMounted) return null

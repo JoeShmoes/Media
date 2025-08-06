@@ -9,7 +9,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import jsPDF from "jspdf";
 import autoTable from 'jspdf-autotable';
 import html2canvas from 'html2canvas';
-import { Document, Packer, Paragraph, Table as DocxTable, TableCell, TableRow } from 'docx';
+import { Document, Packer, Paragraph, Table as DocxTable, TableCell as DocxTableCell, TableRow as DocxTableRow } from 'docx';
 import { saveAs } from 'file-saver';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -125,20 +125,20 @@ export default function FinancePage() {
                             new Paragraph({ text: "Transactions", heading: 'Heading1' }),
                             new DocxTable({
                                 rows: [
-                                    new TableRow({
+                                    new DocxTableRow({
                                         children: [
-                                            new TableCell({ children: [new Paragraph({ text: "Description", bold: true })] }),
-                                            new TableCell({ children: [new Paragraph({ text: "Date", bold: true })] }),
-                                            new TableCell({ children: [new Paragraph({ text: "Amount", bold: true })] }),
-                                            new TableCell({ children: [new Paragraph({ text: "Type", bold: true })] }),
+                                            new DocxTableCell({ children: [new Paragraph({ text: "Description", bold: true })] }),
+                                            new DocxTableCell({ children: [new Paragraph({ text: "Date", bold: true })] }),
+                                            new DocxTableCell({ children: [new Paragraph({ text: "Amount", bold: true })] }),
+                                            new DocxTableCell({ children: [new Paragraph({ text: "Type", bold: true })] }),
                                         ],
                                     }),
-                                    ...transactions.map(t => new TableRow({
+                                    ...transactions.map(t => new DocxTableRow({
                                         children: [
-                                            new TableCell({ children: [new Paragraph(t.description)] }),
-                                            new TableCell({ children: [new Paragraph(format(parseISO(t.date), "dd MMM, yyyy"))] }),
-                                            new TableCell({ children: [new Paragraph(`$${t.amount.toFixed(2)}`)] }),
-                                            new TableCell({ children: [new Paragraph(t.type)] }),
+                                            new DocxTableCell({ children: [new Paragraph(t.description)] }),
+                                            new DocxTableCell({ children: [new Paragraph(format(parseISO(t.date), "dd MMM, yyyy"))] }),
+                                            new DocxTableCell({ children: [new Paragraph(`$${t.amount.toFixed(2)}`)] }),
+                                            new DocxTableCell({ children: [new Paragraph(t.type)] }),
                                         ]
                                     }))
                                 ],

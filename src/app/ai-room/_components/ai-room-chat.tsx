@@ -153,20 +153,24 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
     const value = e.target.value;
     form.setValue("message", value);
 
+    const isTypingAt = (e.nativeEvent instanceof InputEvent) && e.nativeEvent.data === '@';
+
+    if (isTypingAt) {
+      setMentionMenuOpen(true);
+      setMentionQuery('');
+      return;
+    }
+
+    if (!mentionMenuOpen) return;
+
     const caretPosition = e.target.selectionStart;
     const textBeforeCaret = value.substring(0, caretPosition);
-    const lastChar = textBeforeCaret.slice(-1);
+    const atMatch = textBeforeCaret.match(/@(\w*)$/);
 
-    if (lastChar === '@') {
-        setMentionMenuOpen(true);
-        setMentionQuery('');
+    if (atMatch) {
+      setMentionQuery(atMatch[1]);
     } else {
-        const atMatch = textBeforeCaret.match(/@(\w*)$/);
-        if (atMatch && mentionMenuOpen) {
-             setMentionQuery(atMatch[1]);
-        } else {
-             setMentionMenuOpen(false);
-        }
+      setMentionMenuOpen(false);
     }
   };
   
@@ -395,3 +399,5 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
     </div>
   )
 }
+
+    

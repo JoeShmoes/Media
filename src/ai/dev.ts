@@ -20,3 +20,4 @@ import '@/ai/flows/compare-versions.ts';
 import '@/ai/flows/generate-content-captions.ts';
 import '@/ai/flows/generate-dashboard-insights.ts';
 import '@/ai/flows/generate-thumbnail.ts';
+import '@/ai/flows/assist-in-note.ts';

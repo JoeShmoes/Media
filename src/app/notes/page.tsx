@@ -16,8 +16,6 @@ export default function NotesPage() {
   const [isMounted, setIsMounted] = React.useState(false)
   const [isEditorOpen, setIsEditorOpen] = React.useState(false)
 
-  const [debouncedNotes] = useDebounce(notes, 1000);
-
   // Load from local storage on mount
   React.useEffect(() => {
     setIsMounted(true)
@@ -32,33 +30,16 @@ export default function NotesPage() {
     }
   }, [])
 
-  // Save to local storage on change (debounced)
+  // Save to local storage on change
   React.useEffect(() => {
     if (isMounted) {
       try {
-        localStorage.setItem("notes", JSON.stringify(debouncedNotes))
+        localStorage.setItem("notes", JSON.stringify(notes))
       } catch (error) {
         console.error("Failed to save notes to local storage", error)
       }
     }
-  }, [debouncedNotes, isMounted])
-
-  // Save on exit
-  React.useEffect(() => {
-    const handleBeforeUnload = () => {
-        try {
-            localStorage.setItem("notes", JSON.stringify(notes));
-        } catch (error) {
-            console.error("Failed to save notes on before unload", error);
-        }
-    };
-    
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-        window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [notes]);
+  }, [notes, isMounted])
 
   const handleSelectNote = (note: Note) => {
     setActiveNote(note);
@@ -71,10 +52,13 @@ export default function NotesPage() {
       title: "New Note",
       content: "Start writing your note here...",
       createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       color: "bg-card"
     }
-    setNotes(prev => [newNote, ...prev]);
-    handleSelectNote(newNote);
+    const newNotes = [newNote, ...notes];
+    setNotes(newNotes);
+    setActiveNote(newNote);
+    setIsEditorOpen(true);
   }
 
   const deleteNote = (id: string) => {
@@ -93,7 +77,7 @@ export default function NotesPage() {
          if (activeNote?.id === id) {
             setActiveNote(newNotes.find(n => n.id === id) || null);
         }
-        return newNotes;
+        return newNotes.sort((a,b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime());
     });
   }
 
@@ -123,16 +107,7 @@ export default function NotesPage() {
             note={activeNote} 
             onUpdate={updateNote} 
             open={isEditorOpen}
-            onOpenChange={(isOpen) => {
-                if (!isOpen) {
-                     try {
-                        localStorage.setItem("notes", JSON.stringify(notes));
-                    } catch (error) {
-                        console.error("Failed to save notes on editor close", error);
-                    }
-                }
-                setIsEditorOpen(isOpen)
-            }}
+            onOpenChange={setIsEditorOpen}
         />
     </div>
   )

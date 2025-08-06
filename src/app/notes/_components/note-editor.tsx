@@ -2,7 +2,6 @@
 "use client"
 
 import * as React from "react"
-import { useDebounce } from "use-debounce"
 import { format } from "date-fns"
 
 import type { Note } from "@/lib/types"
@@ -24,9 +23,6 @@ interface NoteEditorProps {
 export function NoteEditor({ note, onUpdate, open, onOpenChange }: NoteEditorProps) {
   const [title, setTitle] = React.useState(note?.title || "")
   const [content, setContent] = React.useState(note?.content || "")
-
-  const [debouncedTitle] = useDebounce(title, 500)
-  const [debouncedContent] = useDebounce(content, 500)
   
   React.useEffect(() => {
     if (note) {
@@ -35,17 +31,20 @@ export function NoteEditor({ note, onUpdate, open, onOpenChange }: NoteEditorPro
     }
   }, [note]);
 
-  React.useEffect(() => {
-    if (note && debouncedTitle !== note.title) {
-      onUpdate(note.id, { title: debouncedTitle })
+  const handleBlur = () => {
+    if (!note) return;
+    if (title !== note.title || content !== note.content) {
+        onUpdate(note.id, { title, content });
     }
-  }, [debouncedTitle, note, onUpdate])
-
-  React.useEffect(() => {
-    if (note && debouncedContent !== note.content) {
-      onUpdate(note.id, { content: debouncedContent })
+  }
+  
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+        // Ensure final state is saved on close
+        handleBlur();
     }
-  }, [debouncedContent, note, onUpdate])
+    onOpenChange(isOpen);
+  }
 
   const lastUpdated = note ? format(
     new Date(note.updatedAt || note.createdAt),
@@ -55,12 +54,13 @@ export function NoteEditor({ note, onUpdate, open, onOpenChange }: NoteEditorPro
   if (!note) return null;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className={cn("sm:max-w-4xl h-[80vh] flex flex-col p-0 gap-0", note.color || "bg-card")}>
             <div className="p-4 border-b">
                  <Input
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
+                    onBlur={handleBlur}
                     className="text-2xl font-bold border-none shadow-none focus-visible:ring-0 !p-0 bg-transparent flex-1"
                     placeholder="Note Title"
                 />
@@ -69,6 +69,7 @@ export function NoteEditor({ note, onUpdate, open, onOpenChange }: NoteEditorPro
                 <Textarea
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
+                    onBlur={handleBlur}
                     className="flex-1 w-full border-none shadow-none focus-visible:ring-0 resize-none text-base bg-transparent !p-4"
                     placeholder="Start writing..."
                 />

@@ -151,17 +151,23 @@ export function AiRoomChat({ session, onMessagesChange, onRegenerateResponse, on
   
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
+    form.setValue("message", value);
+
     const caretPosition = e.target.selectionStart;
     const textBeforeCaret = value.substring(0, caretPosition);
-    const atMatch = textBeforeCaret.match(/@(\w*)$/);
-    
-    if (atMatch) {
-      setMentionMenuOpen(true);
-      setMentionQuery(atMatch[1]);
+    const lastChar = textBeforeCaret.slice(-1);
+
+    if (lastChar === '@') {
+        setMentionMenuOpen(true);
+        setMentionQuery('');
     } else {
-      setMentionMenuOpen(false);
+        const atMatch = textBeforeCaret.match(/@(\w*)$/);
+        if (atMatch && mentionMenuOpen) {
+             setMentionQuery(atMatch[1]);
+        } else {
+             setMentionMenuOpen(false);
+        }
     }
-     form.setValue("message", value);
   };
   
   const handleMentionSelect = (roomName: string) => {

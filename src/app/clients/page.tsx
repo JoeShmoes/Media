@@ -31,7 +31,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { useSettings } from "@/hooks/use-settings"
 import { useToast } from "@/hooks/use-toast"
 import { auth } from "@/lib/firebase";
 
@@ -47,7 +46,6 @@ export default function ClientsPage() {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false)
   const [editingClient, setEditingClient] = React.useState<Client | null>(null)
   const csvLinkRef = React.useRef<any>(null);
-  const { settings } = useSettings();
   const { toast } = useToast();
   const [user] = useAuthState(auth);
 
@@ -121,7 +119,7 @@ export default function ClientsPage() {
               <PlusCircle className="mr-2" /> Add Client
           </Button>
           <Button variant="outline" onClick={handleExport}>
-              <Download className="mr-2"/> Export as {settings.exportOptions.toUpperCase()}
+              <Download className="mr-2"/> Export as CSV
           </Button>
           <CSVLink 
               data={clients} 

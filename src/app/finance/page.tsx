@@ -139,7 +139,7 @@ export default function FinancePage() {
               <PlusCircle className="mr-2"/> Add Transaction
           </Button>
           <Button variant="outline" onClick={handleExport}>
-              <Download className="mr-2"/> Export as {settings.exportOptions.toUpperCase()}
+              <Download className="mr-2"/> Export as CSV
           </Button>
           <CSVLink 
               data={transactions} 

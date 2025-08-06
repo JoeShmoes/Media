@@ -22,7 +22,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { useSettings } from "@/hooks/use-settings"
 import { useToast } from "@/hooks/use-toast"
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "@/lib/firebase";
@@ -53,7 +52,6 @@ export default function ProjectsPage() {
   const [editingProject, setEditingProject] = React.useState<Project | null>(null)
   const [viewingProject, setViewingProject] = React.useState<Project | null>(null)
   const csvLinkRef = React.useRef<any>(null);
-  const { settings } = useSettings();
   const { toast } = useToast();
   const [user] = useAuthState(auth);
 
@@ -139,7 +137,7 @@ export default function ProjectsPage() {
             <PlusCircle className="mr-2" /> New Project
           </Button>
            <Button variant="outline" onClick={handleExport}>
-              <Download className="mr-2"/> Export as {settings.exportOptions.toUpperCase()}
+              <Download className="mr-2"/> Export as CSV
           </Button>
           <CSVLink 
               data={allProjects} 

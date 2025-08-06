@@ -35,11 +35,21 @@ const generateThumbnailFlow = ai.defineFlow(
   },
   async (input) => {
     
-    const imagePrompt = `Generate a vibrant and eye-catching 16:9 thumbnail for a YouTube video. The user's request is: "${input.prompt}". Do not include any text in the image.`;
+    let promptParts: (string | { text: string } | { media: { url: string } })[] = [];
+
+    if (input.baseImage) {
+        // If there's a base image, it's an iteration request.
+        promptParts.push({ media: { url: input.baseImage } });
+        promptParts.push({ text: `Modify the image based on this new instruction: "${input.prompt}". Maintain a 16:9 aspect ratio and do not add text.` });
+    } else {
+        // If there's no base image, it's an initial generation request.
+        const imagePrompt = `Generate a vibrant and eye-catching 16:9 thumbnail for a YouTube video. The user's request is: "${input.prompt}". Do not include any text in the image.`;
+        promptParts.push({ text: imagePrompt });
+    }
 
     const { media } = await ai.generate({
         model: 'googleai/gemini-2.0-flash-preview-image-generation', 
-        prompt: [{text: imagePrompt}],
+        prompt: promptParts,
         config: {
             responseModalities: ['TEXT', 'IMAGE'],
             safetySettings: [

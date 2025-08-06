@@ -167,6 +167,7 @@ export type Note = {
   content: string;
   createdAt: string;
   updatedAt?: string;
+  color?: string;
 };
 
 export type GmMessage = {

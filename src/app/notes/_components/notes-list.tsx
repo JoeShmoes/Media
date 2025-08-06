@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -46,21 +47,19 @@ export function NotesList({ notes, activeNote, onSelectNote, onDeleteNote }: Not
               onClick={() => onSelectNote(note)}
               className={cn(
                 "w-full text-left p-3 rounded-lg transition-colors",
+                note.color || 'bg-muted/50',
                 activeNote?.id === note.id
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted/50 hover:bg-muted"
+                  ? "ring-2 ring-primary"
+                  : "hover:bg-muted"
               )}
             >
-              <h3 className="font-semibold truncate">{note.title}</h3>
-              <p className="text-sm text-muted-foreground truncate line-clamp-2 h-10">
+              <h3 className="font-semibold truncate text-card-foreground">{note.title}</h3>
+              <p className="text-sm text-card-foreground/70 truncate line-clamp-2 h-10">
                 {note.content}
               </p>
               <p
                 className={cn(
-                  "text-xs mt-2",
-                  activeNote?.id === note.id
-                    ? "text-primary-foreground/70"
-                    : "text-muted-foreground"
+                  "text-xs mt-2 text-card-foreground/60"
                 )}
               >
                 {formatDistanceToNow(new Date(note.updatedAt || note.createdAt), {

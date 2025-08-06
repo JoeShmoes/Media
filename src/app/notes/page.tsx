@@ -46,6 +46,7 @@ export default function NotesPage() {
       title: "New Note",
       content: "Start writing your note here...",
       createdAt: new Date().toISOString(),
+      color: "bg-card"
     }
     const newNotes = [newNote, ...notes];
     setNotes(newNotes)
@@ -92,8 +93,9 @@ export default function NotesPage() {
           {activeNote ? (
             <NoteEditor key={activeNote.id} note={activeNote} onUpdate={updateNote} />
           ) : (
-            <div className="flex justify-center items-center h-full text-muted-foreground">
-              <p>Select a note to view or create a new one.</p>
+            <div className="flex justify-center items-center h-full text-muted-foreground flex-col text-center">
+              <h2 className="text-xl font-semibold">No note selected</h2>
+              <p>Select a note from the list or create a new one to get started.</p>
             </div>
           )}
         </div>

@@ -10,7 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import {generate} from 'genkit/generate';
+import {generate} from 'genkit';
 
 const AssistInNoteInputSchema = z.object({
   noteContent: z.string().describe('The current content of the note.'),
@@ -30,7 +30,7 @@ export async function assistInNote(input: AssistInNoteInput): Promise<AssistInNo
 
 
 export async function assistInNoteStream(input: AssistInNoteInput) {
-  const { stream } = await generate({
+  const { stream } = ai.generateStream({
     model: 'googleai/gemini-1.5-flash-latest',
     prompt: `You are an expert writing assistant embedded in a note-taking application.
 Your goal is to help the user with their note based on their prompt.
@@ -48,7 +48,6 @@ If the prompt asks a question about the content, answer it and then append the a
 If the existing content is empty, generate new content based on the prompt.
 Do not wrap your response in markdown.
 `,
-    stream: true,
   });
   return stream;
 }

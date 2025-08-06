@@ -26,21 +26,6 @@ export async function generateThumbnail(input: GenerateThumbnailInput): Promise<
   return generateThumbnailFlow(input);
 }
 
-const thumbnailPromptRefiner = ai.definePrompt({
-    name: 'thumbnailPromptRefiner',
-    input: { schema: GenerateThumbnailInputSchema },
-    output: { schema: z.string() },
-    prompt: `You are an expert prompt engineer specializing in creating amazing YouTube thumbnails. 
-    Refine the following user request into a detailed, descriptive prompt for an image generation model.
-    Make sure to incorporate the specific style and elements requested by the user.
-
-    User Request: {{{prompt}}}
-    {{#if baseImage}}
-    Base Image for Iteration: {{media url=baseImage}}
-    {{/if}}
-
-    Refined Prompt:`,
-});
 
 const generateThumbnailFlow = ai.defineFlow(
   {
@@ -49,24 +34,14 @@ const generateThumbnailFlow = ai.defineFlow(
     outputSchema: GenerateThumbnailOutputSchema,
   },
   async (input) => {
-    // Step 1: Refine the user's prompt for better image generation results.
-    const refinedPromptResult = await thumbnailPromptRefiner(input);
-    const refinedPrompt = refinedPromptResult.output;
+    
+    const imagePrompt = `Generate a vibrant and eye-catching 16:9 thumbnail for a YouTube video. The user's request is: "${input.prompt}". Do not include any text in the image.`;
 
-    if (!refinedPrompt) {
-        throw new Error('Failed to refine the thumbnail prompt.');
-    }
-
-    // Step 2: Generate the image using the refined prompt.
     const { media } = await ai.generate({
-        model: 'googleai/gemini-1.5-flash-latest', 
-        prompt: refinedPrompt,
+        model: 'googleai/gemini-2.0-flash-preview-image-generation', 
+        prompt: [{text: imagePrompt}],
         config: {
-            // Updated config for the new model
-            output: {
-                format: 'jpeg', // or 'png'
-            },
-            aspectRatio: "16:9",
+            responseModalities: ['TEXT', 'IMAGE'],
             safetySettings: [
                 {
                     category: 'HARM_CATEGORY_DANGEROUS_CONTENT',

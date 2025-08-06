@@ -64,7 +64,7 @@ export function NoteEditor({ note, onUpdate, open, onOpenChange }: NoteEditorPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className={cn("sm:max-w-2xl h-[80vh] flex flex-col", note.color || "bg-card")}>
+        <DialogContent className={cn("sm:max-w-4xl h-[80vh] flex flex-col", note.color || "bg-card")}>
             <DialogHeader className="flex-row items-center justify-between">
                 <DialogTitle className="truncate">
                     {title || "Untitled Note"}

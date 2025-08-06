@@ -16,7 +16,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useToast } from "@/hooks/use-toast"
-import { assistInNote } from "@/ai/flows/assist-in-note"
+import { assistInNoteStream } from "@/ai/flows/assist-in-note"
 import { cn } from "@/lib/utils"
 
 interface NoteEditorProps {
@@ -34,8 +34,12 @@ function AiAssistPopover({ noteContent, onResult }: { noteContent: string, onRes
   const handleAiAction = async (actionPrompt: string) => {
     setIsLoading(true);
     try {
-      const result = await assistInNote({ noteContent, prompt: actionPrompt });
-      onResult(result.newContent);
+      const stream = await assistInNoteStream({ noteContent, prompt: actionPrompt });
+      let streamedContent = "";
+      for await (const chunk of stream) {
+        streamedContent += chunk.text;
+        onResult(streamedContent)
+      }
     } catch (error) {
       console.error(error);
       toast({
@@ -117,9 +121,6 @@ export function NoteEditor({ note, onUpdate, open, onOpenChange }: NoteEditorPro
 
   const handleAiResult = (newContent: string) => {
     setContent(newContent);
-    if(note) {
-        onUpdate(note.id, { content: newContent });
-    }
   }
 
   const lastUpdated = note ? format(

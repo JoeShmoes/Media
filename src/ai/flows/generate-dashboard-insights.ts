@@ -130,6 +130,7 @@ Based on this complete data set, generate:
 1.  **Suggestions**: 3 high-impact, actionable growth suggestions for the user to focus on this week. These should be strategic and forward-looking, and can cross-reference different parts of the business. For each suggestion, provide a relevant 'href' to the most appropriate room in the application. Examples:
     - Text: "Launch a new ad campaign for the '[Offer Title]' offer, targeting the '[Persona Name]' persona.", href: "/outreach"
     - Text: "Create a follow-up YouTube video about '[Relevant Topic from a Note]'.", href: "/youtube-studio"
+    - Text: "Define a new business goal in the Cortex Room to stay focused on your top priorities.", href: "/cortex-room"
     - Text: "Create a new project for client '[Client Name]' based on the recently closed deal '[Deal Title]'.", href: "/projects"
 2.  **Notifications**: Up to 4 critical or warning-level notifications about the current state of their business. Focus on urgent issues, risks, and deadlines across all rooms. Examples: "Project '[Project Title]' is nearing its deadline." or "You have a high-value deal '[Deal Title]' in negotiation that hasn't been updated in 5 days." or "Your expenses in '[Category]' are trending higher than your income this month."
 

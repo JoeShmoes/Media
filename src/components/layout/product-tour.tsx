@@ -24,7 +24,7 @@ export function ProductTour() {
             // Add a small delay to ensure all DOM elements are mounted
             setTimeout(() => {
                 setRunTour(true);
-            }, 200);
+            }, 500);
         }
     }
   }, [isMounted, user]);

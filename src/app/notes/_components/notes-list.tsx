@@ -3,7 +3,7 @@
 
 import * as React from "react"
 import { formatDistanceToNow } from "date-fns"
-import { Trash2 } from "lucide-react"
+import { Trash2, MoreHorizontal } from "lucide-react"
 
 import type { Note } from "@/lib/types"
 import { cn } from "@/lib/utils"
@@ -20,6 +20,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 interface NotesListProps {
   notes: Note[]
@@ -53,9 +54,9 @@ export function NotesList({ notes, activeNote, onSelectNote, onDeleteNote }: Not
                   : "hover:bg-muted"
               )}
             >
-              <h3 className="font-semibold truncate text-card-foreground">{note.title}</h3>
+              <h3 className="font-semibold truncate text-card-foreground">{note.title || "Untitled Note"}</h3>
               <p className="text-sm text-card-foreground/70 truncate line-clamp-2 h-10">
-                {note.content}
+                {note.content || "No content"}
               </p>
               <p
                 className={cn(
@@ -68,16 +69,25 @@ export function NotesList({ notes, activeNote, onSelectNote, onDeleteNote }: Not
               </p>
             </button>
             <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute top-2 right-2 h-7 w-7 text-muted-foreground opacity-0 group-hover:opacity-100"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </AlertDialogTrigger>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2 h-7 w-7 text-muted-foreground opacity-0 group-hover:opacity-100"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                    <AlertDialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive">
+                           <Trash2 className="mr-2 h-4 w-4" /> Delete
+                        </DropdownMenuItem>
+                    </AlertDialogTrigger>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you sure?</AlertDialogTitle>

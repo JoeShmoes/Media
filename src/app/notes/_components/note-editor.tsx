@@ -4,18 +4,32 @@
 import * as React from "react"
 import { useDebounce } from "use-debounce"
 import { format } from "date-fns"
-import { Palette } from "lucide-react"
+import { Palette, MoreVertical, Trash2 } from "lucide-react"
 
 import type { Note } from "@/lib/types"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
 import { cn } from "@/lib/utils"
 
 interface NoteEditorProps {
   note: Note
   onUpdate: (id: string, data: Partial<Omit<Note, 'id' | 'createdAt'>>) => void
+  onDelete: (id: string) => void;
 }
 
 const noteColors = [
@@ -28,12 +42,18 @@ const noteColors = [
   { name: 'Purple', value: 'bg-purple-900/40' },
 ];
 
-export function NoteEditor({ note, onUpdate }: NoteEditorProps) {
+export function NoteEditor({ note, onUpdate, onDelete }: NoteEditorProps) {
   const [title, setTitle] = React.useState(note.title)
   const [content, setContent] = React.useState(note.content)
 
   const [debouncedTitle] = useDebounce(title, 500)
   const [debouncedContent] = useDebounce(content, 500)
+
+  React.useEffect(() => {
+    setTitle(note.title);
+    setContent(note.content);
+  }, [note.id, note.title, note.content]);
+  
 
   React.useEffect(() => {
     if (debouncedTitle !== note.title) {
@@ -62,23 +82,49 @@ export function NoteEditor({ note, onUpdate }: NoteEditorProps) {
          <p className="text-xs text-muted-foreground">
           Last updated: {lastUpdated}
         </p>
-         <Popover>
-            <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon"><Palette /></Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto">
-                <div className="flex gap-2">
-                    {noteColors.map(color => (
-                        <button 
-                            key={color.name} 
-                            aria-label={color.name}
-                            className={cn("h-8 w-8 rounded-full border", color.value)}
-                            onClick={() => handleColorChange(color.value)}
-                        />
-                    ))}
-                </div>
-            </PopoverContent>
-         </Popover>
+         <div className="flex items-center gap-2">
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon"><Palette /></Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto">
+                    <div className="flex gap-2">
+                        {noteColors.map(color => (
+                            <button 
+                                key={color.name} 
+                                aria-label={color.name}
+                                className={cn("h-8 w-8 rounded-full border", color.value)}
+                                onClick={() => handleColorChange(color.value)}
+                            />
+                        ))}
+                    </div>
+                </PopoverContent>
+            </Popover>
+            <AlertDialog>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon"><MoreVertical /></Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                        <AlertDialogTrigger asChild>
+                            <DropdownMenuItem className="text-destructive">
+                                <Trash2 className="mr-2 h-4 w-4"/> Delete Note
+                            </DropdownMenuItem>
+                        </AlertDialogTrigger>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>This will permanently delete this note. This action cannot be undone.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => onDelete(note.id)}>Delete</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+         </div>
       </div>
       <Input
         value={title}
